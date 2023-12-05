@@ -1,0 +1,13 @@
+#chessboard
+{
+    width:160px;
+    height:160px;
+    border:1px solid black;
+}
+
+div
+{
+ width:20px;
+ height:20px;
+ float:left;
+}
