@@ -116,7 +116,7 @@ class Pawn extends Piece {
         super(team);
         this.#code = team +  "p";
         this.#name = "Pawn";
-        this.#code2 = "p"
+        this.#code2 = "p";
     };
     get code() {
         return this.#code;

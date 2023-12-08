@@ -5,6 +5,8 @@ import Parser from "./libs/factoryChessParser.js";
 import Logic from "./libs/factoryChessLogic.js";
 import {Piece, Pawn, Rook, Knight, Bishop, Queen, King} from "./libs/factoryChessPiece.js";
 
+import HTMLBoard from "./libs/HTMLChessBoard.js";
+
 
 
 //https://github.com/lichess-org/chess-openings
@@ -114,4 +116,23 @@ newLogic.gameBoard.printToTerminal()
 // const newBoard1 = new Board()
 // newBoard1.deletePieceFromRef("a2")
 // newBoard1.printToTerminal()
+
+
+
+
+
+
+const chessboard2 = new Board()
+// console.log (chessboard2.grid)
+
+
+
+// Create an instance of HTMLBoard
+const chessHTML = new HTMLBoard();
+
+// Add the chessboard element to the document body
+console.log(chessHTML)
+document.body.appendChild(chessHTML.element);
+
+chessHTML.render(chessboard2.grid)
 
