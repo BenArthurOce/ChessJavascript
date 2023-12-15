@@ -90,7 +90,25 @@ class Piece {
         this.notPos = '';       
         this.arrPos = [-1, -1]  
         this.isCaptured = false; 
-    }
+    };
+
+
+    getFileRankDifference(destination, moveInfo) {
+        let fileDiff = this.arrPos[0] - destination[0];
+        let rankDiff = this.arrPos[1] - destination[1];
+
+        console.log(destination, moveInfo)
+
+
+
+        return [rankDiff, fileDiff];
+    };
+
+    getFileRankDifference2(destination, moveInfo) {
+        let fileDiff = this.arrPos[1] - destination[1];
+        let rankDiff = this.arrPos[0] - destination[0];
+        return [rankDiff, fileDiff];
+    };
 
 
     printToTerminal() {
@@ -104,12 +122,12 @@ class Piece {
 class Pawn extends Piece {
     #code;
     #name;
-    #code2;
+    #code2NEW;
     constructor(team) {
         super(team);
         this.#code = team +  "p";
         this.#name = "Pawn";
-        this.#code2 = "p";
+        this.#code2NEW = "p";
     };
     get code() {
         return this.#code;
@@ -117,54 +135,37 @@ class Pawn extends Piece {
     get name() {
         return this.#name;
     };
-    get code2() {
-        return this.#code2;
+    get code2NEW() {
+        return this.#code2NEW;
     };
 
-    findLegalMoves() {
-        const legalMoves = [];
-        const isStartPosition = this.isInitialPosition(this.arrPos)
-
-        const x = this.arrPos[0]
-        const y = this.arrPos[1]
-
-        // White pawns are at the 6th row of the 2d array, meaning their number must be reduced
-        const direction = this.team === 0 ? -1 : 1;
-
-        // Standard move
-        const standardMove = [x + direction, y];
-        if (this.isValidMove(standardMove)) {
-            legalMoves.push(standardMove);
-
-            // Two-square initial move
-            const initialMove = [x + 2 * direction, y];
-            if (isStartPosition && this.isValidMove(initialMove)) {
-                legalMoves.push(initialMove);
-            }
+    isPawnMoveValid(destination, moveInfo) {
+        const [rankDiff, fileDiff] = this.getFileRankDifference2(destination, moveInfo);
+        if (moveInfo.get("is-capture")) {
+            return this.file === moveInfo.get("file");
         }
 
-        // Capture moves
-        const captureMoves = [
-            [x + direction, y + 1],
-            [x + direction, y - 1]
-        ];
+        console.log(this.arrPos, " is the array position")
 
-        for (const captureMove of captureMoves) {
-            if (this.isValidMove(captureMove)) {
-                legalMoves.push(captureMove);
-            }
-        }
+        if (moveInfo.get("team-num") === 0) {
+            console.log([rankDiff, fileDiff])
+            if (fileDiff === 0 && rankDiff === 1) {
+                return true;
+            };
+            if (this.row === 6 && fileDiff === 0 && rankDiff === 2) {
+                return true;
+            };
 
-        return legalMoves;
-    };
+        } else if (moveInfo.get("team-num") === 1) {
+            if (fileDiff === 0 && rankDiff === -1) {
+                return true;
+            };
+            if (this.row === 1 && fileDiff === 0 && rankDiff === -2) {
+                return true;
+            };
+        };
 
-    isValidMove([x, y]) {
-        return x >= 0 && x < 8 && y >= 0 && y < 8;
-    };
-
-    isInitialPosition([x, y]) {
-        // Check if the pawn is in its starting position
-        return (this.team === 0 && x === 6) || (this.team === 1 && x === 1);
+        return false;
     };
 };
 
@@ -172,12 +173,12 @@ class Pawn extends Piece {
 class Rook extends Piece {
     #code;
     #name;
-    #code2;
+    #code2NEW;
     constructor(team) {
         super(team);
         this.#code = team +  "R";
         this.#name = "Rook";
-        this.#code2 = "R"
+        this.#code2NEW = "R"
     };
     get code() {
         return this.#code;
@@ -185,40 +186,26 @@ class Rook extends Piece {
     get name() {
         return this.#name;
     };
-    get code2() {
-        return this.#code2;
+    get code2NEW() {
+        return this.#code2NEW;
     };
 
-    findLegalMoves() {
-        const legalMoves = [];
-
-        // Horizontal moves
-        for (let i = 0; i < 8; i++) {
-            if (i !== this.arrPos[0]) {
-                legalMoves.push([i, this.arrPos[1]]);
-            }
-        };
-
-        // Vertical moves
-        for (let j = 0; j < 8; j++) {
-            if (j !== this.arrPos[1]) {
-                legalMoves.push([this.arrPos[0], j]);
-            }
-        };
-
-        return legalMoves;
+    isValidMove(destination, moveInfo) {
+        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
+        return fileDiff === 0 || rankDiff === 0;
     };
 };
+
 
 class Knight extends Piece {
     #code;
     #name;
-    #code2;
+    #code2NEW;
     constructor(team) {
         super(team);
         this.#code = team +  "N";
         this.#name = "Knight";
-        this.#code2 = "N"
+        this.#code2NEW = "N"
     };
     get code() {
         return this.#code;
@@ -226,38 +213,47 @@ class Knight extends Piece {
     get name() {
         return this.#name;
     };
-    get code2() {
-        return this.#code2;
+    get code2NEW() {
+        return this.#code2NEW;
     };
 
-    findLegalMoves() {
-        const legalMoves = [];
-        const moves = [
-            [2, 1], [2, -1], [-2, 1], [-2, -1],
-            [1, 2], [1, -2], [-1, 2], [-1, -2]
-        ];
+    isValidMove(destination, moveInfo) {
+        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
 
-        for (const [dx, dy] of moves) {
-            const x = this.arrPos[0] + dx;
-            const y = this.arrPos[1] + dy;
+        if (moveInfo.get("loc-posX")) {
+            if(this.arrPos[0] === moveInfo.get("loc-posX")) {
+                return true
+            } else {
+                return false
+            }   
+        }
+        
+        if (moveInfo.get("loc-posY")) {
+            if(this.arrPos[1] === moveInfo.get("loc-posY")) {
+                return true
+            } else {
+                return false
+            }
+        }
 
-            if (x >= 0 && x < 8 && y >= 0 && y < 8) {
-                legalMoves.push([x, y]);
-            };
+        if (this.col !== null && this.row === null) {
+            return this.row === fileDiff;
         };
-        return legalMoves;
+        return (Math.abs(fileDiff) === 1 && Math.abs(rankDiff) === 2) || (Math.abs(fileDiff) === 2 && Math.abs(rankDiff) === 1);
     };
+
 };
+
 
 class Bishop extends Piece {
     #code;
     #name;
-    #code2;
+    #code2NEW;
     constructor(team) {
         super(team);
         this.#code = team +  "B";
         this.#name = "Bishop";
-        this.#code2 = "B"
+        this.#code2NEW = "B"
     };
     get code() {
         return this.#code;
@@ -265,35 +261,27 @@ class Bishop extends Piece {
     get name() {
         return this.#name;
     };
-    get code2() {
-        return this.#code2;
+    get code2NEW() {
+        return this.#code2NEW;
     };
-    findLegalMoves() {
-        const legalMoves = [];
 
-        // Diagonal moves
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                if (Math.abs(i - this.arrPos[0]) === Math.abs(j - this.arrPos[1]) &&
-                    (i !== this.arrPos[0] || j !== this.arrPos[1])) {
-                    legalMoves.push([i, j]);
-                };
-            };
-        };
-
-        return legalMoves;
+    isValidMove(destination, moveInfo) {
+        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
+        return Math.abs(fileDiff) === Math.abs(rankDiff);
     };
+
 };
+
 
 class Queen extends Piece {
     #code;
     #name;
-    #code2;
+    #code2NEW;
     constructor(team) {
         super(team);
         this.#code = team +  "Q";
         this.#name = "Queen";
-        this.#code2 = "Q"
+        this.#code2NEW = "Q"
     };
     get code() {
         return this.#code;
@@ -301,45 +289,31 @@ class Queen extends Piece {
     get name() {
         return this.#name;
     };
-    get code2() {
-        return this.#code2;
+    get code2NEW() {
+        return this.#code2NEW;
     };
-    findLegalMoves() {
-        const legalMoves = [];
 
-        // Horizontal and vertical moves
-        for (let i = 0; i < 8; i++) {
-            if (i !== this.arrPos[0]) {
-                legalMoves.push([i, this.arrPos[1]]);
-            };
-            if (i !== this.arrPos[1]) {
-                legalMoves.push([this.arrPos[0], i]);
-            };
-        };
+    isValidMove(destination, moveInfo) {
 
-        // Diagonal moves
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                if (Math.abs(i - this.arrPos[0]) === Math.abs(j - this.arrPos[1]) &&
-                    (i !== this.arrPos[0] || j !== this.arrPos[1])) {
-                    legalMoves.push([i, j]);
-                };
-            };
-        };
+        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
+        const diagionalMoves =  Math.abs(fileDiff) === Math.abs(rankDiff);
+        const straightMoves =  fileDiff === 0 || rankDiff === 0;
 
-        return legalMoves;
+        if (diagionalMoves || straightMoves) {return true}
     };
-};
+    
+ };
+
 
 class King extends Piece {
     #code;
     #name;
-    #code2;
+    #code2NEW;
     constructor(team) {
         super(team);
         this.#code = team +  "K";
         this.#name = "King";
-        this.#code2 = "K"
+        this.#code2NEW = "K"
     };
     get code() {
         return this.#code;
@@ -347,27 +321,13 @@ class King extends Piece {
     get name() {
         return this.#name;
     };
-    get code2() {
-        return this.#code2;
+    get code2NEW() {
+        return this.#code2NEW;
     };
 
-    findLegalMoves() {
-        const legalMoves = [];
-        const moves = [
-            [1, 0], [1, 1], [0, 1], [-1, 0],
-            [-1, -1], [0, -1], [-1, 1], [1, -1]
-        ];
-
-        for (const [dx, dy] of moves) {
-            const x = this.arrPos[0] + dx;
-            const y = this.arrPos[1] + dy;
-
-            if (x >= 0 && x < 8 && y >= 0 && y < 8) {
-                legalMoves.push([x, y]);
-            };
-        };
-
-        return legalMoves;
+    isValidMove(destination, moveInfo) {
+        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
+        return Math.abs(fileDiff) <= 1 && Math.abs(rankDiff) <= 1;
     };
 };
 

@@ -115,7 +115,8 @@ class Board {
     // Validate presence of a piece on the board - array
     validatePiecePresenceArray(row, col) {
         if (!(this.grid[row][col].contains instanceof Piece)) {
-            throw new Error(`No piece to remove at: row ${row}, col ${col}`);
+            throw new Error(`No piece to remove at: row ${row}, col ${col}`
+            ,this.printToTerminal());
         };
     };
 
@@ -149,6 +150,11 @@ class Board {
         return this.grid.map(row =>
             row.map(square => (square.contains instanceof Piece ? square.contains : null))
         );
+    };
+
+
+    isSquareEmpty(row, col) {
+        return !this.grid[row][col];
     };
 
 
@@ -264,7 +270,7 @@ class Board {
         // console.log(`code=${code}  ||  attributeName=${attributeName}  ||  attributeValue=${attributeValue}`)
         const flatArray = [].concat(...this.getPieceArray());
         return flatArray
-            .filter((square) => square === null ? "" : square.code2 === code)
+            .filter((square) => square === null ? "" : square.code2NEW === code)
             .filter((piece) => piece[attributeName]  === attributeValue)
     };
 
