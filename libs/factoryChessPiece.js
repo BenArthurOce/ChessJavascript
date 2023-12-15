@@ -1,3 +1,4 @@
+import ChessUtility from './factoryChessUtility.js';
 
 class Piece {
     #team;
@@ -72,17 +73,9 @@ class Piece {
         if ((x < 0 || x > 7) || (y < 0 || y > 7)) {
             throw new Error(`row: ${x}  col: ${y} is not a valid position`)}
 
-        const boardToRow = {0:8, 1:7, 2:6, 3:5, 4:4, 5:3, 6:2, 7:1, 8:0};
-        const rowToBoard = {8:0, 7:1, 6:2, 5:3, 4:4, 3:5, 2:6, 1:7, 0:8};
-        
-        const boardtoCol = {'a':0, 'b':1, 'c':2, 'd':3, 'e':4, 'f':5, 'g':6, 'h':7};
-        const coltoBoard = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:'f', 6:'g', 7:'h'}
-
-
-
         this.row = x;
         this.col = y;
-        this.rank = rowToBoard[x];
+        this.rank = ChessUtility.rowArrayToRef(x)
         this.file = (y + 10).toString(36);
         this.notPos = this.file + this.rank;
         this.arrPos = [x, y];

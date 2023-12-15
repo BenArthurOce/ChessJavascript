@@ -1,37 +1,39 @@
+import ChessUtility from './factoryChessUtility.js';
 import Square from "./factoryChessSquare.js";
 import {
-    Piece
-    , Pawn
-    , Rook
-    , Knight
-    , Bishop
-    , Queen
-    , King
+    Piece, Pawn, Rook, Knight, Bishop, Queen, King
 } from "./factoryChessPiece.js";
 
 class Board {
     #grid;
-    #rows;
-    #cols;
+
     constructor() {
-        this.#grid = new Array(8).fill(null).map(() => new Array(8).fill(null));
+        this.#grid = this.createEmptyGrid();
         this.initSquares();
         this.initPieces();
     };
+
     get grid() {
-        return this.#grid
+        return this.#grid;
     };
 
-    initSquares() {
-        for (let row = 0; row < 8; row++) {
-            for (let col = 0; col < 8; col++) {
-                // Determine the colour of the square based on row and column
-                const colour = (row + col) % 2 === 0 ? 'white' : 'black';
+    set grid(value) {
+        this.#grid = value;
+    };
 
-                // Create a new Square instance and add it to the grid
-                this.grid[row][col] = new Square(row, col, colour);
-            };
-        };
+
+    // Create an empty grid
+    createEmptyGrid() {
+        return new Array(8).fill(null).map(() => new Array(8).fill(null));
+    };
+
+    // Initialize the squares on the board
+    initSquares() {
+        this.grid = Array.from({ length: 8 }, (_, row) =>
+            Array.from({ length: 8 }, (_, col) => new Square(row, col))
+        );
+        // console.log(this.grid)
+        this.printSquaresToTerminal()
     };
 
     initPieces() {
@@ -44,7 +46,6 @@ class Board {
         this.putPieceOnBoard(7, 5, new Bishop(0));
         this.putPieceOnBoard(7, 6, new Knight(0));
         this.putPieceOnBoard(7, 7, new Rook(0));
-        // this.putPieceOnBoard(4, 0, new Rook(0));
         this.putPieceOnBoard(6, 0, new Pawn(0));
         this.putPieceOnBoard(6, 1, new Pawn(0));
         this.putPieceOnBoard(6, 2, new Pawn(0));
@@ -53,7 +54,6 @@ class Board {
         this.putPieceOnBoard(6, 5, new Pawn(0));
         this.putPieceOnBoard(6, 6, new Pawn(0));
         this.putPieceOnBoard(6, 7, new Pawn(0));
-
 
         // Create Chess Pieces and place on board - Black
         this.putPieceOnBoard(0, 0, new Rook(1));
@@ -76,259 +76,283 @@ class Board {
         this.updatePiecePositions()
     };
 
+    // Update the positions of all pieces on the board
     updatePiecePositions() {
-        for (let row = 0; row < 8; row++) {
-            for (let col = 0; col < 8; col++) {
-                let mySquare = this.grid[row][col]
-                // let myPiece = mySquare.contains
-                if (mySquare.contains instanceof Piece) {
-                    mySquare.contains.updatePosition(row, col)
-                }
+        this.grid.flat().forEach(square => {
+            if (square.contains instanceof Piece) {
+                const { row, col } = square;
+                square.contains.updatePosition(row, col);
             }
-        };
-        // for (let row = 0; row < 8; row++) {
-        //     for (let col = 0; col < 8; col++) {
-
-        //     }
-        // }
-    };
-
-
-    // This should probably be combined with the print function
-    getPositionArray() {
-        const newArray = this.grid.map(function(row) {
-            return row.map(function(square) {
-                if (square.contains instanceof Piece) {
-                    return square.contains.code
-                } else {
-                    return "--"
-                };
-            });
         });
-        return newArray;
     };
 
-    getPieceArray() {
-        const newArray = this.grid.map(function(row) {
-            return row.map(function(square) {
-                if (square.contains instanceof Piece) {
-                    return square.contains
-                } else {
-                    return null
-                };
-            });
-        });
-        return newArray;
-    };
-
-
+    // Put a piece on the board
     putPieceOnBoard(row, col, piece) {
-        // console.log(piece)
-        // Add error check to make sure row and col are acceptable values
-        if ((row < 0 || row > 7) || (col < 0 || col > 7)) {
-            throw new Error(
-                `row: ${row} | col: ${col} | piece.name: ${piece.name} | Not a valid square position`
-                , this.printToTerminal()
-            )
-        };
-
-        // Add error check to make sure that its a chess piece
-        //.prototype instanceof
-        if (piece instanceof Piece === false) {
-            // throw new Error(`Object attempting to add to board is not a Piece`)
-            throw new Error(
-                `row: ${row} | col: ${col} | piece.name: ${piece.name} | Object attempting to add to board is not a Piece`
-                , this.printToTerminal()
-            )
-        };
+        this.validatePosition(row, col);
+        this.validateChessPiece(piece);
 
         // Add Piece() object to Square() object
         this.grid[row][col].contains = piece;
     };
 
+
+    // Validate a square position
+    validatePosition(row, col) {
+        if (row < 0 || row > 7 || col < 0 || col > 7) {
+            throw new Error(`Invalid square position: row ${row}, col ${col}`);
+        };
+    };
+
+
+    // Validate a chess piece
+    validateChessPiece(piece) {
+        if (!(piece instanceof Piece)) {
+            throw new Error(`Object is not a valid chess piece: ${piece.name}`);
+        };
+    };
+
+
+    // Validate presence of a piece on the board - array
+    validatePiecePresenceArray(row, col) {
+        if (!(this.grid[row][col].contains instanceof Piece)) {
+            throw new Error(`No piece to remove at: row ${row}, col ${col}`);
+        };
+    };
+
+
+    // Validate presence of a piece on the board - string reference
+    validatePiecePresenceRef(ref) {
+        // if (!(this.grid[row][col].contains instanceof Piece)) {
+        //     throw new Error(`No piece to remove at: row ${row}, col ${col}`);
+        // };
+    };
+
+
+    // Remove a piece from the board
     removePieceFromBoard(row, col) {
+        this.validatePosition(row, col);
+        this.validatePiecePresenceArray(row, col);
 
-        if ((row === undefined) || (col === undefined)) {
-            throw new Error(`row: ${row} | col: ${col} | undefined argument found`)
-        };
-
-        // Add error check to make sure row and col are acceptable values
-        if ((row < 0 || row > 7) || (col < 0 || col > 7)) {
-            throw new Error(`row: ${row} | col: ${col} | is not a valid square position`)
-        };
-
-        // Add error check to make there is a Piece() being removed
-        if (this.grid[row][col].contains instanceof Piece == false) {
-            throw new Error(`row: ${row} } col: ${col} | contains no piece to be removed`)
-        };
-
+        // Remove the piece from the square
         this.grid[row][col].contains = null;
     };
 
+
+    getSquareArray() {
+        return this.grid.map(row =>
+            row.map(square => (square instanceof Square ? square.pos : null))
+        );
+    };
+
+    
+    getPieceArray() {
+        return this.grid.map(row =>
+            row.map(square => (square.contains instanceof Piece ? square.contains : null))
+        );
+    };
+
+
     performCastlingKingside(teamNum) {
         if (teamNum === 0) {
-            this.deletePieceFromRef("e1");
-            this.deletePieceFromRef("h1");
-
+            this.deletePieceFromRef("e1");  // King
+            this.deletePieceFromRef("h1");  // Rook
             this.putPieceOnBoard(7, 5, new Rook(0));
             this.putPieceOnBoard(7, 6, new King(0));
             this.updatePiecePositions();
         };
         if (teamNum === 1) {
-
-            
-            this.deletePieceFromRef("e8");
-            this.deletePieceFromRef("h8");
-
-            // Code needs fixing
-            // this.addPieceFromRef("g8", new King(1))
-            // this.addPieceFromRef("f8", new Rook(1))
-
+            this.deletePieceFromRef("e8");  // King
+            this.deletePieceFromRef("h8");  // Rook
             this.putPieceOnBoard(0, 5, new King(1));
             this.putPieceOnBoard(0, 6, new Rook(1));
             this.updatePiecePositions();
-
         };
     };
 
     performCastlingQueenside(teamNum) {
-        if (teamNum === 0) {}
-        if (teamNum === 1) {}
+        if (teamNum === 0) {
+            this.deletePieceFromRef("e1");  // King
+            this.deletePieceFromRef("a1");  // Rook
+            this.putPieceOnBoard(7, 2, new King(0));
+            this.putPieceOnBoard(7, 3, new Rook(0));
+            this.updatePiecePositions();
+        };
+        if (teamNum === 1) {
+            this.deletePieceFromRef("e8");  // King
+            this.deletePieceFromRef("a8");  // Rook
+            this.putPieceOnBoard(0, 2, new King(1));
+            this.putPieceOnBoard(0, 3, new Rook(1));
+            this.updatePiecePositions();
+        };
     };
 
+    performCastling(teamNum, castlingSide) {
+        if (teamNum === 0 && castlingSide === "Kingside") {
+            this.deletePieceFromRef("e1");  // King
+            this.deletePieceFromRef("h1");  // Rook
+            this.putPieceOnBoard(7, 5, new Rook(0));
+            this.putPieceOnBoard(7, 6, new King(0));
+            this.updatePiecePositions();
+        };
+        if (teamNum === 1 && castlingSide === "Kingside") {
+            this.deletePieceFromRef("e8");  // King
+            this.deletePieceFromRef("h8");  // Rook
+            this.putPieceOnBoard(0, 5, new King(1));
+            this.putPieceOnBoard(0, 6, new Rook(1));
+            this.updatePiecePositions();
+        };
+        if (teamNum === 0 && castlingSide === "Queenside") {
+            this.deletePieceFromRef("e1");  // King
+            this.deletePieceFromRef("a1");  // Rook
+            this.putPieceOnBoard(7, 2, new King(0));
+            this.putPieceOnBoard(7, 3, new Rook(0));
+            this.updatePiecePositions();
+        };
+        if (teamNum === 1 && castlingSide === "Queenside") {
+            this.deletePieceFromRef("e8");  // King
+            this.deletePieceFromRef("a8");  // Rook
+            this.putPieceOnBoard(0, 2, new King(1));
+            this.putPieceOnBoard(0, 3, new Rook(1));
+            this.updatePiecePositions();
+        };
+    }
+
+    // Return a piece from a specific board position
     returnPieceFromBoardPosition(row, col) {
-        if ((row < 0 || row > 7) || (col < 0 || col > 7)) {
-            throw new Error(`row: ${row}, col: ${col} is not a valid square position`);
-        };
+        this.validatePosition(row, col);
+        this.validatePiecePresenceArray(row, col);
 
-        // Add error check to make there is a Piece() being found
-        if (this.grid[row][col].contains instanceof Piece == false) {
-            throw new Error(`row: ${row}, col: ${col} contains no piece to be returned`);
-        };
-
+        // Return the piece from the square
         return this.grid[row][col].contains;
-    };
+    }
 
-    getPieceFromRef(ref) {
-        // Get grid of every piece and converts to a 1d array
+    // Return a piece from a reference
+    returnPieceFromRef(ref) {
         const positionArray = this.getPieceArray();
         const flatArray = [].concat(...positionArray);
 
         const filteredPieces = flatArray.filter(piece => piece && piece.notPos === ref);
-        return filteredPieces[0]
-    };
-
-
-
-    addPieceFromRef(ref, piece) {
-
-        if (piece instanceof Piece === false) {
-            throw new Error(`ref: ${ref} | piece: ${piece} | piece argument provided is not a Piece Object`);
-        };
-
-        const boardToRow = {0:8, 1:7, 2:6, 3:5, 4:4, 5:3, 6:2, 7:1, 8:0};
-        const rowToBoard = {8:0, 7:1, 6:2, 5:3, 4:4, 3:5, 2:6, 1:7, 0:8};
-        
-        const boardtoCol = {'a':0, 'b':1, 'c':2, 'd':3, 'e':4, 'f':5, 'g':6, 'h':7};
-        const coltoBoard = {0:'a', 1:'b', 2:'c', 3:'d', 4:'e', 5:'f', 6:'g', 7:'h'};
-
-        const row = boardToRow[ref[1]]
-        const col = boardtoCol[ref[0]]
-
-        this.grid[row][col].contents = piece
+        return filteredPieces[0];
     }
 
-
+    // Delete a piece from a reference
     deletePieceFromRef(ref) {
-        
-        const pieceToDelete = this.getPieceFromRef(ref);
-        if (!pieceToDelete) {throw new Error(`ref: ${ref} | No piece found on delete attempt`)}
+        const pieceToDelete = this.returnPieceFromRef(ref);
 
+        if (!pieceToDelete) {
+            throw new Error(`ref: ${ref} | No piece found on delete attempt`);
+        }
 
+        // If you've already returned pieceFromRef, you don't need to loop through the entire board
+        this.deletePieceFromBoard(pieceToDelete);
+    }
+
+    // Delete a piece from the board
+    deletePieceFromBoard(pieceToDelete) {
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
                 if (this.grid[row][col].contains === pieceToDelete) {
                     this.grid[row][col].contains.clearData();
                     this.grid[row][col].contains = null;
-                    return
-                };
-                
-            };
-            
-        };
-        // throw new Error(`ref: ${ref} | No piece found on delete attempt`)
-    };
-
-
-    filterArrayByAttribute(array, attributeName, attributeValue) {
-        return array
-            .map(row => row.filter(obj => obj[attributeName] === attributeValue))
-            .filter(row => row.length > 0);
-    };
-
-
-    filterBoardByPiece(whatPiece, whatTeam) {
-
-        if (whatPiece.prototype instanceof Piece === false) {
-            throw new Error(`filterBoardByPiece contains no piece to be returned`);
-        };
-
-        if (whatTeam ===! 0 && whatTeam ===! 1) {
-            throw new Error(`filterBoardByPiece: team number provided: ${whatTeam} is not permitted`)
+                    return;
+                }
+            }
         }
-
-        // Get grid of every piece and converts to a 1d array
-        const positionArray = this.getPieceArray();
-        const flatArray = [].concat(...positionArray);
-        
-        const filteredPieces = flatArray.filter(piece => piece && piece.name === whatPiece.name);
-        const filteredTeamPieces = filteredPieces.filter((piece2) => piece2.team === whatTeam);
-
-        if (filteredTeamPieces.length === 0) {
-            throw new Error(
-                `filtered list returned no results. piece: ${whatPiece}, team: ${whatTeam}`
-                , this.printToTerminal()
-                )
-        };
-
-        return filteredTeamPieces
     };
 
+    filterBoardByAttribute(code, attributeName, attributeValue) {
+        // console.log(`code=${code}  ||  attributeName=${attributeName}  ||  attributeValue=${attributeValue}`)
+        const flatArray = [].concat(...this.getPieceArray());
+        return flatArray
+            .filter((square) => square === null ? "" : square.code2 === code)
+            .filter((piece) => piece[attributeName]  === attributeValue)
+    };
+
+    // Print all pieces to the terminal
     printAllPiecesToTerminal() {
         const positionArray = this.getPieceArray();
         const flatArray = [].concat(...positionArray);
-        console.log(flatArray)
-
+        console.log(flatArray);
     }
 
+    // Print the current board state to the terminal
     printToTerminal() {
-        const positionArray = this.getPositionArray();
+
+        const positionArray = this.grid.map(row =>
+            row.map(square => (square.contains instanceof Piece ? square.contains.code : "--"))
+        );
+
         const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         const nums = [7, 6, 5, 4, 3, 2, 1, 0];
-
+      
         let board = '\n';
 
+
+        board += '  │  0 │  1 │  2 │  3 │  4 │  5 │  6 │  7 │\t  │  a │  b │  c │  d │  e │  f │  g │  h │\n';
+
+      
         for (let rank = 7; rank >= 0; rank--) {
-            board += `──│────│────│────│────│────│────│────│────│\n`;
-            board += `${nums[rank]} │`;
+          board += `──│────│────│────│────│────│────│────│────│\t──│────│────│────│────│────│────│────│────│\n`;
+          board += `${nums[rank]} │`;
+      
+          for (let file of files) {
+            const piece = positionArray[7 - rank][files.indexOf(file)];
+            board += ` ${piece === '' ? '{}' : piece} │`;
+          }
+      
+          board += '\t';
 
-            for (let file of files) {
-                const piece = positionArray[7 - rank][files.indexOf(file)];
-                board += ` ${piece === '' ? '{}' : piece} │`;
-            }
-
-            board += '\n';
+          let swapNum = ChessUtility.rowArrayToRef(nums[rank])
+      
+          board += `${swapNum} │`;
+      
+          for (let file of files) {
+            let piece = positionArray[7 - rank][files.indexOf(file)];
+            board += ` ${piece === '' ? '{}' : piece} │`;
+          }
+      
+          board += '\n';
         }
+      
+        board += `──│────│────│────│────│────│────│────│────│\t──│────│────│────│────│────│────│────│────│\n`;
+      
+        console.log(board);
+      }
 
+
+    // Print square locations to the terminal
+
+      printSquaresToTerminal() {
+
+        const positionArray = this.grid.map(row =>
+            row.map(square => (square instanceof Square ? square.pos : "--"))
+        );
+
+        const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+        const nums = [7, 6, 5, 4, 3, 2, 1, 0];
+      
+        let board = '\n';
+      
+        for (let rank = 7; rank >= 0; rank--) {
+          board += `──│────│────│────│────│────│────│────│────│\n`;
+          board += `${nums[rank]} │`;
+      
+          for (let file of files) {
+            const piece = positionArray[7 - rank][files.indexOf(file)];
+            board += ` ${piece === '' ? '{}' : piece} │`;
+          }
+      
+          board += '\n';
+        }
+      
         board += `──│────│────│────│────│────│────│────│────│\n`;
         board += '  │  0 │  1 │  2 │  3 │  4 │  5 │  6 │  7 │\n';
+      
+        // console.log(board);
+      }
+      
 
-        //        board += '  │  a │  b │  c │  d │  e │  f │  g │  h │\n';
-
-        console.log(board);
-    };
-
-
-};
+      
+}
 
 export default Board;

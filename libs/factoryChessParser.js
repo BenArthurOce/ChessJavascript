@@ -1,3 +1,4 @@
+import ChessUtility from './factoryChessUtility.js';
 
 
 const a = '1.e4 e5 2.Nf3 Nc6 3.d4'
@@ -57,11 +58,86 @@ class Parser {
         // Take the "tuple" of each pair of moves, and parse them into a Map of what happens on that move
         for (const [eachKey, eachValue] of Object.entries(notationTupleDict)) {
             this[eachKey] = [
-                this.createSingleMoveMap(eachKey, eachValue[0], 0) // White
-                ,eachValue[1] ? this.createSingleMoveMap(eachKey, eachValue[1], 1) : null // Black
+                this.createSingleMoveObject(eachKey, eachValue[0], 0) // White
+                ,eachValue[1] ? this.createSingleMoveObject(eachKey, eachValue[1], 1) : null // Black
             ];
         };
     };
+
+
+    createSingleMoveObject(turnNum, notation, teamNum) {
+
+        const getLastTwoChar = (string) => string.slice(-2);
+
+        const moveObj = {
+             'turn-num': turnNum
+            ,'notation': notation
+            ,'notationClean': notation.replace(/[^a-zA-Z0-9]/g, '')
+            ,'team-num': teamNum
+            ,'piece': null
+            ,'code': null
+            ,'is-capture': notation.includes('x')
+            ,'is-checkormate': notation.includes('#')
+            ,'is-promotion': notation.includes('=')
+            ,'file': notation.slice(-2)[0]
+            ,'rank': null
+            ,'destinationArr': null
+            ,'destination': ``
+            ,'dest-posX': ``
+            ,'dest-posY': ``
+            ,'location': null
+            ,'loc-posX': null
+            ,'loc-posY': null
+            ,'castling-side': null
+    
+            ,getLastTwoChar222: (string) => {return string.slice(-2)}
+            ,isCapital: (string) => {return string.charAt(0) === string.charAt(0).toUpperCase()}
+            ,dispRowToArrRow: (num) => {return {1:7, 2:6, 3:5, 4:4, 5:3, 6:2, 7:1, 8:0}[Number(num)]}
+            ,dispChrToArrCol: (string) => {return {'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'g':6,'h':7}[string]}
+            ,countAlphaNumeric: (string) => {return string.replace(/[^a-wyzA-WYZ0-9]/g, "").length}
+
+            ,get: (property) => {return moveObj[property]}
+            ,set: (property, value) => { moveObj[property] = value; }
+        }
+
+
+        // ,dispRowToArrRow: (num) => { return ChessUtility.rowRefToArray(Number(num)); }
+        // ,dispChrToArrCol: (string) => { return ChessUtility.colRefToArray(string); }
+
+
+        moveObj['piece'] = moveObj.isCapital(notation) ? notation.charAt(0) : "p";
+        moveObj['code'] = teamNum + moveObj['piece']
+        moveObj['rank'] = Number(moveObj.getLastTwoChar222(notation)[1])
+        moveObj['destination'] = moveObj.getLastTwoChar222(moveObj['notationClean'])
+        moveObj['dest-posX'] = moveObj.dispRowToArrRow(moveObj['destination'][1])
+        moveObj['dest-posY'] = moveObj.dispChrToArrCol(moveObj['destination'][0])
+        moveObj.set('destinationArr', [moveObj.get('dest-posX'), moveObj.get('dest-posY')])
+
+        if (notation === "O-O") {moveObj['castling-side'] = "Kingside"}
+        if (notation === "O-O-O") {moveObj['castling-side'] = "Queenside"}
+    
+
+        if (moveObj.countAlphaNumeric(notation) === 4 ) {
+
+            // moveObj.set('loc-posX')
+            // console.log(notation[1])
+            moveObj.set('loc-posY', moveObj.dispChrToArrCol(notation[1]))
+            
+            // const secondChar = notation[1]
+
+            // if (!isNaN(secondChar)) {
+            //     moveObj['dest-posX'] = moveObj.dispRowToArrRow(secondChar)
+            // } else if (typeof secondChar === 'string') {
+            //     moveObj['dest-posY'] = moveObj.dispChrToArrCol(secondChar)
+            // }
+        }
+
+
+// moveObj['dest-posX'] = moveObj.dispRowToArrRow(moveObj['destination'][1])
+// moveObj['dest-posY'] = moveObj.dispChrToArrCol(moveObj['destination'][0])
+
+        return moveObj
+    }
 
     createSingleMoveMap(turnNum, notation, teamNum) {
 
@@ -171,7 +247,7 @@ class Parser {
         console.log(`piece: ${moveInfo.get('piece')} | code: ${moveInfo.get('code')} | file: ${moveInfo.get('file')} | rank: ${moveInfo.get('rank')}`);
         console.log(`destination: ${moveInfo.get('destination')} | dest-posX: ${moveInfo.get('dest-posX')} | dest-posY: ${moveInfo.get('dest-posY')}`);
         console.log(`location: ${moveInfo.get('location')} | loc-posX': ${moveInfo.get('loc-posX')} | loc-posY: ${moveInfo.get('loc-posY')} | castling-side: ${moveInfo.get('castling-side')}`);
-        console.log(`is-castling: ${moveInfo.get('is-castling')} | is-capture: ${moveInfo.get('is-capture')} | is-checkormate: ${moveInfo.get('is-checkormate')} | is-promotion: ${moveInfo.get('is-promotion')}`);
+        console.log(`castling-side: ${moveInfo.get('castling-side')} | is-capture: ${moveInfo.get('is-capture')} | is-checkormate: ${moveInfo.get('is-checkormate')} | is-promotion: ${moveInfo.get('is-promotion')}`);
         console.log(`-----------------------`);
     };
 

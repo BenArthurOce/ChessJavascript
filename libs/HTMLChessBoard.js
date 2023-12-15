@@ -46,7 +46,6 @@ class HTMLBoard {
     };
 
     render(gridArray) {
-        console.log(gridArray);
     
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
@@ -54,10 +53,7 @@ class HTMLBoard {
     
                 if (gridSquare.contains !== null && gridSquare.contains.code !== null) {
                     const code = gridSquare.contains.code;
-                    console.log(code);
                     const piece = new HTMLPiece(row, col, code);
-                    // this.element.appendChild(piece.element)
-                    console.log(piece.element);
                     this.#grid[row][col].setPiece(piece.element);
                 }
             };
