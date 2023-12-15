@@ -57,14 +57,14 @@ class Logic {
 
 
         const pieceLocation = pieceToMove.arrPos
-        // const pieceToMove = this.gameBoard.returnPieceFromBoardPosition(pieceLocation[0], pieceLocation[1]);
+        // const pieceToMove = this.gameBoard.getPieceFromArray(pieceLocation[0], pieceLocation[1]);
         this.gameBoard.removePieceFromBoard(pieceLocation[0], pieceLocation[1]);
         this.gameBoard.putPieceOnBoard(destX, destY, pieceToMove);
     }
 
 
     processMoves() {
-        this.parser.printParserToTerminal();
+        this.parser.printToTerminal();
 
         for (const [turn_num, eachMove] of Object.entries(this.parser)) {
 
@@ -86,7 +86,7 @@ class Logic {
             if (whitePieceLocated === null) {
                 throw new Error(
                     `whitePieceLocated was not found`
-                    ,this.parser.printMapToTerminal(whitemoveInfoructions)
+                    ,whitemoveInfoructions.printToTerminal()
                     ,this.gameBoard.printToTerminal()
                 );
             }
@@ -95,7 +95,7 @@ class Logic {
             if (blackPieceLocated === null) {
                 throw new Error(
                     `blackPieceLocated was not found`
-                    ,this.parser.printMapToTerminal(blackmoveInfoructions)
+                    ,blackmoveInfoructions.printToTerminal()
                     ,this.gameBoard.printToTerminal()
                 );
             };
@@ -104,11 +104,20 @@ class Logic {
             // whitePieceLocated = blackPieceLocated.arrPos;
             // console.log('black location: ', blackPieceLocated);
             // blackPieceLocated = blackPieceLocated.arrPos;
+
+            if (!whitePieceLocated) {
+                throw new Error("whitePieceLocated returned null location"
+                ,whitemoveInfoructions.printToTerminal()
+                ,this.gameBoard.printToTerminal())
+            }
+
+            if (!blackPieceLocated) {
+                throw new Error("blackPieceLocated returned null location"
+                ,blackmoveInfoructions.printToTerminal()
+                ,this.gameBoard.printToTerminal())
+            }
             
 
-            if (!whitePieceLocated || !blackPieceLocated) {
-                throw new TypeError(`turn_num ${turn_num} returned null location`);
-            };
 
             this.movePiece(whitePieceLocated, whitemoveInfoructions.get('dest-posX'), whitemoveInfoructions.get('dest-posY'));
             this.movePiece(blackPieceLocated, blackmoveInfoructions.get('dest-posX'), blackmoveInfoructions.get('dest-posY'));
@@ -118,7 +127,7 @@ class Logic {
 
 
     findLocation(moveInfo, teamNum) {
-        this.parser.printMapToTerminal(moveInfo)
+        moveInfo.printToTerminal()
         const letter = moveInfo.get('piece');
         if (letter === null) {
             throw new Error('findLocation failed to return a piece letter');
@@ -127,7 +136,7 @@ class Logic {
         const searchItem = this.getPieceType(letter);
 
         if (!searchItem) {
-            throw new Error(`Piece not found for letter: ${letter}`, this.parser.printMapToTerminal(moveInfo));
+            throw new Error(`Piece not found for letter: ${letter}`, this.parser.printToTerminal(moveInfo));
         }
 
         const destCoord = moveInfo.get('destinationArr');

@@ -141,6 +141,23 @@ class Pawn extends Piece {
 
     isPawnMoveValid(destination, moveInfo) {
         const [rankDiff, fileDiff] = this.getFileRankDifference2(destination, moveInfo);
+
+        if (moveInfo.get("loc-posX")) {
+            if(this.arrPos[0] === moveInfo.get("loc-posX")) {
+                return true
+            } else {
+                return false
+            }   
+        }
+        
+        if (moveInfo.get("loc-posY")) {
+            if(this.arrPos[1] === moveInfo.get("loc-posY")) {
+                return true
+            } else {
+                return false
+            }
+        }
+        
         if (moveInfo.get("is-capture")) {
             return this.file === moveInfo.get("file");
         }
