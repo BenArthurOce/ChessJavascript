@@ -28,38 +28,23 @@ const o = `1. d4 Nf6 2. c4 e6 3. g3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. Bg2 Bg
 const p = `1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O 9. O-O Re8 10. Nd2 Na6 11. f3 a5`
 
 
-const newLogic = new Logic(p) // Logic Contains the Board, the Parser and the logic to find pieces
-// The argument that Logic takes is a PGN string
+const openings = [a, b, c, f, h, i, j, k]
 
-
-newLogic.processMoves()
-newLogic.gameBoard.printToTerminal()
-
-// Create an instance of HTMLBoard
-const chessHTML = new HTMLBoard();
-
-// Display the chessboard on the page
-document.body.appendChild(chessHTML.element);
-
-// After Logic has ran, render the board state to the webpage
-chessHTML.render(newLogic.gameBoard.grid)
-
-// const test1 = newLogic.gameBoard.filterBoardByAttribute("p", "team", 0)
-// console.log(test1)
-
-
-// const board2 = new Board()
-// // const aaa = board2.getSquareArray()
-// // console.log(aaa)
-
-// const piece = board2.returnPieceFromRef("a1")
-// const result = piece.isValidMove([3, 0])
-// console.log(result)
-
-// console.log(board2.returnPieceFromRef("a1"))
-// console.log()
-
-
-
+openings.forEach(opening => {
+    // The argument that Logic takes is a PGN string
+    const newLogic = new Logic(opening) // Logic Contains the Board, the Parser and the logic to find pieces
+ 
+    // Run Parser, Run Logic
+    newLogic.processMoves()
+    
+    // Create an instance of HTMLBoard
+    const chessHTML = new HTMLBoard();
+    
+    // Display the chessboard on the page
+    document.body.querySelector("#wrapper").appendChild(chessHTML.element);
+    
+    // After Logic has ran, render the board state to the webpage
+    chessHTML.render(newLogic.gameBoard.grid)
+});
 
 

@@ -92,24 +92,11 @@ class Piece {
         this.isCaptured = false; 
     };
 
-
     getFileRankDifference(destination, moveInfo) {
-        let fileDiff = this.arrPos[0] - destination[0];
-        let rankDiff = this.arrPos[1] - destination[1];
-
-        console.log(destination, moveInfo)
-
-
-
-        return [rankDiff, fileDiff];
-    };
-
-    getFileRankDifference2(destination, moveInfo) {
         let fileDiff = this.arrPos[1] - destination[1];
         let rankDiff = this.arrPos[0] - destination[0];
         return [rankDiff, fileDiff];
     };
-
 
     printToTerminal() {
         console.log(`------Debug Piece Details------`)
@@ -118,6 +105,7 @@ class Piece {
         console.log(`-----------------------`)
     };
 };
+
 
 class Pawn extends Piece {
     #code;
@@ -139,40 +127,23 @@ class Pawn extends Piece {
         return this.#code2NEW;
     };
 
-    isPawnMoveValid(destination, moveInfo) {
-        const [rankDiff, fileDiff] = this.getFileRankDifference2(destination, moveInfo);
+    isValidMove(destination, moveInfo) {
+        const [rankDiff, fileDiff] = this.getFileRankDifference(destination, moveInfo);
 
-        if (moveInfo.get("loc-posX")) {
-            if(this.arrPos[0] === moveInfo.get("loc-posX")) {
-                return true
-            } else {
-                return false
-            }   
-        }
-        
-        if (moveInfo.get("loc-posY")) {
-            if(this.arrPos[1] === moveInfo.get("loc-posY")) {
-                return true
-            } else {
-                return false
-            }
-        }
-        
-        if (moveInfo.get("is-capture")) {
-            return this.file === moveInfo.get("file");
-        }
+        // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
+        if (moveInfo.get("loc-posX")) {return this.arrPos[0] === moveInfo.get("loc-posX")};
+        if (moveInfo.get("loc-posY")) {return this.arrPos[1] === moveInfo.get("loc-posY")};
+        if (moveInfo.get("is-capture")) {return this.file === moveInfo.get("file")};
 
-        console.log(this.arrPos, " is the array position")
-
+        // White Pawns
         if (moveInfo.get("team-num") === 0) {
-            console.log([rankDiff, fileDiff])
             if (fileDiff === 0 && rankDiff === 1) {
                 return true;
             };
             if (this.row === 6 && fileDiff === 0 && rankDiff === 2) {
                 return true;
             };
-
+        // Black Pawns
         } else if (moveInfo.get("team-num") === 1) {
             if (fileDiff === 0 && rankDiff === -1) {
                 return true;
@@ -181,7 +152,6 @@ class Pawn extends Piece {
                 return true;
             };
         };
-
         return false;
     };
 };
@@ -209,6 +179,11 @@ class Rook extends Piece {
 
     isValidMove(destination, moveInfo) {
         const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
+
+        // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
+        if (moveInfo.get("loc-posX")) {return this.arrPos[0] === moveInfo.get("loc-posX")};
+        if (moveInfo.get("loc-posY")) {return this.arrPos[1] === moveInfo.get("loc-posY")};
+
         return fileDiff === 0 || rankDiff === 0;
     };
 };
@@ -237,21 +212,9 @@ class Knight extends Piece {
     isValidMove(destination, moveInfo) {
         const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
 
-        if (moveInfo.get("loc-posX")) {
-            if(this.arrPos[0] === moveInfo.get("loc-posX")) {
-                return true
-            } else {
-                return false
-            }   
-        }
-        
-        if (moveInfo.get("loc-posY")) {
-            if(this.arrPos[1] === moveInfo.get("loc-posY")) {
-                return true
-            } else {
-                return false
-            }
-        }
+        // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
+        if (moveInfo.get("loc-posX")) {return this.arrPos[0] === moveInfo.get("loc-posX")};
+        if (moveInfo.get("loc-posY")) {return this.arrPos[1] === moveInfo.get("loc-posY")};
 
         if (this.col !== null && this.row === null) {
             return this.row === fileDiff;
@@ -311,14 +274,12 @@ class Queen extends Piece {
     };
 
     isValidMove(destination, moveInfo) {
-
         const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
         const diagionalMoves =  Math.abs(fileDiff) === Math.abs(rankDiff);
         const straightMoves =  fileDiff === 0 || rankDiff === 0;
 
         if (diagionalMoves || straightMoves) {return true}
     };
-    
  };
 
 

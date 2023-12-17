@@ -20,145 +20,107 @@ class Logic {
         this.#gameNotation = gameNotation;
         this.#parser = new Parser(gameNotation);
         this.#gameBoard = new Board();
-    }
+    };
 
     get gameNotation() {
         return this.#gameNotation;
-    }
+    };
 
     set gameNotation(value) {
         this.#gameNotation = value;
-    }
+    };
 
     get parser() {
         return this.#parser;
-    }
+    };
 
     set parser(value) {
         this.#parser = value;
-    }
+    };
 
     get gameBoard() {
         return this.#gameBoard;
-    }
+    };
 
     set gameBoard(value) {
         this.#gameBoard = value;
-    }
+    };
 
-    getMoveDetail(turnNum, teamNum) {
-        return this.parser[turnNum][teamNum];
-    }
+    processMoves() {
+        for (const [turn_num, eachMove] of Object.entries(this.parser)) {
+
+            const whiteMoveInst = eachMove[0];
+            const blackMoveInst = eachMove[1];
+
+            if (!whiteMoveInst || !blackMoveInst) {
+                throw new TypeError(`turn_num: ${turn_num} | move instructions failed to return`);
+            };
+
+            // If there is castling, do it and then leave the loop
+            if (whiteMoveInst.get('castling-side')) { this.gameBoard.performCastling(0, whiteMoveInst.get('castling-side')); continue}
+            if (blackMoveInst.get('castling-side')) { this.gameBoard.performCastling(1, blackMoveInst.get('castling-side')); continue}
+
+            // Find the location of the white piece
+            let whitePieceLocated = this.findLocation(whiteMoveInst)
+            if (whitePieceLocated === null) {
+                throw new Error(
+                    `whitePieceLocated was not found`
+                    ,whiteMoveInst.printToTerminal()
+                    ,this.gameBoard.printToTerminal()
+                );
+            };
+
+            // Find the location of the black piece
+            let blackPieceLocated = this.findLocation(blackMoveInst)
+            if (blackPieceLocated === null) {
+                throw new Error(
+                    `blackPieceLocated was not found`
+                    ,blackMoveInst.printToTerminal()
+                    ,this.gameBoard.printToTerminal()
+                );
+            };
+
+            // After finding the pieces, move / update their positions
+            this.movePiece(whitePieceLocated, whiteMoveInst.get('dest-posX'), whiteMoveInst.get('dest-posY'));
+            this.movePiece(blackPieceLocated, blackMoveInst.get('dest-posX'), blackMoveInst.get('dest-posY'));
+            this.gameBoard.updatePiecePositions();
+        };
+    };
+
+
+    findLocation(moveInfo) {
+        const letter = moveInfo.get('piece');
+        if (letter === null) {
+            throw new Error('findLocation failed to return a piece letter');
+        };
+
+        const searchItem = this.getPieceType(letter);
+        if (!searchItem) {
+            throw new Error(`Piece not found for letter: ${letter}`, this.parser.printToTerminal(moveInfo));
+        };
+
+        
+        // Get a list of all the pieces that match the team number, and the type of piece
+        const possiblePieces = this.gameBoard.filterBoardByAttribute(letter, 'team', moveInfo.get('team-num'));
+
+        // Loop through all of the possible pieces to determine which piece could have moved to the destination square
+        for (const piece of possiblePieces) {
+            if (piece.isValidMove(moveInfo.get('destinationArr'), moveInfo)) {
+                return piece}
+        };
+
+        // Add an error log
+    };
+
 
     movePiece(pieceToMove, destX, destY) {
         if (!(pieceToMove instanceof Piece)) {
             throw new Error(`Object is not a valid chess piece: ${piece.name}`);
         };
 
-
         const pieceLocation = pieceToMove.arrPos
-        // const pieceToMove = this.gameBoard.getPieceFromArray(pieceLocation[0], pieceLocation[1]);
         this.gameBoard.removePieceFromBoard(pieceLocation[0], pieceLocation[1]);
         this.gameBoard.putPieceOnBoard(destX, destY, pieceToMove);
-    }
-
-
-    processMoves() {
-        this.parser.printToTerminal();
-
-        for (const [turn_num, eachMove] of Object.entries(this.parser)) {
-
-            console.log(Object.entries(this.parser))
-            console.log("eachMove")
-            console.log(eachMove)
-            const whitemoveInfoructions = eachMove[0];
-            const blackmoveInfoructions = eachMove[1];
-
-            if (!whitemoveInfoructions || !blackmoveInfoructions) {
-                throw new TypeError(`turn_num: ${turn_num} | move instructions failed to return`);
-            }
-
-            if (whitemoveInfoructions.get('castling-side')) { this.gameBoard.performCastling(0, whitemoveInfoructions.get('castling-side')); continue}
-            if (blackmoveInfoructions.get('castling-side')) { this.gameBoard.performCastling(1, blackmoveInfoructions.get('castling-side')); continue}
-
-
-            let whitePieceLocated = this.findLocation(whitemoveInfoructions, 1);
-            if (whitePieceLocated === null) {
-                throw new Error(
-                    `whitePieceLocated was not found`
-                    ,whitemoveInfoructions.printToTerminal()
-                    ,this.gameBoard.printToTerminal()
-                );
-            }
-
-            let blackPieceLocated = this.findLocation(blackmoveInfoructions, 1);
-            if (blackPieceLocated === null) {
-                throw new Error(
-                    `blackPieceLocated was not found`
-                    ,blackmoveInfoructions.printToTerminal()
-                    ,this.gameBoard.printToTerminal()
-                );
-            };
-
-            // console.log('whitePieceLocated location: ', whitePieceLocated);
-            // whitePieceLocated = blackPieceLocated.arrPos;
-            // console.log('black location: ', blackPieceLocated);
-            // blackPieceLocated = blackPieceLocated.arrPos;
-
-            if (!whitePieceLocated) {
-                throw new Error("whitePieceLocated returned null location"
-                ,whitemoveInfoructions.printToTerminal()
-                ,this.gameBoard.printToTerminal())
-            }
-
-            if (!blackPieceLocated) {
-                throw new Error("blackPieceLocated returned null location"
-                ,blackmoveInfoructions.printToTerminal()
-                ,this.gameBoard.printToTerminal())
-            }
-            
-
-
-            this.movePiece(whitePieceLocated, whitemoveInfoructions.get('dest-posX'), whitemoveInfoructions.get('dest-posY'));
-            this.movePiece(blackPieceLocated, blackmoveInfoructions.get('dest-posX'), blackmoveInfoructions.get('dest-posY'));
-            this.gameBoard.updatePiecePositions();
-        };
-    };
-
-
-    findLocation(moveInfo, teamNum) {
-        moveInfo.printToTerminal()
-        const letter = moveInfo.get('piece');
-        if (letter === null) {
-            throw new Error('findLocation failed to return a piece letter');
-        }
-
-        const searchItem = this.getPieceType(letter);
-
-        if (!searchItem) {
-            throw new Error(`Piece not found for letter: ${letter}`, this.parser.printToTerminal(moveInfo));
-        }
-
-        const destCoord = moveInfo.get('destinationArr');
-        
-        const possiblePieces = this.gameBoard.filterBoardByAttribute(letter, 'team', moveInfo.get('team-num'));
-
-        if (letter === 'p') {
-            console.log("hi")
-            for (const piece of possiblePieces) {
-                console.log(piece)
-                if (piece.isPawnMoveValid(destCoord, moveInfo)) {
-                    console.log("hi2")
-                    return piece}
-            };
-        } else {
-            for (const piece of possiblePieces) {
-                console.log(piece)
-                if (piece.isValidMove(destCoord, moveInfo)) {
-                    console.log("hi2")
-                    return piece}
-            };
-        };
     };
 
 

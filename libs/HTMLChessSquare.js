@@ -3,7 +3,6 @@ class HTMLSquare {
     #col;
     #colour;
     #element
-  
     constructor(row, col, colour) {
         this.#row = row;
         this.#col = col;
@@ -11,26 +10,21 @@ class HTMLSquare {
         this.#element = null;
         this.createHTMLElement()
     };
-  
     get row() {
         return this.#row;
     };
-
     get col() {
         return this.#col;
     };
-  
     get color() {
       return this.#colour;
     };
-
     get element() {
         return this.#element;
     };
-
     set element(value) {
         this.#element = value
-    }
+    };
 
     createHTMLElement() {
         this.element = document.createElement('div');
