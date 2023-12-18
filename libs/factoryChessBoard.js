@@ -75,7 +75,7 @@ class Board {
         this.grid.flat().forEach(square => {
             if (square.contains instanceof Piece) {
                 const { row, col } = square;
-                square.contains.updatePosition(row, col);
+                square.contains.setPosition(row, col);
             }
         });
     };
@@ -119,6 +119,7 @@ class Board {
     };
 
 
+    // teamNum: 0 = White, 1 = Black
     performCastling(teamNum, castlingSide) {
         if (teamNum === 0 && castlingSide === "Kingside") {
             this.deletePieceFromRef("e1");  // King
@@ -192,7 +193,7 @@ class Board {
         // console.log(`code=${code}  ||  attributeName=${attributeName}  ||  attributeValue=${attributeValue}`)
         const flatArray = [].concat(...this.getPieceArray());
         return flatArray
-            .filter((square) => square === null ? "" : square.code2NEW === code)
+            .filter((square) => square === null ? "" : square.pieceCodeStr === code)
             .filter((piece) => piece[attributeName]  === attributeValue)
     };
 
@@ -223,16 +224,15 @@ class Board {
 
 
     // Validate presence of a piece on the board - string reference
-    validatePiecePresenceRef(ref) {
-        // if (!(this.grid[row][col].contains instanceof Piece)) {
-        //     throw new Error(`No piece to remove at: row ${row}, col ${col}`);
-        // };
-    };
+    validatePiecePresence(row, col) {
+        if (!(this.grid[row][col].contains instanceof Piece)) {
+            throw new Error(`No piece to remove at: row ${row}, col ${col}`, this.printToTerminal());
+        }
+    }
 
 
     // Print the current board state to the terminal
     printToTerminal() {
-
         const positionArray = this.grid.map(row =>
             row.map(square => (square.contains instanceof Piece ? square.contains.code : "--"))
         );

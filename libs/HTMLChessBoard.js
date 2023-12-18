@@ -57,6 +57,7 @@ class HTMLBoard {
                 this.grid[row][col] = square;
             };
         };
+        
     };
 
     resizeBoard(rows, cols) {

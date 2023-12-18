@@ -10,15 +10,17 @@ class Piece {
     #arrPos
     #isCaptured;
     constructor(team) {
-        if ((team != 0) && (team != 1)) {throw new Error(`team: ${team} | team number must be team 0 or 1`)};
-        this.#team = team;          //0 = White, 1 = Black
-        this.#row = -1              //Base 0 - numerical row position in grid
-        this.#col = -1              //Base 0 - numerical column position in grid
-        this.#file = '';            //Base 1 - alphabetical row position in grid
-        this.#rank = -1;            //Base 1 - alphabetical column position in grid
-        this.#notPos = '';          //Notational string of piece position
-        this.#arrPos = [-1, -1]     //Array position of piece
-        this.#isCaptured = false;   //Currently not in use
+        if ((team != 0) && (team != 1)) {
+            throw new Error(`team: ${team} | team number must be team 0 or 1`)
+        };
+        this.#team = team; //0 = White, 1 = Black
+        this.#row = -1 //Base 0 - numerical row position in grid
+        this.#col = -1 //Base 0 - numerical column position in grid
+        this.#file = ''; //Base 1 - alphabetical row position in grid
+        this.#rank = -1; //Base 1 - alphabetical column position in grid
+        this.#notPos = ''; //Notational string of piece position
+        this.#arrPos = [-1, -1] //Array position of piece
+        this.#isCaptured = false; //Currently not in use
     };
     get team() {
         return this.#team;
@@ -69,27 +71,27 @@ class Piece {
         this.#isCaptured = value;
     };
 
-    updatePosition(x, y) {
+    setPosition(x, y) {
         if ((x < 0 || x > 7) || (y < 0 || y > 7)) {
-            throw new Error(`row: ${x}  col: ${y} is not a valid position`)}
-
-        this.row = x;
-        this.col = y;
-        this.rank = ChessUtility.rowArrayToRef(x)
-        this.file = (y + 10).toString(36);
-        this.notPos = this.file + this.rank;
-        this.arrPos = [x, y];
+            throw new Error(`row: ${x}  col: ${y} is not a valid position`)
+        };
+        this.#row = x;
+        this.#col = y;
+        this.#rank = ChessUtility.rowArrayToRef(x)
+        this.#file = (y + 10).toString(36);
+        this.#notPos = this.file + this.rank;
+        this.#arrPos = [x, y];
     };
 
     clearData() {
-        this.team = null;       
-        this.row = -1           
-        this.col = -1           
-        this.file = '';         
-        this.rank = -1;         
-        this.notPos = '';       
-        this.arrPos = [-1, -1]  
-        this.isCaptured = false; 
+        this.team = null;
+        this.row = -1
+        this.col = -1
+        this.file = '';
+        this.rank = -1;
+        this.notPos = '';
+        this.arrPos = [-1, -1]
+        this.isCaptured = false;
     };
 
     getFileRankDifference(destination, moveInfo) {
@@ -108,14 +110,14 @@ class Piece {
 
 
 class Pawn extends Piece {
-    #code;
     #name;
-    #code2NEW;
+    #pieceCodeStr;
+    #code
     constructor(team) {
         super(team);
-        this.#code = team +  "p";
         this.#name = "Pawn";
-        this.#code2NEW = "p";
+        this.#pieceCodeStr = "p";
+        this.#code = team + this.#pieceCodeStr;
     };
     get code() {
         return this.#code;
@@ -123,28 +125,34 @@ class Pawn extends Piece {
     get name() {
         return this.#name;
     };
-    get code2NEW() {
-        return this.#code2NEW;
+    get pieceCodeStr() {
+        return this.#pieceCodeStr;
     };
 
     isValidMove(destination, moveInfo) {
         const [rankDiff, fileDiff] = this.getFileRankDifference(destination, moveInfo);
 
         // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
-        if (moveInfo.get("loc-posX")) {return this.arrPos[0] === moveInfo.get("loc-posX")};
-        if (moveInfo.get("loc-posY")) {return this.arrPos[1] === moveInfo.get("loc-posY")};
-        if (moveInfo.get("is-capture")) {return this.file === moveInfo.get("file")};
+        if (moveInfo.locationPosX) {
+            return this.arrPos[0] === moveInfo.locationRow
+        };
+        if (moveInfo.locationPosY) {
+            return this.arrPos[1] === moveInfo.locationCol
+        };
+        if (moveInfo.isCapture) {
+            return this.file === moveInfo.locationPosY
+        };
 
         // White Pawns
-        if (moveInfo.get("team-num") === 0) {
+        if (moveInfo.teamNumber === 0) {
             if (fileDiff === 0 && rankDiff === 1) {
                 return true;
             };
             if (this.row === 6 && fileDiff === 0 && rankDiff === 2) {
                 return true;
             };
-        // Black Pawns
-        } else if (moveInfo.get("team-num") === 1) {
+            // Black Pawns
+        } else if (moveInfo.teamNumber === 1) {
             if (fileDiff === 0 && rankDiff === -1) {
                 return true;
             };
@@ -158,14 +166,14 @@ class Pawn extends Piece {
 
 
 class Rook extends Piece {
-    #code;
     #name;
-    #code2NEW;
+    #pieceCodeStr;
+    #code;
     constructor(team) {
         super(team);
-        this.#code = team +  "R";
         this.#name = "Rook";
-        this.#code2NEW = "R"
+        this.#pieceCodeStr = "R"
+        this.#code = team + this.#pieceCodeStr;
     };
     get code() {
         return this.#code;
@@ -173,31 +181,34 @@ class Rook extends Piece {
     get name() {
         return this.#name;
     };
-    get code2NEW() {
-        return this.#code2NEW;
+    get pieceCodeStr() {
+        return this.#pieceCodeStr;
     };
 
     isValidMove(destination, moveInfo) {
         const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
 
         // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
-        if (moveInfo.get("loc-posX")) {return this.arrPos[0] === moveInfo.get("loc-posX")};
-        if (moveInfo.get("loc-posY")) {return this.arrPos[1] === moveInfo.get("loc-posY")};
-
+        if (moveInfo.locationPosX) {
+            return this.arrPos[0] === moveInfo.locationRow
+        };
+        if (moveInfo.locationPosY) {
+            return this.arrPos[1] === moveInfo.locationCol
+        };
         return fileDiff === 0 || rankDiff === 0;
     };
 };
 
 
 class Knight extends Piece {
-    #code;
     #name;
-    #code2NEW;
+    #pieceCodeStr;
+    #code;
     constructor(team) {
         super(team);
-        this.#code = team +  "N";
         this.#name = "Knight";
-        this.#code2NEW = "N"
+        this.#pieceCodeStr = "N"
+        this.#code = team + this.#pieceCodeStr;
     };
     get code() {
         return this.#code;
@@ -205,16 +216,20 @@ class Knight extends Piece {
     get name() {
         return this.#name;
     };
-    get code2NEW() {
-        return this.#code2NEW;
+    get pieceCodeStr() {
+        return this.#pieceCodeStr;
     };
 
     isValidMove(destination, moveInfo) {
         const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
 
         // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
-        if (moveInfo.get("loc-posX")) {return this.arrPos[0] === moveInfo.get("loc-posX")};
-        if (moveInfo.get("loc-posY")) {return this.arrPos[1] === moveInfo.get("loc-posY")};
+        if (moveInfo.locationPosX) {
+            return this.arrPos[0] === moveInfo.locationRow
+        };
+        if (moveInfo.locationPosY) {
+            return this.arrPos[1] === moveInfo.locationCol
+        };
 
         if (this.col !== null && this.row === null) {
             return this.row === fileDiff;
@@ -226,14 +241,14 @@ class Knight extends Piece {
 
 
 class Bishop extends Piece {
-    #code;
     #name;
-    #code2NEW;
+    #pieceCodeStr;
+    #code;
     constructor(team) {
         super(team);
-        this.#code = team +  "B";
         this.#name = "Bishop";
-        this.#code2NEW = "B"
+        this.#pieceCodeStr = "B"
+        this.#code = team + this.#pieceCodeStr;
     };
     get code() {
         return this.#code;
@@ -241,8 +256,8 @@ class Bishop extends Piece {
     get name() {
         return this.#name;
     };
-    get code2NEW() {
-        return this.#code2NEW;
+    get pieceCodeStr() {
+        return this.#pieceCodeStr;
     };
 
     isValidMove(destination, moveInfo) {
@@ -254,14 +269,14 @@ class Bishop extends Piece {
 
 
 class Queen extends Piece {
-    #code;
     #name;
-    #code2NEW;
+    #pieceCodeStr;
+    #code;
     constructor(team) {
         super(team);
-        this.#code = team +  "Q";
         this.#name = "Queen";
-        this.#code2NEW = "Q"
+        this.#pieceCodeStr = "Q"
+        this.#code = team + this.#pieceCodeStr;
     };
     get code() {
         return this.#code;
@@ -269,29 +284,31 @@ class Queen extends Piece {
     get name() {
         return this.#name;
     };
-    get code2NEW() {
-        return this.#code2NEW;
+    get pieceCodeStr() {
+        return this.#pieceCodeStr;
     };
 
     isValidMove(destination, moveInfo) {
         const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
-        const diagionalMoves =  Math.abs(fileDiff) === Math.abs(rankDiff);
-        const straightMoves =  fileDiff === 0 || rankDiff === 0;
+        const diagionalMoves = Math.abs(fileDiff) === Math.abs(rankDiff);
+        const straightMoves = fileDiff === 0 || rankDiff === 0;
 
-        if (diagionalMoves || straightMoves) {return true}
+        if (diagionalMoves || straightMoves) {
+            return true
+        }
     };
- };
+};
 
 
 class King extends Piece {
-    #code;
     #name;
-    #code2NEW;
+    #pieceCodeStr;
+    #code
     constructor(team) {
         super(team);
-        this.#code = team +  "K";
         this.#name = "King";
-        this.#code2NEW = "K"
+        this.#pieceCodeStr = "K"
+        this.#code = team + this.#pieceCodeStr;
     };
     get code() {
         return this.#code;
@@ -299,8 +316,8 @@ class King extends Piece {
     get name() {
         return this.#name;
     };
-    get code2NEW() {
-        return this.#code2NEW;
+    get pieceCodeStr() {
+        return this.#pieceCodeStr;
     };
 
     isValidMove(destination, moveInfo) {

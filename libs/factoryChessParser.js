@@ -2,25 +2,18 @@ import ChessUtility from './factoryChessUtility.js';
 
 
 class Parser {
-    #cleanedMoves;
-    #moveInstructions;
+    #parsedMoves;
     constructor(string) {
-        this.#cleanedMoves = {};
-        this.#moveInstructions = {};
+        this.#parsedMoves = {};
         this.runParser(string);
     };
-    get cleanedMoves() {
-        return this.#cleanedMoves;
+    get parsedMoves() {
+        return this.#parsedMoves;
     };
-    set cleanedMoves(value) {
-        this.#cleanedMoves = value;
+    set parsedMoves(value) {
+        this.#parsedMoves = value;
     };
-    get moveInstructions() {
-        return this.#moveInstructions;
-    };
-    set moveInstructions(value) {
-        this.#moveInstructions = value;
-    };
+
 
     runParser(string) {
         // First, convert the game notation string into a dictionary/object of single move notations
@@ -31,130 +24,117 @@ class Parser {
             for (const [eachKey, eachValue] of Object.entries(moveDictionary)) {
                 this[eachKey] = [
                     this.createSingleMoveObject(eachKey, eachValue[0], 0) // White
-                    ,eachValue[1] ? this.createSingleMoveObject(eachKey, eachValue[1], 1) : null // Black
+                    , eachValue[1] ? this.createSingleMoveObject(eachKey, eachValue[1], 1) : null // Black
                 ];
             };
-        }
-        catch {
-            throw new Error ("The notation failed to convert into move objects",
-            this.printToTerminal())
-        }
+        } catch {
+            throw new Error("The notation failed to convert into move objects", this.printToTerminal())
+        };
     };
+
 
     getDictionaryOfMoves(notationString) {
         // Get the game notation string, and create an array of all the moves
         const regexPattern = /\s*(\d{1,3})\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)(?:\s*\d+\.?\d+?m?s)?\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)?(?:\s*\d+\.?\d+?m?s)?/;
         const splitNotation = notationString.split(regexPattern).filter(a => a !== '');
-        
+
         const result = {};
         for (let x = 0; x < splitNotation.length; x += 3) {
             const key = parseInt(splitNotation[x].replace('.', ''));
             const value = [splitNotation[x + 1], splitNotation[x + 2]];
             result[key] = value;
-        }
+        };
 
-        this.cleanedMoves = result;
-    
+        this.parsedMoves = result;
+
         return result;
     };
 
 
     createSingleMoveObject(turnNum, notation, teamNum) {
-        // Function to get the last two characters of a string
-        const getLastTwoChars = (string) => string.slice(-2);
-    
-        // Function to check if a character is uppercase
-        const isUpperCase = (char) => char === char.toUpperCase();
-    
-        // Function to convert a rank from display format to array format
-        const displayRowToArrayRow = (num) => 8 - Number(num);
-    
-        // Function to convert a file from display format to array format
-        const displayCharToArrayCol = (char) => char.charCodeAt(0) - 'a'.charCodeAt(0);
-    
-        // Function to count alphanumeric characters in a string
-        const countAlphaNumeric = (string) => string.replace(/[^a-wyzA-WYZ0-9]/g, "").length;
-    
-        // Initialize the move object
-        const moveObj = {
-            'turn-num': turnNum,
-            'notation': notation,
-            'notationClean': notation.replace(/[^a-zA-Z0-9]/g, ''),
-            'team-num': teamNum,
-            'piece': isUpperCase(notation[0]) ? notation[0] : 'p',
-            'code': teamNum + (isUpperCase(notation[0]) ? notation[0] : 'p'),
-            'is-capture': notation.includes('x'),
-            'is-checkormate': notation.includes('#'),
-            'is-promotion': notation.includes('='),
-            'file': getLastTwoChars(notation)[0],
-            'rank': null,
-            'destinationArr': null,
-            'destination': getLastTwoChars(notation),
-            'dest-posX': null,
-            'dest-posY': null,
-            'location': null,
-            'loc-posX': null,
-            'loc-posY': null,
-            'castling-side': null,
-    
-            // Getter method
-            get: function (property) {
-                return this[property];
-            },
-    
-            // Setter method
-            set: function (property, value) {
-                this[property] = value;
-            },
+        // Regular expression to match chess algebraic notation
+        let regex = /^(?<piece>[NBRQK])?(?<file>[a-h])?(?<rank>[1-8])?(?<capture>x)?(?<target>[a-h][1-8])((?:[NBRQ])?(?<check>\+|\#)?(?:=(?<promotion>[NBRQ]))?)?|^(O-O(?:-O)?)$/;
 
-            // Print to terminal
-            printToTerminal: function() {
-                console.log(`------Debug Move Map Details------`);
-                console.log(`team-num: ${this['team-num']} | turn-num: ${this['turn-num']} | notation: ${this['notation']} | notationClean: ${this['notationClean']}`);
-                console.log(`piece: ${this['piece']} | code: ${this['code']} | file: ${this['file']} | rank: ${this['rank']}`);
-                console.log(`destination: ${this['destination']} | dest-posX: ${this['dest-posX']} | dest-posY: ${this['dest-posY']} | destinationArr: ${this['destinationArr']}`);
-                console.log(`location: ${this['location']} | loc-posX: ${this['loc-posX']} | loc-posY: ${this['loc-posY']} | castling-side: ${this['castling-side']}`);
-                console.log(`castling-side: ${this['castling-side']} | is-capture: ${this['is-capture']} | is-checkormate: ${this['is-checkormate']} | is-promotion: ${this['is-promotion']}`);
-                console.log(`-----------------------`);
-            }
-        };
-    
-        // Set rank based on the last character of the clean notation
-        moveObj.set('rank', displayRowToArrayRow(getLastTwoChars(moveObj.get('notationClean'))[1]));
-    
-        // Set destination X and Y coordinates
-        moveObj.set('dest-posX', displayRowToArrayRow(moveObj.get('destination')[1]));
-        moveObj.set('dest-posY', displayCharToArrayCol(moveObj.get('destination')[0]));
-        moveObj.set('destinationArr', [moveObj.get('dest-posX'), moveObj.get('dest-posY')]);
-    
-        // Check for castling
-        if (notation === 'O-O') {moveObj.set('castling-side', 'Kingside')}
-        if (notation === 'O-O-O') {moveObj.set('castling-side', 'Queenside')}
-        
-        // pawn captures
-        if (moveObj.get('piece') === "p" && moveObj.get('is-capture') === true) {
-            const firstChar = notation[0];
-            moveObj.set('loc-posY', displayCharToArrayCol(firstChar));
-        }
-    
-        // Check for additional characters in the notation
-        if (countAlphaNumeric(notation) === 4) {
-            const secondChar = notation[1];
-            
-            if (!isNaN(secondChar)) {
-                moveObj.set('loc-posX', displayRowToArrayRow(secondChar));
-            } else if (typeof secondChar === 'string') {
-                moveObj.set('loc-posY', displayCharToArrayCol(secondChar));
+        // Executing the regular expression on the input notation
+        let match = notation.match(regex);
+
+        // Checking if the input notation matches the expected pattern
+        if (match) {
+            // Prepare all move information as null
+            let chessMove = {
+                 notation: null // move notation
+                ,teamNumber: null // 0 = White, 1 = Black
+                ,turnNumber: null // Turn Number
+                ,pieceCode: null // Piece code
+                ,locationSquare: null // Current location of piece
+                ,locationPosY: null // Location file (If supplied)
+                ,locationPosX: null // Location rank (If supplied)
+                ,isCapture: null // Boolean if move resulted in capture
+                ,targetSquare: null // Location of destination square
+                ,targetPosX: null // Base 0  of destination rank square
+                ,targetPosY: null // Base 0 of destination file square
+                ,isPromotion: null // Boolean if pawn move resulted in promotion
+                ,isCheckOrMate: null // Boolean if move resulted in check or mate
+                ,promotedPiece: null // Piece code that was promoted from pawn move
+                ,castlingSide: null // Kingside or Queenside if castling occurred
+                ,fullPieceCode: null // Combination of team number and piece code
+                ,locationRow: null // Array (base 0) of location square
+                ,locationCol: null // Array (base 0) of location square
+                ,targetArray: null // Array (base 0) of destination square
+                ,locationArray: null // Kept blank. Used for printToTerminal completeness
+
+                ,printToTerminal: function() {
+                    console.log(`------Debug Move Map Details------`);
+                    console.log(`teamNumber: ${this.teamNumber} | turnNumber: ${this.turnNumber} | notation: ${this['notation']}`);
+                    console.log(`pieceCode: ${this.pieceCode} | fullPieceCode: ${this.fullPieceCode}`);
+                    console.log(`targetSquare: ${this.targetSquare} | targetPosX: ${this.targetPosX} | targetPosY: ${this.targetPosY} | targetArray: ${this.targetArray}`);
+                    console.log(`locationSquare: ${this.locationSquare} | locationPosX: ${this.locationPosX} | locationPosY: ${this.locationPosY} | locationArray: ${this.locationArray}`);
+                    console.log(`locationRow: ${this.locationRow} | locationCol: ${this.locationCol}`);
+                    console.log(`castlingSide: ${this.castlingSide} | isCapture: ${this.isCapture} | isCheckOrMate: ${this.isCheckOrMate} | isPromotion: ${this.isPromotion}`);
+                    console.log(`-----------------------`);
+                }
             };
+
+            if (notation === "O-O") {chessMove.castlingSide = "Kingside"; return chessMove;}
+            if (notation === "O-O-O") {chessMove.castlingSide = "Queenside"; return chessMove;}
+
+            // Take the regex and apply the information to the move instructions  
+            chessMove.teamNumber = teamNum;
+            chessMove.turnNumber = turnNum;
+            chessMove.notation = match[0] || null;
+            chessMove.pieceCode = match[1] || 'p';
+            chessMove.locationPosY = match[2] || null;
+            chessMove.locationPosX = match[3] || null;
+            chessMove.isCapture = match[4] === 'x';
+            chessMove.targetSquare = match[5];
+            chessMove.isPromotion = match[6] || null;
+            chessMove.isCheckOrMate = match[7] || null;
+            chessMove.promotedPiece = match[9] || null;
+
+            // Add additional data
+            chessMove.fullPieceCode = teamNum + chessMove.pieceCode;
+            chessMove.targetPosX = ChessUtility.rowRefToArray(chessMove.targetSquare[1]);
+            chessMove.targetPosY = ChessUtility.colRefToArray(chessMove.targetSquare[0]);
+            if (chessMove.notation === "O-O") {chessMove.castlingSide = "Kingside"};
+            if (chessMove.notation === "O-O-O") {chessMove.castlingSide = "Queenside"};
+            chessMove.targetArray = [chessMove.targetPosX, chessMove.targetPosY];
+
+            if (chessMove.locationPosX || chessMove.locationPosY) {
+                chessMove.locationRow = ChessUtility.rowRefToArray(chessMove.locationPosX);
+                chessMove.locationCol = ChessUtility.colRefToArray(chessMove.locationPosY);
+            };
+
+            return chessMove;
         };
 
-        return moveObj;
+        // If it fails, require error handle
+        return null;
     };
 
 
     printToTerminal() {
         console.log(`------Debug Parser Details------`);
-        for (const [turnNum, movesArray] of Object.entries(this.cleanedMoves)) {
+        for (const [turnNum, movesArray] of Object.entries(this.parsedMoves)) {
             console.log(`turn number: ${turnNum} | white: ${movesArray[0]} | black: ${movesArray[1]}`);
         };
         console.log(`-----------------------`);
@@ -163,7 +143,6 @@ class Parser {
     checkForErrors() {
 
     };
-
 };
 
 export default Parser;
