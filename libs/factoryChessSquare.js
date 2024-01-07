@@ -1,18 +1,23 @@
+import ChessUtility from './factoryChessUtility.js';
+import { Piece } from './factoryChessPiece.js';
+
 class Square {
     #row;
     #col;
-    #file;
-    #rank;
-    #pos;
+    #fileRef;
+    #rankRef;
+    #positionRef;
+    #positionArr
     #contains;
     constructor(row, col) {
         if ((row > 7) || (col > 7)) {throw new Error("Cell invalid range")};
-        this.#row = row;                         //Base 0 - row position in grid
-        this.#col = col;                         //Base 0 - col position in grid
-        this.#rank = row + 1;                    //Base 1 - row position in grid    
-        this.#file = (col + 10).toString(36);    //col position converted to letter
-        this.#pos = this.#file + this.#rank;     //notational "a1" cell reference
-        this.#contains = null;                   //indicates if a Piece() is on the Square() object
+        this.#row = row;                                //Base 0 - row position in grid
+        this.#col = col;                                //Base 0 - col position in grid
+        this.#rankRef = ChessUtility.rowArrayToRef(row)    //Base 1 - row position in grid    
+        this.#fileRef = ChessUtility.colArrayToRef(col)    //col position converted to letter
+        this.#positionRef = this.#fileRef + this.#rankRef;            //notational "a1" cell reference
+        this.#positionArr = [row, col]                  // grid index location of square
+        this.#contains = null;                          //indicates if a Piece() is on the Square() object
     };
     get row() {
         return this.#row;
@@ -20,14 +25,17 @@ class Square {
     get col() {
         return this.#col;
     };
-    get file() {
-        return this.#file;
+    get fileRef() {
+        return this.#fileRef;
     };
-    get rank() {
-        return this.#rank;
+    get rankRef() {
+        return this.#rankRef;
     };
-    get pos() {
-        return this.#pos;
+    get positionRef() {
+        return this.#positionRef;
+    };
+    get positionArr() {
+        return this.#positionArr;
     };
     get contains() {
         return this.#contains;
@@ -35,6 +43,16 @@ class Square {
     set contains(piece) {
         this.#contains = piece;
     };
+    get piece() {
+        return this.#contains;
+    }
+    clearPiece() {
+        this.#contains = null;
+    }
+    setPiece(piece) {
+        piece.update(this)
+        this.#contains = piece;
+    }
 };
 
 export default Square;

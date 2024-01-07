@@ -7,7 +7,7 @@ import {
 class Board {
     #grid;
     constructor() {
-        this.#grid = this.createEmptyGrid();
+        this.#grid = []
         this.initSquares();
         this.initPieces();
     };
@@ -18,11 +18,6 @@ class Board {
         this.#grid = value;
     };
 
-    // Create an empty grid
-    createEmptyGrid() {
-        return new Array(8).fill(null).map(() => new Array(8).fill(null));
-    };
-
     // Initialize the squares on the board
     initSquares() {
         this.grid = Array.from({ length: 8 }, (_, row) =>
@@ -30,173 +25,117 @@ class Board {
         );
     };
 
+    // Initialize the pieces on the board
     initPieces() {
         // Create Chess Pieces and place on board - White
-        this.putPieceOnBoard(7, 0, new Rook(0));
-        this.putPieceOnBoard(7, 1, new Knight(0));
-        this.putPieceOnBoard(7, 2, new Bishop(0));
-        this.putPieceOnBoard(7, 3, new Queen(0));
-        this.putPieceOnBoard(7, 4, new King(0));
-        this.putPieceOnBoard(7, 5, new Bishop(0));
-        this.putPieceOnBoard(7, 6, new Knight(0));
-        this.putPieceOnBoard(7, 7, new Rook(0));
-        this.putPieceOnBoard(6, 0, new Pawn(0));
-        this.putPieceOnBoard(6, 1, new Pawn(0));
-        this.putPieceOnBoard(6, 2, new Pawn(0));
-        this.putPieceOnBoard(6, 3, new Pawn(0));
-        this.putPieceOnBoard(6, 4, new Pawn(0));
-        this.putPieceOnBoard(6, 5, new Pawn(0));
-        this.putPieceOnBoard(6, 6, new Pawn(0));
-        this.putPieceOnBoard(6, 7, new Pawn(0));
+        this.putPieceFromRef(new Rook(0), "a1");
+        this.putPieceFromRef(new Knight(0), "b1");
+        this.putPieceFromRef(new Bishop(0), "c1");
+        this.putPieceFromRef(new Queen(0), "d1");
+        this.putPieceFromRef(new King(0), "e1");
+        this.putPieceFromRef(new Bishop(0), "f1");
+        this.putPieceFromRef(new Knight(0), "g1");
+        this.putPieceFromRef(new Rook(0), "h1");
 
+        this.putPieceFromRef(new Pawn(0), "a2");
+        this.putPieceFromRef(new Pawn(0), "b2");
+        this.putPieceFromRef(new Pawn(0), "c2");
+        this.putPieceFromRef(new Pawn(0), "d2");
+        this.putPieceFromRef(new Pawn(0), "e2");
+        this.putPieceFromRef(new Pawn(0), "f2");
+        this.putPieceFromRef(new Pawn(0), "g2");
+        this.putPieceFromRef(new Pawn(0), "h2");
+        
         // Create Chess Pieces and place on board - Black
-        this.putPieceOnBoard(0, 0, new Rook(1));
-        this.putPieceOnBoard(0, 1, new Knight(1));
-        this.putPieceOnBoard(0, 2, new Bishop(1));
-        this.putPieceOnBoard(0, 3, new Queen(1));
-        this.putPieceOnBoard(0, 4, new King(1));
-        this.putPieceOnBoard(0, 5, new Bishop(1));
-        this.putPieceOnBoard(0, 6, new Knight(1));
-        this.putPieceOnBoard(0, 7, new Rook(1));
-        this.putPieceOnBoard(1, 0, new Pawn(1));
-        this.putPieceOnBoard(1, 1, new Pawn(1));
-        this.putPieceOnBoard(1, 2, new Pawn(1));
-        this.putPieceOnBoard(1, 3, new Pawn(1));
-        this.putPieceOnBoard(1, 4, new Pawn(1));
-        this.putPieceOnBoard(1, 5, new Pawn(1));
-        this.putPieceOnBoard(1, 6, new Pawn(1));
-        this.putPieceOnBoard(1, 7, new Pawn(1));
+        this.putPieceFromRef(new Rook(1), "a8");
+        this.putPieceFromRef(new Knight(1), "b8");
+        this.putPieceFromRef(new Bishop(1), "c8");
+        this.putPieceFromRef(new Queen(1), "d8");
+        this.putPieceFromRef(new King(1), "e8");
+        this.putPieceFromRef(new Bishop(1), "f8");
+        this.putPieceFromRef(new Knight(1), "g8");
+        this.putPieceFromRef(new Rook(1), "h8");
 
-        this.updatePiecePositions()
+        this.putPieceFromRef(new Pawn(1), "a7");
+        this.putPieceFromRef(new Pawn(1), "b7");
+        this.putPieceFromRef(new Pawn(1), "c7");
+        this.putPieceFromRef(new Pawn(1), "d7");
+        this.putPieceFromRef(new Pawn(1), "e7");
+        this.putPieceFromRef(new Pawn(1), "f7");
+        this.putPieceFromRef(new Pawn(1), "g7");
+        this.putPieceFromRef(new Pawn(1), "h7");
     };
 
-    // Update the positions of all pieces on the board
-    updatePiecePositions() {
-        this.grid.flat().forEach(square => {
-            if (square.contains instanceof Piece) {
-                const { row, col } = square;
-                square.contains.setPosition(row, col);
-            }
-        });
+    // Returns a square on the chessboard
+    returnSquare(ref) {
+        return this.grid.flat().find(square => square.positionRef === ref)
     };
 
-    // Put a piece on the board
-    putPieceOnBoard(row, col, piece) {
-        this.validatePosition(row, col);
-        this.validateChessPiece(piece);
-
-        // Add Piece() object to Square() object
-        this.grid[row][col].contains = piece;
+    // Gets the two squares, deletes the piece from one, adds piece to the other
+    movePiece(pieceToMove, refTarget) {
+        this.returnSquare(pieceToMove.positionRef).clearPiece()
+        this.returnSquare(refTarget).setPiece(pieceToMove)
     };
 
-    
-    // Remove a piece from the board
-    removePieceFromBoard(row, col) {
-        this.validatePosition(row, col);
-        this.validatePiecePresenceArray(row, col);
-
-        // Remove the piece from the square
-        this.grid[row][col].contains = null;
+    // Places piece on chessboard. Used for the opening function. Could be removed?
+    putPieceFromRef(piece, ref) {
+        this.returnSquare(ref).setPiece(piece)
     };
 
-
-    getSquareArray() {
+    // Get array of all piece attributes in their board position
+    getArray(attribute, ifNull) {
         return this.grid.map(row =>
-            row.map(square => (square instanceof Square ? square.pos : null))
-        );
-    };
-
-    
-    getPieceArray() {
-        return this.grid.map(row =>
-            row.map(square => (square.contains instanceof Piece ? square.contains : null))
+            row.map(square => (square.contains instanceof Piece ? square.piece[attribute] : ifNull))
         );
     };
 
 
-    isSquareEmpty(row, col) {
-        return !this.grid[row][col];
-    };
-
-
-    // teamNum: 0 = White, 1 = Black
     performCastling(teamNum, castlingSide) {
         if (teamNum === 0 && castlingSide === "Kingside") {
-            this.deletePieceFromRef("e1");  // King
-            this.deletePieceFromRef("h1");  // Rook
-            this.putPieceOnBoard(7, 5, new Rook(0));
-            this.putPieceOnBoard(7, 6, new King(0));
-            this.updatePiecePositions();
+            const king = this.returnSquare("e1").piece;
+            this.movePiece(king, "g1");
+            const rook = this.returnSquare("h1").piece;
+            this.movePiece(rook, "f1");
         };
         if (teamNum === 1 && castlingSide === "Kingside") {
-            this.deletePieceFromRef("e8");  // King
-            this.deletePieceFromRef("h8");  // Rook
-            this.putPieceOnBoard(0, 5, new King(1));
-            this.putPieceOnBoard(0, 6, new Rook(1));
-            this.updatePiecePositions();
+            const king = this.returnSquare("e8").piece;
+            this.movePiece(king, "g8");
+            const rook = this.returnSquare("h8").piece;
+            this.movePiece(rook, "f8");
         };
         if (teamNum === 0 && castlingSide === "Queenside") {
-            this.deletePieceFromRef("e1");  // King
-            this.deletePieceFromRef("a1");  // Rook
-            this.putPieceOnBoard(7, 2, new King(0));
-            this.putPieceOnBoard(7, 3, new Rook(0));
-            this.updatePiecePositions();
+            const king = this.returnSquare("e1").piece;
+            this.movePiece(king, "d1");
+            const rook = this.returnSquare("a1").piece;
+            this.movePiece(rook, "c1");
         };
         if (teamNum === 1 && castlingSide === "Queenside") {
-            this.deletePieceFromRef("e8");  // King
-            this.deletePieceFromRef("a8");  // Rook
-            this.putPieceOnBoard(0, 2, new King(1));
-            this.putPieceOnBoard(0, 3, new Rook(1));
-            this.updatePiecePositions();
-        };
-    };
-
-    // Return a piece from a specific board position
-    getPieceFromArray(row, col) {
-        this.validatePiecePresenceArray(row, col);
-        return this.grid[row][col].contains;
-    };
-
-    // Return a piece from a reference
-    returnPieceFromRef(ref) {
-        const [row, col] = ChessUtility.chessRefToArrayPos(ref)
-        return this.getPieceFromArray(row,col)
-    };
-
-    // Delete a piece from a reference
-    // TODO: This doesnt need to be a function if we have "deletePieceFromBoard" and the ChessUtility
-    // Also, "removePieceFromBoard" exists and can be deleted or merged with these functions
-    deletePieceFromRef(ref) {
-        const pieceToDelete = this.returnPieceFromRef(ref);
-
-        // should be using a validation error
-
-        if (!pieceToDelete) {
-            throw new Error(`ref: ${ref} | No piece found on delete attempt`);
-        };
-
-        // If you've already returned pieceFromRef, you don't need to loop through the entire board
-        this.deletePieceFromBoard(pieceToDelete);
-    };
-
-    // Delete a piece from the board
-    deletePieceFromBoard(pieceToDelete) {
-        const piece = this.grid.flat().find(piece => piece.contains === pieceToDelete);
-        if (piece) {
-            piece.contains.clearData();
-            piece.contains = null;
+            const king = this.returnSquare("e8").piece;
+            this.movePiece(king, "d8");
+            const rook = this.returnSquare("a8").piece;
+            this.movePiece(rook, "c8");
         };
     };
 
 
+    // Return a list of pieces that match criteria
     filterBoardByAttribute(code, attributeName, attributeValue) {
-        // console.log(`code=${code}  ||  attributeName=${attributeName}  ||  attributeValue=${attributeValue}`)
-        const flatArray = [].concat(...this.getPieceArray());
-        return flatArray
-            .filter((square) => square === null ? "" : square.pieceCodeStr === code)
-            .filter((piece) => piece[attributeName]  === attributeValue)
+        const array = this.grid.map(row =>
+            row.map(square => (square.piece instanceof Piece ? square.piece : null))
+        ).flat();
+        return array
+            .filter(piece => piece && piece.pieceCodeStr === code)
+            .filter(piece => piece[attributeName] === attributeValue);
     };
 
+
+    validateContents(squareRef, whatClass) {
+        const square = this.grid.flat().find(square => square.positionRef === squareRef)
+        if (!(square && square.piece instanceof whatClass)) {
+            throw new Error(`Contents of square ${squareRef} are not an instance of ${whatClass.name}`);
+        };
+    };
+    
 
     // Validate a square position
     validatePosition(row, col) {
@@ -213,30 +152,12 @@ class Board {
         };
     };
 
-
-    // Validate presence of a piece on the board - array
-    validatePiecePresenceArray(row, col) {
-        if (!(this.grid[row][col].contains instanceof Piece)) {
-            throw new Error(`No piece to remove at: row ${row}, col ${col}`
-            ,this.printToTerminal());
-        };
-    };
-
-
-    // Validate presence of a piece on the board - string reference
-    validatePiecePresence(row, col) {
-        if (!(this.grid[row][col].contains instanceof Piece)) {
-            throw new Error(`No piece to remove at: row ${row}, col ${col}`, this.printToTerminal());
-        }
-    }
-
-
+    
     // Print the current board state to the terminal
     printToTerminal() {
-        const positionArray = this.grid.map(row =>
-            row.map(square => (square.contains instanceof Piece ? square.contains.code : "--"))
-        );
 
+        const positionArray = this.getArray("code", "--")
+        
         const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
         const nums = [7, 6, 5, 4, 3, 2, 1, 0];
       
@@ -277,7 +198,7 @@ class Board {
     printSquaresToTerminal() {
 
         const positionArray = this.grid.map(row =>
-            row.map(square => (square instanceof Square ? square.pos : "--"))
+            row.map(square => (square instanceof Square ? square.positionRef : "--"))
         );
 
         const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

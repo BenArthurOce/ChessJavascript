@@ -8,12 +8,14 @@ class HTMLBoard {
     #element;
     #width;
     #height;
+    #template;
     constructor(width, height) {
         this.#grid = new Array(8).fill(null).map(() => new Array(8).fill(null));
         this.#colours = ["#769656", "#eeeed2"];
         this.createHTMLElement();
-        this.#width = width
-        this.#height = height
+        this.#width = width;
+        this.#height = height;
+        this.#template = `<div class="chessboard"></div>`
     };
     get grid() {
         return this.#grid;
@@ -42,12 +44,37 @@ class HTMLBoard {
     set height(value) {
         this.#height = value;
     };
+    get template() {
+        return this.#template;
+    };
+    set template(value) {
+        this.#template = value;
+    };
+
+    // createHTMLElement() {
+    //     const newElement = document.createElement("div")
+    //     newElement.innerHTML = this.template
+    //     const node = newElement.firstChild
+    //     document.body.appendChild(node)
+    // };
+
+    // To do: Code clean up
+    // Create a HTML element from the string. Don't do anything beyond that
+    // Then, in "Render()", create the squares and append to the chess board
+
+    // getRefArray() {
+    //     return this.grid.map(row =>
+    //         row.map(square => (square.contains instanceof Piece ? square.contains.code : null))
+    //     );
+    // };
+
+
 
     createHTMLElement() {
         this.element = document.createElement('div');
         this.element.className = 'chessboard';
-        this.element.style.width = `${this.width}px`;
-        this.element.style.height = `${this.height}px`;
+        // this.element.style.width = `${this.width}px`;
+        // this.element.style.height = `${this.height}px`;
 
         for (let row = 0; row < this.grid.length; row++) {
             for (let col = 0; col < this.grid[row].length; col++) {
@@ -57,7 +84,6 @@ class HTMLBoard {
                 this.grid[row][col] = square;
             };
         };
-        
     };
 
     resizeBoard(rows, cols) {

@@ -4,10 +4,10 @@ class Piece {
     #team;
     #row;
     #col;
-    #file;
-    #rank;
-    #notPos;
-    #arrPos
+    #fileRef;
+    #rankRef;
+    #positionRef;
+    #positionArr
     #isCaptured;
     constructor(team) {
         if ((team != 0) && (team != 1)) {
@@ -16,10 +16,10 @@ class Piece {
         this.#team = team; //0 = White, 1 = Black
         this.#row = -1 //Base 0 - numerical row position in grid
         this.#col = -1 //Base 0 - numerical column position in grid
-        this.#file = ''; //Base 1 - alphabetical row position in grid
-        this.#rank = -1; //Base 1 - alphabetical column position in grid
-        this.#notPos = ''; //Notational string of piece position
-        this.#arrPos = [-1, -1] //Array position of piece
+        this.#fileRef = ''; //Base 1 - alphabetical row position in grid
+        this.#rankRef = -1; //Base 1 - alphabetical column position in grid
+        this.#positionRef = ''; //Notational string of piece position
+        this.#positionArr = [-1, -1] //Array position of piece
         this.#isCaptured = false; //Currently not in use
     };
     get team() {
@@ -40,29 +40,29 @@ class Piece {
     set col(value) {
         this.#col = value;
     };
-    get file() {
-        return this.#file;
+    get fileRef() {
+        return this.#fileRef;
     };
-    set file(value) {
-        this.#file = value;
+    set fileRef(value) {
+        this.#fileRef = value;
     };
-    get rank() {
-        return this.#rank;
+    get rankRef() {
+        return this.#rankRef;
     };
-    set rank(value) {
-        this.#rank = value;
+    set rankRef(value) {
+        this.#rankRef = value;
     };
-    get notPos() {
-        return this.#notPos;
+    get positionRef() {
+        return this.#positionRef;
     };
-    set notPos(value) {
-        this.#notPos = value;
+    set positionRef(value) {
+        this.#positionRef = value;
     };
-    get arrPos() {
-        return this.#arrPos;
+    get positionArr() {
+        return this.#positionArr;
     };
-    set arrPos(value) {
-        this.#arrPos = value;
+    set positionArr(value) {
+        this.#positionArr = value;
     };
     get isCaptured() {
         return this.#isCaptured;
@@ -71,39 +71,26 @@ class Piece {
         this.#isCaptured = value;
     };
 
-    setPosition(x, y) {
-        if ((x < 0 || x > 7) || (y < 0 || y > 7)) {
-            throw new Error(`row: ${x}  col: ${y} is not a valid position`)
-        };
-        this.#row = x;
-        this.#col = y;
-        this.#rank = ChessUtility.rowArrayToRef(x)
-        this.#file = (y + 10).toString(36);
-        this.#notPos = this.file + this.rank;
-        this.#arrPos = [x, y];
+    // When a chess piece is updated, it gets information about itself from the square object
+    update(squareObj) {
+        this.#row = squareObj.row;
+        this.#col = squareObj.col;
+        this.#rankRef = squareObj.rankRef;
+        this.#fileRef = squareObj.fileRef;
+        this.#positionRef = squareObj.positionRef;
+        this.#positionArr = squareObj.positionArr
     };
 
-    clearData() {
-        this.team = null;
-        this.row = -1
-        this.col = -1
-        this.file = '';
-        this.rank = -1;
-        this.notPos = '';
-        this.arrPos = [-1, -1]
-        this.isCaptured = false;
-    };
-
-    getFileRankDifference(destination, moveInfo) {
-        let fileDiff = this.arrPos[1] - destination[1];
-        let rankDiff = this.arrPos[0] - destination[0];
-        return [rankDiff, fileDiff];
+    getfileRefrankRefDifference(destination, moveInfo) {
+        let fileRefDiff = this.positionArr[1] - destination[1];
+        let rankRefDiff = this.positionArr[0] - destination[0];
+        return [rankRefDiff, fileRefDiff];
     };
 
     printToTerminal() {
         console.log(`------Debug Piece Details------`)
-        console.log(`Name: ${this.name} | Team: ${this.team} | notPos: ${this.notPos} | arrPos: ${this.arrPos}`)
-        console.log(`row: ${this.row} | col: ${this.col} | file: ${this.file} | rank: ${this.rank}`)
+        console.log(`Name: ${this.name} | Team: ${this.team} | positionRef: ${this.positionRef} | positionArr: ${this.positionArr}`)
+        console.log(`row: ${this.row} | col: ${this.col} | fileRef: ${this.fileRef} | rankRef: ${this.rankRef}`)
         console.log(`-----------------------`)
     };
 };
@@ -130,33 +117,33 @@ class Pawn extends Piece {
     };
 
     isValidMove(destination, moveInfo) {
-        const [rankDiff, fileDiff] = this.getFileRankDifference(destination, moveInfo);
+        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
 
-        // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
+        // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
         if (moveInfo.locationPosX) {
-            return this.arrPos[0] === moveInfo.locationRow
+            return this.positionArr[0] === moveInfo.locationRow
         };
         if (moveInfo.locationPosY) {
-            return this.arrPos[1] === moveInfo.locationCol
+            return this.positionArr[1] === moveInfo.locationCol
         };
         if (moveInfo.isCapture) {
-            return this.file === moveInfo.locationPosY
+            return this.fileRef === moveInfo.locationPosY
         };
 
         // White Pawns
         if (moveInfo.teamNumber === 0) {
-            if (fileDiff === 0 && rankDiff === 1) {
+            if (fileRefDiff === 0 && rankRefDiff === 1) {
                 return true;
             };
-            if (this.row === 6 && fileDiff === 0 && rankDiff === 2) {
+            if (this.row === 6 && fileRefDiff === 0 && rankRefDiff === 2) {
                 return true;
             };
             // Black Pawns
         } else if (moveInfo.teamNumber === 1) {
-            if (fileDiff === 0 && rankDiff === -1) {
+            if (fileRefDiff === 0 && rankRefDiff === -1) {
                 return true;
             };
-            if (this.row === 1 && fileDiff === 0 && rankDiff === -2) {
+            if (this.row === 1 && fileRefDiff === 0 && rankRefDiff === -2) {
                 return true;
             };
         };
@@ -186,16 +173,16 @@ class Rook extends Piece {
     };
 
     isValidMove(destination, moveInfo) {
-        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
+        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
 
-        // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
+        // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
         if (moveInfo.locationPosX) {
-            return this.arrPos[0] === moveInfo.locationRow
+            return this.positionArr[0] === moveInfo.locationRow
         };
         if (moveInfo.locationPosY) {
-            return this.arrPos[1] === moveInfo.locationCol
+            return this.positionArr[1] === moveInfo.locationCol
         };
-        return fileDiff === 0 || rankDiff === 0;
+        return fileRefDiff === 0 || rankRefDiff === 0;
     };
 };
 
@@ -221,20 +208,20 @@ class Knight extends Piece {
     };
 
     isValidMove(destination, moveInfo) {
-        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
+        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
 
-        // If the piece rank/file location is mentioned in the notation, return matching piece (if true)
+        // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
         if (moveInfo.locationPosX) {
-            return this.arrPos[0] === moveInfo.locationRow
+            return this.positionArr[0] === moveInfo.locationRow
         };
         if (moveInfo.locationPosY) {
-            return this.arrPos[1] === moveInfo.locationCol
+            return this.positionArr[1] === moveInfo.locationCol
         };
 
         if (this.col !== null && this.row === null) {
-            return this.row === fileDiff;
+            return this.row === fileRefDiff;
         };
-        return (Math.abs(fileDiff) === 1 && Math.abs(rankDiff) === 2) || (Math.abs(fileDiff) === 2 && Math.abs(rankDiff) === 1);
+        return (Math.abs(fileRefDiff) === 1 && Math.abs(rankRefDiff) === 2) || (Math.abs(fileRefDiff) === 2 && Math.abs(rankRefDiff) === 1);
     };
 
 };
@@ -261,8 +248,8 @@ class Bishop extends Piece {
     };
 
     isValidMove(destination, moveInfo) {
-        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
-        return Math.abs(fileDiff) === Math.abs(rankDiff);
+        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+        return Math.abs(fileRefDiff) === Math.abs(rankRefDiff);
     };
 
 };
@@ -289,9 +276,9 @@ class Queen extends Piece {
     };
 
     isValidMove(destination, moveInfo) {
-        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
-        const diagionalMoves = Math.abs(fileDiff) === Math.abs(rankDiff);
-        const straightMoves = fileDiff === 0 || rankDiff === 0;
+        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+        const diagionalMoves = Math.abs(fileRefDiff) === Math.abs(rankRefDiff);
+        const straightMoves = fileRefDiff === 0 || rankRefDiff === 0;
 
         if (diagionalMoves || straightMoves) {
             return true
@@ -321,8 +308,8 @@ class King extends Piece {
     };
 
     isValidMove(destination, moveInfo) {
-        const [fileDiff, rankDiff] = this.getFileRankDifference(destination, moveInfo);
-        return Math.abs(fileDiff) <= 1 && Math.abs(rankDiff) <= 1;
+        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+        return Math.abs(fileRefDiff) <= 1 && Math.abs(rankRefDiff) <= 1;
     };
 };
 

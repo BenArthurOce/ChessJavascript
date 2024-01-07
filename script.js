@@ -10,6 +10,8 @@ import HTMLBoard from "./libs/HTMLChessBoard.js";
 
 import ChessUtility from "./libs/factoryChessUtility.js";
 
+import OpeningDatabase from "./libs/factoryOpeningDatabase.js";
+
 
 //https://github.com/lichess-org/chess-openings/blob/master/a.tsv
 //https://raw.githubusercontent.com/lichess-org/chess-openings/master/a.tsv
@@ -30,25 +32,93 @@ const n = `1. d4 Nf6 2. c4 c5 3. d5 b5 4. cxb5 a6 5. bxa6 g6 6. Nc3 Bxa6 7. Nf3 
 const o = `1. d4 Nf6 2. c4 e6 3. g3 c5 4. d5 exd5 5. cxd5 d6 6. Nc3 g6 7. Bg2 Bg7 8. Nf3 O-O 9. O-O a6 10. a4 Nbd7 11. Nd2 Re8`
 const p = `1. d4 Nf6 2. c4 c5 3. d5 e6 4. Nc3 exd5 5. cxd5 d6 6. e4 g6 7. Nf3 Bg7 8. Be2 O-O 9. O-O Re8 10. Nd2 Na6 11. f3 a5`
 const q = `1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. e5 c5 5. a3 Bxc3+`
-
+const bad = `1. e4 e6 2. d1 d5 3. Nc3 Bb4 4. e5 c5 5. a3 Bxc3+`
 
 // const openings = [a, b, c, f, h, i, j, k, l, m, n]
-const openings = [a, b, c, f, h, i, j, k, m, n]
-// const openings = [q]
+const myOpenings = [a, bad, c, f, h, i, j, k, m, n]
 
-openings.forEach(opening => {
-    // The argument that Logic takes is a PGN string
-    const newLogic = new Logic(opening) // Logic Contains the Board, the Parser and the logic to find pieces
- 
-    // Run Parser, Run Logic
-    newLogic.processAllMoves()
+
+
+//
+// ALLOWS MULTIPLE CHESSBOARDS TO RENDER SAME TIME
+//
+async function processAllLogicMoves(logic) {
+    logic.processAllMoves();
+};
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+async function processMovesAsync(logic) {
+    // Asynchronous logic (if needed)
+    await delay(2000); // Wait for 2000 milliseconds (2 seconds)
     
-    // Create an instance of HTMLBoard
-    const chessHTML = new HTMLBoard();
-    
-    // Display the chessboard on the page
-    document.body.querySelector("#wrapper").appendChild(chessHTML.element);
-    
-    // After Logic has ran, render the board state to the webpage
-    chessHTML.render(newLogic.gameBoard.grid)
+    // Synchronous logic
+    logic.processAllMoves();
+};
+
+function renderAsync(chessHTML, boardState) {
+    return new Promise(resolve => {
+        // Asynchronous rendering logic (if needed)
+        requestAnimationFrame(() => {
+            chessHTML.render(boardState);
+            resolve();
+        });
+    });
+};
+
+
+//
+// RENDERS EACH CHESSBOARD
+//
+myOpenings.forEach(async (opening) => {
+
+    try {
+        const newLogic = new Logic(opening);
+        await processMovesAsync(newLogic);
+
+        const chessHTML = new HTMLBoard(100, 100);
+        document.body.querySelector("#side-board-containers").appendChild(chessHTML.element);
+
+        // Asynchronously render the chessboard
+        await renderAsync(chessHTML, newLogic.gameBoard.grid);
+    } catch (error) {
+        // console.error(`Error processing opening: ${opening}`, error);
+        console.error(error);
+
+        // If there's an error, create a standard chessboard
+        const standardChessHTML = new HTMLBoard(100, 100);
+        document.body.querySelector("#side-board-containers").appendChild(standardChessHTML.element);
+
+        const standardBoardState = new Board();
+
+        // Asynchronously render the standard chessboard
+        await renderAsync(standardChessHTML, standardBoardState.grid);
+    }
 });
+
+
+// Create an additional chessboard outside the loop
+const additionalLogic = new Logic(p); // Example opening
+await processMovesAsync(additionalLogic);
+
+const additionalChessHTML = new HTMLBoard(100, 100);
+document.body.querySelector("#main-board-container").appendChild(additionalChessHTML.element);
+additionalChessHTML.render(additionalLogic.gameBoard.grid);
+
+
+//
+// WIP - Database of openings
+//
+
+  // Create an instance of OpeningDatabase
+  const openingDB = new OpeningDatabase();
+
+  // Log openings after the class is initialized
+  openingDB.initClass();
+
+  // Alternatively, if you want to log openings after a delay (for demonstration purposes)
+  setTimeout(() => {
+    console.log(openingDB.openings);
+  }, 2000); // Adjust the delay as needed

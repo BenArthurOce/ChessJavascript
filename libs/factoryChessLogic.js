@@ -41,14 +41,14 @@ class Logic {
 
 
     processAllMoves() {
-        for (const [turn_num, [whiteMoveInst, blackMoveInst]] of Object.entries(this.parser)) {
-            if (whiteMoveInst) {
-                this.processPlayerMove(0, whiteMoveInst);
+        for (const [turn_num, [whitemoveInfo, blackmoveInfo]] of Object.entries(this.parser)) {
+            if (whitemoveInfo) {
+                this.processPlayerMove(0, whitemoveInfo);
             };
-            if (blackMoveInst) {
-                this.processPlayerMove(1, blackMoveInst);
+            if (blackmoveInfo) {
+                this.processPlayerMove(1, blackmoveInfo);
             };
-            if (!whiteMoveInst && !blackMoveInst) {
+            if (!whitemoveInfo && !blackmoveInfo) {
                 throw new Error (
                     `processAllMoves: a move on turn ${turn_num} was not found`
                 );
@@ -57,29 +57,28 @@ class Logic {
     };
 
 
-    processPlayerMove(teamNum, moveInst) {
+    processPlayerMove(teamNum, moveInfo) {
         try {
-            if (!moveInst) {
-                throw new Error('processPlayerMove: moveInst is null');
+            if (!moveInfo) {
+                throw new Error('processPlayerMove: moveInfo is null');
             };
 
             // If there was a castling move, perform it and then leave function
-            if (moveInst.castlingSide) {
-                this.gameBoard.performCastling(teamNum, moveInst.castlingSide);
+            if (moveInfo.castlingSide) {
+                this.gameBoard.performCastling(teamNum, moveInfo.castlingSide);
                 return;
             };
 
             // Find the location of the piece
-            let pieceLocated = this.findLocation(moveInst, teamNum);
+            let pieceLocated = this.findLocation(moveInfo, teamNum);
             if (!pieceLocated) {
-                throw new Error(`Piece not found for team ${teamNum}`);
+                throw new Error(`Piece not found || Turn: ${moveInfo.turnNumber} | MoveNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
             };
-
+//turnNumber
             // Move / update the piece position
-            this.movePiece(pieceLocated, moveInst.targetPosX, moveInst.targetPosY);
-            this.gameBoard.updatePiecePositions();
+            this.gameBoard.movePiece(pieceLocated, moveInfo.targetSquare)
         } catch (error) {
-            this.handleError(error, moveInst);
+            this.handleError(error, moveInfo);
         }
     };
 
@@ -103,24 +102,14 @@ class Logic {
         foundPiece = possiblePieces.find(piece => piece.isValidMove(moveInfo.targetArray, moveInfo));
 
         if (!foundPiece) {
-            throw new Error(
-                'Piece not found'
-                , moveInfo.printToTerminal()
-                , this.gameBoard.printToTerminal()
-            );
+            throw new Error(`Piece not found || Turn: ${moveInfo.turnNumber} | MoveNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
+            // throw new Error(
+            //     'Piece not found'
+            //     , moveInfo.printToTerminal()
+            //     , this.gameBoard.printToTerminal()
+            // );
         }
         return foundPiece;
-    };
-
-
-    movePiece(pieceToMove, destX, destY) {
-        if (!(pieceToMove instanceof Piece)) {
-            throw new Error(`Object is not a valid chess piece: ${piece.name}`);
-        };
-
-        const pieceLocation = pieceToMove.arrPos
-        this.gameBoard.removePieceFromBoard(pieceLocation[0], pieceLocation[1]);
-        this.gameBoard.putPieceOnBoard(destX, destY, pieceToMove);
     };
 
 
@@ -142,9 +131,9 @@ class Logic {
     };
 
 
-    handleError(error, moveInst) {
+    handleError(error, moveInfo) {
         console.error('Error:', error.message);
-        console.error('Move Instruction Details:', moveInst.printToTerminal());
+        console.error('Move Instruction Details:', moveInfo.printToTerminal());
         console.error('Game Board Details:', this.gameBoard.printToTerminal());
         throw error;
     };

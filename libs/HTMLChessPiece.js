@@ -3,10 +3,8 @@
 
 
 class HTMLPiece {
-    #team;
     #row;
     #col;
-    #name;
     #element;
     constructor(row, col, name) {  
         this.#row = row;
