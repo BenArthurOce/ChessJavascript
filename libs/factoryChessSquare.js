@@ -45,14 +45,14 @@ class Square {
     };
     get piece() {
         return this.#contains;
-    }
+    };
     clearPiece() {
         this.#contains = null;
-    }
+    };
     setPiece(piece) {
         piece.update(this)
         this.#contains = piece;
-    }
+    };
 };
 
 export default Square;

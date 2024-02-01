@@ -1,9 +1,16 @@
 import ChessUtility from './factoryChessUtility.js';
 import Square from "./factoryChessSquare.js";
+import ErrorCheck from './factoryErrorCheck.js';
 import {
     Piece, Pawn, Rook, Knight, Bishop, Queen, King
 } from "./factoryChessPiece.js";
 
+
+/**
+ * Represents a chessboard with squares and pieces.
+ *
+ * @class
+ */
 class Board {
     #grid;
     constructor() {
@@ -18,14 +25,20 @@ class Board {
         this.#grid = value;
     };
 
-    // Initialize the squares on the board
+    /**
+     * Initializes the squares on the board.
+     * 
+     */
     initSquares() {
         this.grid = Array.from({ length: 8 }, (_, row) =>
             Array.from({ length: 8 }, (_, col) => new Square(row, col))
         );
     };
 
-    // Initialize the pieces on the board
+    /**
+     * Initializes the pieces on the board.
+     * 
+     */
     initPieces() {
         // Create Chess Pieces and place on board - White
         this.putPieceFromRef(new Rook(0), "a1");
@@ -66,55 +79,88 @@ class Board {
         this.putPieceFromRef(new Pawn(1), "h7");
     };
 
-    // Returns a square on the chessboard
+
+    /**
+     * Returns a square on the chessboard by looking up its 2 character string reference
+     * 
+     * @param {string} ref The position reference of the square ie: "a5".
+     * @returns {Square} The Square() object.
+     */
     returnSquare(ref) {
-        return this.grid.flat().find(square => square.positionRef === ref)
+        ErrorCheck.validateCellRef(ref);
+        return this.grid.flat().find(square => square.positionRef === ref);
     };
 
-    // Gets the two squares, deletes the piece from one, adds piece to the other
+
+    /**
+     * Gets the two squares, deletes the piece from one, adds piece to the other
+     * 
+     * @param {Piece} pieceToMove Piece() object that is to be moved
+     * @param {string} refTarget 2 character string of the destination square reference
+     */
     movePiece(pieceToMove, refTarget) {
+        // Check if everything is good
+        ErrorCheck.validateIsChessPiece(pieceToMove)
+        ErrorCheck.validateCellRef(refTarget)
+
+        // Move piece
         this.returnSquare(pieceToMove.positionRef).clearPiece()
         this.returnSquare(refTarget).setPiece(pieceToMove)
     };
 
-    // Places piece on chessboard. Used for the opening function. Could be removed?
-    putPieceFromRef(piece, ref) {
-        this.returnSquare(ref).setPiece(piece)
+
+    /**
+     * Places piece on chessboard. Used for the opening function. Could be removed?
+     * 
+     * @param {Piece} piece Piece() object that is to be moved
+     * @param {string} refTarget 2 character string of the destination square reference that the peice is to be added to
+     */
+    putPieceFromRef(piece, refTarget) {
+        ErrorCheck.validateCellRef(refTarget);
+        this.returnSquare(refTarget).setPiece(piece)
     };
 
-    // Get array of all piece attributes in their board position
+
+    /**
+     * Get a 2d array of the Chessboard, with each element displaying a selected attribute of the Piece() object
+     *
+     * @param {string} attribute The attribute to retrieve for each piece.
+     * @param {string} ifNull The value to use if the square doesn't contain a piece.
+     * @returns {Array<Array<string>>} The 2d array representing the specified attribute for each piece on the board.
+     */
     getArray(attribute, ifNull) {
         return this.grid.map(row =>
-            row.map(square => (square.contains instanceof Piece ? square.piece[attribute] : ifNull))
+            row.map(square => (square.piece instanceof Piece ? square.piece[attribute] : ifNull))
         );
     };
 
 
+    /**
+     * Performs Castling, where the Rook and the King/Queen both move at the same time.
+     * 
+     * @param {string} teamNum Team Number. 0 = White, 1 = Black
+     * @param {string} castlingSide The type of castling. Either "Kingside" or "Queenside"
+     */
     performCastling(teamNum, castlingSide) {
-        if (teamNum === 0 && castlingSide === "Kingside") {
-            const king = this.returnSquare("e1").piece;
-            this.movePiece(king, "g1");
-            const rook = this.returnSquare("h1").piece;
-            this.movePiece(rook, "f1");
+        ErrorCheck.validateTeamNumber(teamNum);
+        ErrorCheck.validateCastlingCommand(castlingSide);
+
+        const key = `${teamNum}_${castlingSide}`;
+        const castlingInstructions = {
+             "0_Kingside":  {kingFrom: "e1", kingTo: "g1", rookFrom: "h1", rookTo: "f1"}
+            ,"1_Kingside":  {kingFrom: "e8", kingTo: "g8", rookFrom: "h8", rookTo: "f8"}
+            ,"0_Queenside": {kingFrom: "e1", kingTo: "c1", rookFrom: "a1", rookTo: "d1"}
+            ,"1_Queenside": {kingFrom: "e8", kingTo: "c8", rookFrom: "a8", rookTo: "d8"}
         };
-        if (teamNum === 1 && castlingSide === "Kingside") {
-            const king = this.returnSquare("e8").piece;
-            this.movePiece(king, "g8");
-            const rook = this.returnSquare("h8").piece;
-            this.movePiece(rook, "f8");
-        };
-        if (teamNum === 0 && castlingSide === "Queenside") {
-            const king = this.returnSquare("e1").piece;
-            this.movePiece(king, "d1");
-            const rook = this.returnSquare("a1").piece;
-            this.movePiece(rook, "c1");
-        };
-        if (teamNum === 1 && castlingSide === "Queenside") {
-            const king = this.returnSquare("e8").piece;
-            this.movePiece(king, "d8");
-            const rook = this.returnSquare("a8").piece;
-            this.movePiece(rook, "c8");
-        };
+        const moves = castlingInstructions[key]
+
+        ErrorCheck.validateContents(this.returnSquare(moves.kingFrom), King);
+        ErrorCheck.validateContents(this.returnSquare(moves.rookFrom), Rook);
+
+        const king = this.returnSquare(moves.kingFrom).piece;
+        const rook = this.returnSquare(moves.rookFrom).piece;
+        this.movePiece(king, moves.kingTo);
+        this.movePiece(rook, moves.rookTo);
     };
 
 
@@ -129,31 +175,9 @@ class Board {
     };
 
 
-    validateContents(squareRef, whatClass) {
-        const square = this.grid.flat().find(square => square.positionRef === squareRef)
-        if (!(square && square.piece instanceof whatClass)) {
-            throw new Error(`Contents of square ${squareRef} are not an instance of ${whatClass.name}`);
-        };
-    };
-    
-
-    // Validate a square position
-    validatePosition(row, col) {
-        if (row < 0 || row > 7 || col < 0 || col > 7) {
-            throw new Error(`Invalid square position: row ${row}, col ${col}`);
-        };
-    };
-
-
-    // Validate a chess piece
-    validateChessPiece(piece) {
-        if (!(piece instanceof Piece)) {
-            throw new Error(`Object is not a valid chess piece: ${piece.name}`);
-        };
-    };
-
-    
-    // Print the current board state to the terminal
+    /**
+     * Print the current board state to the terminal
+     */
     printToTerminal() {
 
         const positionArray = this.getArray("code", "--")
@@ -194,7 +218,9 @@ class Board {
       };
 
 
-    // Print square locations to the terminal
+    /**
+     * Prints a grid of all the chess squares (and their 2 character string reference) to the terminal
+     */
     printSquaresToTerminal() {
 
         const positionArray = this.grid.map(row =>
