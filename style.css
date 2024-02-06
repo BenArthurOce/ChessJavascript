@@ -1,3 +1,4 @@
+
 #wrapper {
     display: flex;
     gap: 40px;
@@ -40,8 +41,8 @@
     display: grid;
     grid-template-columns: repeat(8, 12.5%);
     grid-template-rows: repeat(8, 12.5%);
-    max-width: 25%;
-    max-height: 25%;
+    /* max-width: 25%;
+    max-height: 25%; */
 }
 
 .lightSquare {
@@ -49,6 +50,8 @@
     background-color: #eeeed2;
     border: 1px solid black;
     display: inline-block;
+    /* width: 40px;
+    height: 40px; */
 }
 
 .darkSquare {
@@ -56,6 +59,8 @@
     background-color: #769656;
     border: 1px solid black;
     display: inline-block;
+    /* width: 40px;
+    height: 40px; */
 }
 
 .chess-piece {
@@ -63,4 +68,9 @@
     height: 100%;
     object-fit: contain; 
     align-self: center;
+}
+
+.square {
+    width: 40px;
+    height: 40px;
 }
