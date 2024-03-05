@@ -1,98 +1,187 @@
 import GameLogic from './StaticGameLogic.js';
 import Parser from './StaticChessParser.js';
-import {Board, BoardFactory, BoardHTML} from './Board.js';
-import { HTMLPiece } from './Piece.js';
+import Board from './Board.js';
 
 
+/**
+ * Represents a chess game.
+ */
 class Game {
-    #parser;
-    #boardState;
-    #boardHTML;
+    #parentElement;
+    #className;
+    #idNumber;
+    #information;
     #notation
+    #parser;
+    #board;
 
-    constructor(notation) {
-        this.#notation = notation
+    /**
+     * Create a chess Game.
+     * @param {Object} information - Information about the game sourced from StaticOpeningDatabase().
+     * @param {number} idNumber - Unique ID number of the game.
+     */
+    constructor(information, idNumber) {
+        /**
+         * The parent element where the game is rendered.
+         * @type {HTMLElement}
+         * @private
+         */
+        this.#parentElement = document.body.querySelector("#side-board-containers");
+
+        /**
+         * The class name of the game.
+         * @type {string}
+         * @private
+         */
+        this.#className = "Game";
+
+        /**
+         * Unique ID number of the game.
+         * @type {number}
+         * @private
+         */
+        this.#idNumber = idNumber;
+
+        /**
+         * Information about the game.
+         * Keys: CONTINUATION, CONTINUATIONNAME, ECO, ERROR, FAVOURITE, NAME, NUMMOVES, PARSER, PGN, VOLUME
+         * @type {Object}
+         * @private
+         */
+        this.#information = information;
+
+        /**
+         * Notation string of the chess game.
+         * @type {string}
+         * @private
+         */
+        this.#notation = information[`PGN`];
+
+        /**
+         * The parser for the game notation.
+         * @type {Parser}
+         * @private
+         */
+        this.#parser = new Parser(this.#notation);
+
+        /**
+         * The game board.
+         * @type {Board}
+         * @private
+         */
+        this.#board = new Board(this.#idNumber, this.#parentElement);
     };
-    get parser() {
-        return this.#parser;
+
+    /**
+     * Get the parent element.
+     * @type {HTMLElement}
+     * @returns {HTMLElement} The parent element.
+     */
+    get parentElement() {
+        return this.#parentElement;
     };
-    set parser(value) {
-        this.#parser = value;
+
+    /**
+     * Get the class name.
+     * @type {string}
+     * @returns {string} The class name.
+     */
+    get className() {
+        return this.#className;
     };
-    get boardState() {
-        return this.#boardState;
+
+    /**
+     * Get the ID number.
+     * @type {number}
+     * @returns {number} The ID number.
+     */
+    get idNumber() {
+        return this.#idNumber;
     };
-    set boardState(value) {
-        this.#boardState = value;
+
+    /**
+     * Get the information about the game
+     * Keys: CONTINUATION, CONTINUATIONNAME, ECO, ERROR, FAVOURITE, NAME, NUMMOVES, PARSER, PGN, VOLUME
+     * @type {Object}.
+     * @returns {Object} Information about the game.
+     */
+    get information() {
+        return this.#information;
     };
-    get boardHTML() {
-        return this.#boardHTML;
-    };
-    set boardHTML(value) {
-        this.#boardHTML = value;
-    };
+
+    /**
+     * Get the notation string of the game.
+     * @type {string}
+     * @returns {string} The notation string of the game.
+     */
     get notation() {
         return this.#notation;
     };
 
-    // Need Method that transfers the game state from factory to DOM
-
-    initGame() {
-
-        // Establish a new board
-        this.boardState = new BoardFactory;
-
-        this.parser = new Parser(this.notation)
-
-        GameLogic.processAllMoves(this.boardState, this.parser)
-
-        const parentElement = document.body.querySelector("#side-board-containers")
-        this.boardHTML = new BoardHTML(parentElement)
-
-        this.TransferGameToDOM()
-
-        // this.resetGame()
-
+    /**
+     * Get the parser for the game notation.
+     * @type {Parser}
+     * @returns {Parser} The parser for the game notation.
+     */
+    get parser() {
+        return this.#parser;
     };
 
+    /**
+     * Get the game board.
+     * @type {Board}
+     * @returns {Board} The game board.
+     */
+    get board() {
+        return this.#board;
+    };
+
+
+
+
+    /**
+     * initGame - WIP
+     * 
+     */
+    initGame() {
+        GameLogic.processAllMoves(this.board, this.parser)
+        this.TransferGameToDOM()
+    };
+    
+
+    /**
+     * TransferGameToDOM - WIP
+     * 
+     */
     TransferGameToDOM() {
 
+        // Define board as flat array
+        const boardFlat = this.board.grid.flat()
 
-
-        // Define both boards as flat arrays
-        const stateFactory = this.boardState.grid.flat()
-        const stateHTML = this.boardHTML.grid.flat()
-
-        // Read through the factory chessboard, clone its pieces to the HTML chessboard
-        for (let i = 0; i < stateFactory.length && i < stateHTML.length; i++) {
-            const squareFactory = stateFactory[i];
-            const squareHTML = stateHTML[i];
-
-            if (squareFactory.contents === null) {
-                // squareHTML.setPiece(new HTMLPiece("-"))
-                squareHTML.setPiece(null)
+        // Read through the chessboard, read through its Square() objects and if it has a Piece() object. Update the Square() and the Dom
+        for (let i = 0; i < boardFlat.length && i < boardFlat.length; i++) {
+            const squareObj = boardFlat[i];
+            if (squareObj.contents === null) {
+                // Nothing happens. Skip to next square
             } else {
-                squareHTML.setPiece(new HTMLPiece(squareFactory.contents.code))
+                squareObj.setPiece(squareObj.contents)
             }
         }
     };
 
-    // clearBoard() {
 
-    // }
-
+    /**
+     * resetGame - WIP
+     * Doesnt seem to be used anywhere at the moment
+     */
     resetGame() {
         // Define both boards as flat arrays
-        const stateFactory = this.boardState.grid.flat()
-        const stateHTML = this.boardHTML.grid.flat()
-        for (let i = 0; i < stateFactory.length && i < stateHTML.length; i++) {
-            const squareFactory = stateFactory[i];
-            const squareHTML = stateHTML[i];
-            squareFactory.removePiece()
-            squareHTML.removePiece()
-            
+        const boardFlat = this.board.grid.flat()
+        for (let i = 0; i < boardFlat.length && i < stateHTML.length; i++) {
+            const squareObj = boardFlat[i];
+            squareObj.removePiece()            
         }
-    }
+    };
 };
 
 export default Game

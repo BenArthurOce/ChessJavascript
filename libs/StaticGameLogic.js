@@ -1,6 +1,6 @@
 import ChessUtility from './StaticChessUtility.js';
 import ErrorCheck from './StaticErrorCheck.js';
-import {Piece, Pawn, Rook, Knight, Bishop, Queen, King, HTMLPiece} from "./Piece.js";
+import {Piece, Pawn, Rook, Knight, Bishop, Queen, King} from "./Piece.js";
 
 class GameLogic {
 
@@ -64,6 +64,7 @@ class GameLogic {
      * @throws {Error} If there is an issue with finding the piece or if it's not a valid chess piece.
      */
     static findLocation(boardState, teamNum, moveInfo) {
+        // console.log(moveInfo)
         let foundPiece = null   // If this remains null, an error will be triggered
 
         // Check that the code letter represents an actual Piece() object
@@ -81,7 +82,7 @@ class GameLogic {
 
         // If no Piece() object that could move to the destination square was found, return an error
         if (!foundPiece) {
-            throw new Error(`Piece not found || Turn: ${moveInfo.turnNumber} | MoveNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
+            throw new Error(`Piece not found || Turn: ${moveInfo.turnNumber} | TeamNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
         }
         return foundPiece;
     };

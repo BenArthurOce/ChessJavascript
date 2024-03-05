@@ -1,4 +1,4 @@
-import {Piece, Pawn, Rook, Knight, Bishop, Queen, King, HTMLPiece} from "./Piece.js";
+import {Piece, Pawn, Rook, Knight, Bishop, Queen, King} from "./Piece.js";
 
 class ChessUtility {
     static #rowRefToArray = { 8: 0, 7: 1, 6: 2, 5: 3, 4: 4, 3: 5, 2: 6, 1: 7};

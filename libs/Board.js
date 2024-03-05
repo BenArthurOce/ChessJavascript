@@ -1,26 +1,41 @@
 import ChessUtility from './StaticChessUtility.js';
 import ErrorCheck from './StaticErrorCheck.js';
-import {Piece, Pawn, Rook, Knight, Bishop, Queen, King, HTMLPiece} from "./Piece.js";
-
-import { Square, SquareFactory, SquareHTML } from './Square.js';
-
+import Square from './Square.js';
+import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./Piece.js";
 
 class Board {
+    #parentElement
+    #element
     #className;
-    #objectType
+    #idNumber
     #grid
-    constructor() {
-        this.#className = "Board"; 
-        this.#objectType = null;  
+    constructor(idNumber, parentElement) {
+        this.#parentElement = parentElement;
+        this.#element = null;
+        this.#className = "Board";
+        this.#idNumber = idNumber
+        this.#grid = [];
+
+        this.#parentElement = document.body.querySelector("#side-board-containers")
+
+        this.createElement();       // Creates the board HTML element and adds it to the Board() class
+        this.initSquares();         // Creates the Square() objects, and appends them to the Board() grid, and Board() element
+        this.initPieces();          // Creates the Piece() objects, and appends them to the Square() contents, and Square() element
+    };
+    get parentElement() {
+        return this.#parentElement;
+    };
+    get element() {
+        return this.#element;
+    };
+    set element(value) {
+        this.#element = value;
     };
     get className() {
         return this.#className;
     };
-    get objectType() {
-        return this.#objectType;
-    };
-    set objectType(value) {
-        this.#objectType = value;
+    get idNumber() {
+        return this.#idNumber;
     };
     get grid() {
         return this.#grid;
@@ -29,36 +44,30 @@ class Board {
         this.#grid = value;
     };
 
-    createBoardElement() {
-        if (this.objectType === "DOM") {
-            this.element = document.createElement('div');
-            this.element.className = "chessboard"
-        };
+    
+    /**
+     * Creates a Board() HTML object for the DOM
+     */
+    createElement() {
+        this.element = document.createElement('div');
+        this.element.className = `chessboard`
+        this.element.id = `chessboard${this.idNumber}`
+        this.parentElement.appendChild(this.element)
     };
 
+
+    /**
+     * Creates the 64 Square Objects, and adds them to the grid attribute of Board(). Also appends the HTML elements
+     */
     initSquares() {
-        if (this.objectType === "Factory") {
-            this.grid = Array.from({ length: 8 }, (_, row) =>
-                Array.from({ length: 8 }, (_, col) => new SquareFactory(row, col))
-            );
-        };
-        if (this.objectType === "DOM") {
-            this.grid = Array.from({ length: 8 }, (_, row) =>
-                Array.from({ length: 8 }, (_, col) => new SquareHTML(row, col, this.element))
-            );
-        };
-    };
-
-    addToDOM() {
-        if (this.objectType === "DOM") {
-            this.parentElement.appendChild(this.element)
-        };
+        this.grid = Array.from({ length: 8 }, (_, row) =>
+            Array.from({ length: 8 }, (_, col) => new Square(row, col, this.element))
+        );
     };
 
 
     /**
      * Initializes the pieces on the board.
-     * 
      */
     initPieces() {
         // Create Chess Pieces and place on board - White
@@ -79,7 +88,7 @@ class Board {
         this.putPieceFromRef(new Pawn(0), "f2");
         this.putPieceFromRef(new Pawn(0), "g2");
         this.putPieceFromRef(new Pawn(0), "h2");
-        
+
         // Create Chess Pieces and place on board - Black
         this.putPieceFromRef(new Rook(1), "a8");
         this.putPieceFromRef(new Knight(1), "b8");
@@ -105,11 +114,23 @@ class Board {
      * Returns a square on the chessboard by looking up its 2 character string reference
      * 
      * @param {string} ref The position reference of the square ie: "a5".
-     * @returns {SquareFactory} The SquareFactory() object.
+     * @returns {Square} The Square() object.
      */
     returnSquare(ref) {
         ErrorCheck.validateCellRef(ref);
         return this.grid.flat().find(square => square.positionRef === ref);
+    };
+
+
+    /**
+     * Places piece on chessboard. Used for the opening function. Could be removed?
+     * 
+     * @param {Piece} piece Piece() object that is to be moved
+     * @param {string} refTarget 2 character string of the destination square reference that the peice is to be added to
+     */
+    putPieceFromRef(piece, refTarget) {
+        ErrorCheck.validateCellRef(refTarget);
+        this.returnSquare(refTarget).setPiece(piece)
     };
 
 
@@ -127,33 +148,6 @@ class Board {
         // Move piece
         this.returnSquare(pieceToMove.positionRef).clearPiece()
         this.returnSquare(refTarget).setPiece(pieceToMove)
-    };
-
-
-    /**
-     * Places piece on chessboard. Used for the opening function. Could be removed?
-     * 
-     * @param {Piece} piece Piece() object that is to be moved
-     * @param {string} refTarget 2 character string of the destination square reference that the peice is to be added to
-     */
-    putPieceFromRef(piece, refTarget) {
-        ErrorCheck.validateCellRef(refTarget);
-        this.returnSquare(refTarget).setPiece(piece)
-    };
-
-
-    /**
-     * Get a 2d array of the Chessboard, with each element displaying a selected attribute of the Piece() object
-     *
-     * @param {string} attribute The attribute to retrieve for each piece.
-     * @param {string} ifNull The value to use if the square doesn't contain a piece.
-     * @returns {Array<Array<string>>} The 2d array representing the specified attribute for each piece on the board.
-     */
-    getArray(attribute, ifNull) {
-        console.log("getArray")
-        return this.grid.map(row =>
-            row.map(square => (square.piece instanceof Piece ? square.piece[attribute] : ifNull))
-        );
     };
 
 
@@ -187,6 +181,9 @@ class Board {
 
 
     // Return a list of pieces that match criteria
+    /**
+     * filterBoardByAttribute - WIP
+     */
     filterBoardByAttribute(code, attributeName, attributeValue) {
         const array = this.grid.map(row =>
             row.map(square => (square.piece instanceof Piece ? square.piece : null))
@@ -194,6 +191,21 @@ class Board {
         return array
             .filter(piece => piece && piece.pieceCodeStr === code)
             .filter(piece => piece[attributeName] === attributeValue);
+    };
+
+
+    /**
+     * Get a 2d array of the Chessboard, with each element displaying a selected attribute of the Piece() object
+     *
+     * @param {string} attribute The attribute to retrieve for each piece.
+     * @param {string} ifNull The value to use if the square doesn't contain a piece.
+     * @returns {Array<Array<string>>} The 2d array representing the specified attribute for each piece on the board.
+     */
+    getArray(attribute, ifNull) {
+        console.log("getArray")
+        return this.grid.map(row =>
+            row.map(square => (square.piece instanceof Piece ? square.piece[attribute] : ifNull))
+        );
     };
 
 
@@ -271,46 +283,6 @@ class Board {
       
         console.log(board);
     };
-
 };
 
-
-class BoardFactory extends Board {
-    constructor() {
-        super()
-        this.objectType = "Factory"
-        this.createBoardElement();
-        this.initSquares()
-        this.initPieces()
-        this.addToDOM()
-    };
-};
-
-
-class BoardHTML extends Board {
-    #parentElement;
-    #element;
-    constructor(parentElement) {
-        super()
-        this.objectType = "DOM";
-        this.#parentElement = parentElement;
-        this.#element = null;
-        this.createBoardElement();
-        this.initSquares();
-        this.addToDOM()
-    };
-    get parentElement() {
-        return this.#parentElement;
-    };
-    set parentElement(value) {
-        this.#parentElement = value;
-    };
-    get element() {
-        return this.#element;
-    };
-    set element(value) {
-        this.#element = value;
-    };
-};
-
-export {Board, BoardFactory, BoardHTML}
+export default Board;

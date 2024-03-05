@@ -1,7 +1,8 @@
-import { Square, SquareFactory, SquareHTML } from './Square.js';
+// import { Square, SquareFactory, SquareHTML } from './Square.js';
+import Square from './Square.js';
 
 import {
-    Piece, Pawn, Rook, Knight, Bishop, Queen, King, HTMLPiece
+    Piece, Pawn, Rook, Knight, Bishop, Queen, King
 } from "./Piece.js";
 
 class ErrorCheck {

@@ -1,34 +1,40 @@
 import ChessUtility from './StaticChessUtility.js';
 
 class Square {
+    #parentElement;
+    #element;
     #className;
-    #objectType
     #row;
     #col;
     #fileRef;
     #rankRef;
     #positionRef;
-    #positionArr
+    #positionArr;
     #contents;
-    constructor(row, col) {
-        this.#className = "Square"
-        this.#objectType = null;                                // Either a Factory or DOM object
+    constructor(row, col, parentElement) {
+        this.#parentElement = parentElement;
+        this.#element = null;
+        this.#className = "Square";
         this.#row = row;                                        // base 0 - row position in grid
         this.#col = col;                                        // base 0 - col position in grid
-        this.#rankRef = ChessUtility.rowArrayToRef(row)         // base 1 - row position in grid    
-        this.#fileRef = ChessUtility.colArrayToRef(col)         // col position converted to letter
+        this.#rankRef = ChessUtility.rowArrayToRef(row);        // base 1 - row position in grid   
+        this.#fileRef = ChessUtility.colArrayToRef(col);        // col position converted to letter
         this.#positionRef = this.#fileRef + this.#rankRef;      // notational two character square reference (ie: a1)
-        this.#positionArr = [row, col]                          // two element array of row and col (base 0)
+        this.#positionArr = [row, col];                         // two element array of row and col (base 0)
         this.#contents = null;                                  // indicates if a Piece() is on the Square() object
+        this.createHTMLElement()
+    };
+    get parentElement() {
+        return this.#parentElement;
+    };
+    get element() {
+        return this.#element;
+    };
+    set element(value) {
+        this.#element = value;
     };
     get className() {
         return this.#className;
-    };
-    get objectType() {
-        return this.#objectType;
-    };
-    set objectType(value) {
-        this.#objectType = value;
     };
     get row() {
         return this.#row;
@@ -57,56 +63,11 @@ class Square {
     get piece() {
         return this.#contents;
     };
-    clearPiece() {
-        this.#contents = null;
-    };
-    setPiece(piece) {
-        piece.update(this)
-        this.#contents = piece;
-    };
-    removePiece() {
-        this.#contents = null;
-    };
-
-};
 
 
-class SquareFactory extends Square {
-
-    constructor(row, col) {
-        super(row, col);
-        this.objectType = "Factory"
-    };
-};
-
-
-class SquareHTML extends Square {
-    #row;
-    #col;
-    #parentElement;
-    #element;
-    constructor(row, col, parentElement) {
-        super(row, col)
-        this.#row = row;
-        this.#col = col;
-        this.#parentElement = parentElement;
-        this.objectType = "DOM"
-        this.element = null
-        this.createHTMLElement()
-    };
-    get parentElement() {
-        return this.#parentElement;
-    };
-    set parentElement(value) {
-        this.#parentElement = value
-    };
-    get element() {
-        return this.#element;
-    };
-    set element(value) {
-        this.#element = value
-    };
-
+    /**
+     * Creates a Square() HTML object for the DOM
+     */
     createHTMLElement() {
         this.element = document.createElement('div');
         this.element.className = (this.row + this.col) % 2 === 0 ? "lightSquare square" : "darkSquare square";
@@ -115,19 +76,33 @@ class SquareHTML extends Square {
         this.parentElement.appendChild(this.element)
     };
 
-    setPiece(piece) {
-        if (piece === null) {
-            // while statement ensures that every child element is removed
-            while (this.element.firstChild) {
-                this.element.removeChild(this.element.firstChild);
-            }
-        } else {
-            // If piece is not null, append the piece element
-            this.element.appendChild(piece.element);
-        }
-    }
+
+    /**
+     * Updates the #contents attribute of the Square() object with the Piece() object that is on that square. Also updates the DOM
+     * @param {Piece} pieceObj The Square() object where the Piece() object is residing
+     */
+    setPiece(pieceObj) {
+        pieceObj.update(this);       
+        this.#contents = pieceObj;
+        this.element.appendChild(pieceObj.element)
+    };
 
 
+    /**
+     * removePiece - WIP
+     */
+    removePiece() {
+        this.#contents = null;
+    };
+
+
+    /**
+     * clearPiece - WIP (is likely not required)
+     */
+    clearPiece() {
+        this.#contents = null;
+        // this.element.removeChild(piece.element)      // This line causes an error
+    };
 };
 
-export {Square, SquareFactory, SquareHTML};
+export default Square;
