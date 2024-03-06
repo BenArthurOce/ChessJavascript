@@ -1,6 +1,6 @@
 
 
-import FrontPage from "./libs/_FrontPage.js";
+import FrontPage from "./libs/FrontPage.js";
 
 const frontpage = new FrontPage()
 frontpage.initPage()
