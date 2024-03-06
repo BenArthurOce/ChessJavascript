@@ -2,75 +2,126 @@
 #wrapper {
     display: flex;
     gap: 40px;
-
+    height: 100vh;
+    width: 100vw;
+    grid-template-columns: 50% 50%;
 }
 
-#main-board-container {
-    /* height: 400px;
-    width: 400px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 40px;
-    min-width: 50%; */
-    /* max-width: 100%; */
-    /* height: 400px;
-    width: 400px; */
-    /* flex-basis: 30%; */
+/* #main-board-container {
+
     width: 50vw
-}
+} */
 
-#main-board-container .chessboard {
-    border: 10px solid red;
-    display: grid;
-    grid-template-columns: repeat(8, 12.5%);
-    grid-template-rows: repeat(8, 12.5%);
-    /* width: 100%; */
-    max-width: 100%
-}
 
 #side-board-containers {
-    /* width: auto; */
     flex-basis: 70%;
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
 
-#side-board-containers .chessboard {
-    border: 10px solid black;
-    display: grid;
-    grid-template-columns: repeat(8, 12.5%);
-    grid-template-rows: repeat(8, 12.5%);
-    /* max-width: 25%;
-    max-height: 25%; */
+
+.chessboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex-direction: column-reverse;
 }
+
+
+.chessboard {
+    display: inline-grid;
+    border: 10px solid black;
+    grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+    grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+}
+
+
+.square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+}
+
 
 .lightSquare {
-    position: relative;
-    background-color: #eeeed2;
-    border: 1px solid black;
-    display: inline-block;
-    /* width: 40px;
-    height: 40px; */
+    background-color: #8b6c5c;
 }
 
+
 .darkSquare {
-    position: relative;
-    background-color: #769656;
-    border: 1px solid black;
-    display: inline-block;
-    /* width: 40px;
-    height: 40px; */
+    background-color: #3d251e;
 }
 
 .chess-piece {
+    font-size: 180%;
+}
+
+.white-piece {
+    color: white;
+}
+
+.black-piece {
+    color: black;
+}
+
+/* .chess-piece > i {
+    display: inline-block;
     width: 100%;
     height: 100%;
     object-fit: contain; 
     align-self: center;
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+} */
+
+
+/* i {
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+} */
+
+.caption > p {
+    font-size: 80px;
 }
 
-.square {
-    width: 40px;
-    height: 40px;
+.chessboard + p {
+    display:flex;
+    margin-top: 10px; /* Adjust as needed */
 }
+
+p {
+    display: flex
+}
+
+@media (min-height: 680px), screen and (orientation: portrait) {
+
+
+    #wrapper {
+        display: flex;
+        /* grid-template-columns:30% 70% */
+        flex-direction: column;
+        overflow-y: scroll;
+        height: initial;
+        width: initial;
+    }
+
+    #side-board-containers {
+        flex-basis: 70%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        overflow-y: scroll;
+    }
+
+}
+  

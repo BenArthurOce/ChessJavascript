@@ -1,24 +1,25 @@
 
 import Game from "./Game.js";
 import StaticOpeningDatabase from "./StaticOpeningDatabase.js";
+import dropdownFavourites from './DropdownFavourites.js';
+import dropdownECO from "./DropdownECO.js";
 
 
 class FrontPage {
     #className;
-    #objectType
-    #elements
-    #mainGameBoard
-    #sideGameBoards
+    #mainGameBoard;
+    #sideGameBoards;
+    #elements;
     constructor() {
-        this.#className = "Board"; 
-        this.objectType = "Factory/DOM";
+        this.#className = "Board";
+        this.#mainGameBoard = null;
         this.#sideGameBoards = [];
         this.#elements = {
              btnQuery: document.body.querySelectorAll(`button`)[0]
             ,btnClear: document.body.querySelectorAll(`button`)[1]
-            ,input1:  document.body.querySelectorAll(`input`)[0]
-            ,input2:  document.body.querySelectorAll(`input`)[1]
-            ,input3:  document.body.querySelectorAll(`input`)[2]
+            ,input1:  document.body.querySelectorAll(`select`)[0]
+            ,input2:  document.body.querySelectorAll(`input`)[0]
+            ,input3:  document.body.querySelectorAll(`input`)[1]
             ,mainBoard: document.body.querySelector(`#main-board-container`)
             ,sideBoardContainer: document.body.querySelector(`#side-board-containers`)
         };
@@ -28,15 +29,6 @@ class FrontPage {
     };
     set className(value) {
         this.#className = value;
-    };
-    get objectType() {
-        return this.#objectType;
-    };
-    set objectType(value) {
-        this.#objectType = value;
-    };
-    get elements() {
-        return this.#elements;
     };
     get mainGameBoard() {
         return this.#mainGameBoard;
@@ -50,12 +42,34 @@ class FrontPage {
     set sideGameBoards(value) {
         this.#sideGameBoards = value;
     };
+    get elements() {
+        return this.#elements;
+    };
 
 
     /**
      * Initializes the front page.
      */
     initPage() {
+
+        // Populate the favourites dropdown
+        const favouritesDropdown = document.getElementById('favourites');
+
+        dropdownFavourites.forEach(favourite => {
+            const option = document.createElement('option');
+            option.value = favourite;
+            option.textContent = favourite;
+            favouritesDropdown.appendChild(option);
+        });
+
+        const ecoDropdown = document.getElementById('dropdownECO');
+
+        dropdownECO.forEach(eco => {
+            const option = document.createElement('option');
+            option.value = eco;
+            option.textContent = eco;
+            ecoDropdown.appendChild(option);
+        });
 
         // Event Listener for rendering boards to page
         this.elements.btnQuery.addEventListener('click', () => {
@@ -79,7 +93,7 @@ class FrontPage {
 
         // After reading the database, returns the results into a variable
         const databaseResults = await this.queryDatabase(searchCategory, searchTerm, moveNumber);
-        console.log(databaseResults)
+        // console.log(databaseResults)
 
         // Takes the database results and creates new Games based on the information
         this.loadChessBoards(databaseResults);
@@ -119,7 +133,7 @@ class FrontPage {
                 index++;
             }
         }
-    }
+    };
 
 
     /**

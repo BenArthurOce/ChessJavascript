@@ -8,6 +8,7 @@ import Board from './Board.js';
  */
 class Game {
     #parentElement;
+    #element
     #className;
     #idNumber;
     #information;
@@ -27,6 +28,15 @@ class Game {
          * @private
          */
         this.#parentElement = document.body.querySelector("#side-board-containers");
+
+
+        /**
+         * The element of the Game() class.
+         * @type {HTMLElement}
+         * @private
+         */
+        this.#element = null;
+
 
         /**
          * The class name of the game.
@@ -69,7 +79,11 @@ class Game {
          * @type {Board}
          * @private
          */
-        this.#board = new Board(this.#idNumber, this.#parentElement);
+
+        this.createElement()
+        this.#board = new Board(this.#idNumber, this.element);
+
+
     };
 
     /**
@@ -79,6 +93,22 @@ class Game {
      */
     get parentElement() {
         return this.#parentElement;
+    };
+
+    /**
+     * Get the element.
+     * @type {HTMLElement}
+     * @returns {HTMLElement} The element.
+     */
+    get element() {
+        return this.#element;
+    };
+
+    /**
+     * Set the element.
+     */
+    set element(value) {
+        this.#element = value;
     };
 
     /**
@@ -136,7 +166,52 @@ class Game {
         return this.#board;
     };
 
+    /**
+     * initGame - WIP
+     * 
+     */
+    createElement() {
+        this.element = document.createElement('div');
+        this.element.className = `chessboard-container`;
+        this.element.id = `chessboard-container${this.idNumber}`;
+        this.parentElement.appendChild(this.element);
 
+        // console.log(this.information.NAME)
+        // console.log(this.information)
+
+
+
+        // Notation of the opening
+        const notationEl = document.createElement('p');
+        const notationTxt = document.createTextNode(`${this.information.PGN}`);
+        notationEl.appendChild(notationTxt);
+        this.element.appendChild(notationEl);
+
+        // Name of the opening
+        const textEl = document.createElement('p');
+        const text = document.createTextNode(`${this.information.NAME}`);
+        textEl.appendChild(text);
+        this.element.appendChild(textEl);
+
+        // ECO
+        const ecoEl = document.createElement('p');
+        const eco = document.createTextNode(`${this.information.ECO}`);
+        ecoEl.appendChild(eco);
+        this.element.appendChild(ecoEl);
+
+        // Delete button
+        const buttonEl = document.createElement('button');
+        buttonEl.textContent = "delete"
+        this.element.appendChild(buttonEl);
+
+
+        // Button click event
+        buttonEl.addEventListener('click', () => {
+            // this.renderBoardsToPage()
+            this.resetGame()
+        });
+
+    }
 
 
     /**
@@ -172,14 +247,17 @@ class Game {
 
     /**
      * resetGame - WIP
-     * Doesnt seem to be used anywhere at the moment
      */
     resetGame() {
-        // Define both boards as flat arrays
+        // Currently triggered from the "Delete button" in the Game() object
+        // Clears all squares of pieces
+        
+        // Define board as flat array
         const boardFlat = this.board.grid.flat()
-        for (let i = 0; i < boardFlat.length && i < stateHTML.length; i++) {
+
+        for (let i = 0; i < boardFlat.length && i < boardFlat.length; i++) {
             const squareObj = boardFlat[i];
-            squareObj.removePiece()            
+            squareObj.clearContents()            
         }
     };
 };

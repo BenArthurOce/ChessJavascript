@@ -16,7 +16,7 @@ class Board {
         this.#idNumber = idNumber
         this.#grid = [];
 
-        this.#parentElement = document.body.querySelector("#side-board-containers")
+        // this.#parentElement = document.body.querySelector("#side-board-containers")
 
         this.createElement();       // Creates the board HTML element and adds it to the Board() class
         this.initSquares();         // Creates the Square() objects, and appends them to the Board() grid, and Board() element
@@ -50,9 +50,9 @@ class Board {
      */
     createElement() {
         this.element = document.createElement('div');
-        this.element.className = `chessboard`
-        this.element.id = `chessboard${this.idNumber}`
-        this.parentElement.appendChild(this.element)
+        this.element.className = `chessboard`;
+        this.element.id = `chessboard${this.idNumber}`;
+        this.parentElement.appendChild(this.element);
     };
 
 
@@ -60,8 +60,12 @@ class Board {
      * Creates the 64 Square Objects, and adds them to the grid attribute of Board(). Also appends the HTML elements
      */
     initSquares() {
+        // Using the id number of Game(), determine the Board() element that the Square() needs to be added to
+        const parentEL = document.body.querySelector(`#chessboard${this.idNumber}`)
+
+        // Populate the grid attribute with Square() objects. The Square() object will create and append the element
         this.grid = Array.from({ length: 8 }, (_, row) =>
-            Array.from({ length: 8 }, (_, col) => new Square(row, col, this.element))
+            Array.from({ length: 8 }, (_, col) => new Square(row, col, parentEL))
         );
     };
 
@@ -145,8 +149,11 @@ class Board {
         ErrorCheck.validateIsChessPiece(pieceToMove)
         ErrorCheck.validateCellRef(refTarget)
 
-        // Move piece
-        this.returnSquare(pieceToMove.positionRef).clearPiece()
+        // Clear contents of the current Square() and the destination Square()
+        this.returnSquare(pieceToMove.positionRef).clearContents()
+        this.returnSquare(refTarget).clearContents()
+
+        // Update the destination Square() with the Piece()
         this.returnSquare(refTarget).setPiece(pieceToMove)
     };
 

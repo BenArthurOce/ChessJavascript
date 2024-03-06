@@ -82,25 +82,23 @@ class Piece {
      * @param {string} code 2 character string of the pieces team, and type. ie: 0p = "White pawn"
      */
     createHTMLElement(code) {
-        const piecesDirectory = "pieces/";
         const fileMap = new Map();
-        fileMap.set("0p", piecesDirectory + "white_pawn.png");
-        fileMap.set("1p", piecesDirectory + "black_pawn.png");
-        fileMap.set("0R", piecesDirectory + "white_rook.png");
-        fileMap.set("1R", piecesDirectory + "black_rook.png");
-        fileMap.set("0N", piecesDirectory + "white_knight.png");
-        fileMap.set("1N", piecesDirectory + "black_knight.png");
-        fileMap.set("0B", piecesDirectory + "white_bishop.png");
-        fileMap.set("1B", piecesDirectory + "black_bishop.png");
-        fileMap.set("0Q", piecesDirectory + "white_queen.png");
-        fileMap.set("1Q", piecesDirectory + "black_queen.png");
-        fileMap.set("0K", piecesDirectory + "white_king.png");
-        fileMap.set("1K", piecesDirectory + "black_king.png");
+        fileMap.set("0p", "<i class='fas fa-chess-pawn pawn white-piece chess-piece'></i>");
+        fileMap.set("1p", "<i class='fas fa-chess-pawn pawn black-piece chess-piece'></i>");
+        fileMap.set("0R", "<i class='fas fa-chess-rook rook white-piece chess-piece'></i>");
+        fileMap.set("1R", "<i class='fas fa-chess-rook rook black-piece chess-piece'></i>");
+        fileMap.set("0N", "<i class='fas fa-chess-knight knight white-piece chess-piece'></i>");
+        fileMap.set("1N", "<i class='fas fa-chess-knight knight black-piece chess-piece'></i>");
+        fileMap.set("0B", "<i class='fas fa-chess-bishop bishop white-piece chess-piece'></i>");
+        fileMap.set("1B", "<i class='fas fa-chess-bishop bishop black-piece chess-piece'></i>");
+        fileMap.set("0Q", "<i class='fas fa-chess-queen queen white-piece chess-piece'></i>");
+        fileMap.set("1Q", "<i class='fas fa-chess-queen queen black-piece chess-piece'></i>");
+        fileMap.set("0K", "<i class='fas fa-chess-king king white-piece chess-piece'></i>");
+        fileMap.set("1K", "<i class='fas fa-chess-king king black-piece chess-piece'></i>");
 
-        this.element = document.createElement('img');
-        this.element.src = fileMap.get(code);
-        this.element.className = 'chess-piece';
-        this.element.alt = code;
+        const tempEl = document.createElement('i');
+        tempEl.innerHTML = fileMap.get(code);
+        this.element = tempEl.firstChild
     };
 
 

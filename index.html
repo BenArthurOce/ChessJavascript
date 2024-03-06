@@ -10,29 +10,56 @@
     <meta name='author' content='Ben Arthur'>
     <link rel="stylesheet" href="style.css">
     <title>ChessBoard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
 </head>
 
 <body>
 
-
-
     <div id="wrapper">
         <div id="main-board-container">
-            <label>SearchCategory</label> <input></input>
+            <br><br>
+            <p>to use: have the search category as "ECO" and type in an ECO number. C44</p>
+            <p>"move number" takes a single digit. It removes all results that have PGNs that end before that move number</p>
+            <p>you can change the search category to "PGN" but typing in the correct search term and move number can be difficult.</p>
+            <p>Until i get the continuation openings set up, it straight up wont work. Just use ECO for now.</p>
+            <p>LMAO i can even to get it to scroll on mobile yet. Sorry. Best to use PC.</p>
+            <br><br>
+            <label for="searchCategory">Search Category</label>
+            <select id="searchCategory">
+                <option value="ECO">ECO</option>
+                <option value="NAME">NAME</option>
+                <option value="PGN">PGN</option>
+                <option value="VOLUME">VOLUME</option>
+            </select>
             <br>
-            <label>SearchTerm</label> <input></input>
+            <label for="searchTerm">Search Term</label> 
+            <input id="searchTerm" type="text">
             <br>
-            <label>MoveNum</label> <input></input>
+            <label for="moveNum">Move Number</label> 
+            <input id="moveNum" type="text">
             <br>
-            <button>Query DB</button>
+            <button id="queryDB">Query DB</button>
             <br>
             <br>
-            <button>Clear Boards</button>
+            <button id="clearBoards">Clear Boards</button>
+            <br><br>
+            <p> Note: The following dropdowns do not do anything. They are work in progress</p>
+            <br><br>
+            <label for="favourites">Favourites</label>
+            <select id="favourites">
+                <!-- Options will be populated dynamically using JavaScript -->
+            </select>
+            <label for="dropdownECO">ECO</label>
+            <select id="dropdownECO">
+                <!-- Options will be populated dynamically using JavaScript -->
+            </select>
         </div>
         <div id='side-board-containers'></div>
     </div>
 
     <script type="module" src="script.js"></script>
 </body>
+
 
 </html>

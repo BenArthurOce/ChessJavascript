@@ -87,22 +87,18 @@ class Square {
         this.element.appendChild(pieceObj.element)
     };
 
-
+    
     /**
-     * removePiece - WIP
+     * clearContents - WIP
      */
-    removePiece() {
+    clearContents() {
         this.#contents = null;
+        
+        while (this.element.firstChild) {
+            this.element.removeChild(this.element.firstChild)
+        }
     };
 
-
-    /**
-     * clearPiece - WIP (is likely not required)
-     */
-    clearPiece() {
-        this.#contents = null;
-        // this.element.removeChild(piece.element)      // This line causes an error
-    };
 };
 
 export default Square;
