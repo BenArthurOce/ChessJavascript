@@ -17,14 +17,12 @@
 <body>
 
     <div id="wrapper">
+        <div id="ui-input">
+            <h2>Chess Opening Search</h2>
+            <input type="text" id="searchInput" placeholder="Enter move sequence or opening name">
+            <ul id="results"></ul>
+        </div>
         <div id="main-board-container">
-            <br><br>
-            <p>to use: have the search category as "ECO" and type in an ECO number. C44</p>
-            <p>"move number" takes a single digit. It removes all results that have PGNs that end before that move number</p>
-            <p>you can change the search category to "PGN" but typing in the correct search term and move number can be difficult.</p>
-            <p>Until i get the continuation openings set up, it straight up wont work. Just use ECO for now.</p>
-            <p>LMAO i can even to get it to scroll on mobile yet. Sorry. Best to use PC.</p>
-            <br><br>
             <label for="searchCategory">Search Category</label>
             <select id="searchCategory">
                 <option value="ECO">ECO</option>

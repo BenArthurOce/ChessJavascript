@@ -44,6 +44,12 @@ class Board {
         this.#grid = value;
     };
 
+    // Add method to handle click event
+    handleClick(event) {
+        // Handle the click event here
+        console.log('Clicked on board');
+    }
+
     
     /**
      * Creates a Board() HTML object for the DOM

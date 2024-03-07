@@ -221,7 +221,12 @@ class Game {
     initGame() {
         GameLogic.processAllMoves(this.board, this.parser)
         this.TransferGameToDOM()
+        document.querySelector(`#chessboard-container${this.idNumber}`).addEventListener('click', this.handleBoardClick.bind(this));
     };
+
+    handleBoardClick(event) {
+        console.log(this.information.NAME)
+    }
     
 
     /**

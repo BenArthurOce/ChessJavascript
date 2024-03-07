@@ -13,6 +13,27 @@
 } */
 
 
+body {
+    font-family: Arial, sans-serif;
+}
+#searchInput {
+    margin-bottom: 10px;
+}
+#results {
+    list-style-type: none;
+    padding: 0;
+}
+#results li {
+    margin-bottom: 5px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+#results li:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
 #side-board-containers {
     flex-basis: 70%;
     display: flex;

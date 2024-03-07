@@ -2,7 +2,7 @@ class StaticOpeningDatabase {
     static openings = {};
 
     static fetchOpeningsData() {
-        return fetch('./data/chessOpenings.json')
+        return fetch('./data/newChessOpenings.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Failed to fetch data. Status: ${response.status}`);
@@ -37,6 +37,9 @@ class StaticOpeningDatabase {
         let result = {};
 
         switch (searchCategory.toUpperCase()) {
+            case "EVERYTHING":
+                result = Object.fromEntries(Object.entries(this.openings))
+                break
             case "PGN":
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => key === searchItem));
                 break;
@@ -45,18 +48,20 @@ class StaticOpeningDatabase {
                 break;
             case "ECO":
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["ECO"] === searchItem.toUpperCase() && !value["ERROR"]));
+                console.log(result)
                 break;
             case "VOLUME":
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["VOLUME"] === searchItem));
                 break;
             case "NAME":
-                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["NAME"] === searchItem));
+                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["NAME"].includes(searchItem)));
+                console.log(result)
                 break;
             case "CONTINUATION":
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"] && key.startsWith(searchItem)));
                 break;
             case "ALLCONTINUATIONS":
-                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"]));
+                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"] && value['NUMMOVES'] >= moveNumber));
                 break;
             case "FAVOURITE":
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["FAVOURITE"]));
@@ -77,20 +82,20 @@ class StaticOpeningDatabase {
             throw new Error("No Entries found when filtering the dictionary");
         }
 
-        // if user nominated a turn number, filter further to find dictionary lines containing that turn number
-        if (moveNumber !== null) {
-            result = Object.fromEntries(
-                Object.entries(result).filter(([key, value]) => {
-                    const moves = value['PGN'];
-                    return moves && moves.includes(` ${moveNumber}.`);
-                })
-            );
-        }
+        // // if user nominated a turn number, filter further to find dictionary lines containing that turn number
+        // if (moveNumber !== null) {
+        //     result = Object.fromEntries(
+        //         Object.entries(result).filter(([key, value]) => {
+        //             const moves = value['PGN'];
+        //             return moves && moves.includes(` ${moveNumber}.`);
+        //         })
+        //     );
+        // }
 
-        // Throw error if no entries found for the specified move number
-        if (Object.keys(result).length === 0) {
-            throw new Error(`There are no entries for turn ${moveNumber} when searching for ${searchItem} as a ${searchCategory}`);
-        }
+        // // Throw error if no entries found for the specified move number
+        // if (Object.keys(result).length === 0) {
+        //     throw new Error(`There are no entries for turn ${moveNumber} when searching for ${searchItem} as a ${searchCategory}`);
+        // }
 
         return result;
     }
