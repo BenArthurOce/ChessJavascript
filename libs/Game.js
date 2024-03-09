@@ -1,5 +1,5 @@
-import GameLogic from './StaticGameLogic.js';
-import Parser from './StaticChessParser.js';
+import StaticGameLogic from './StaticGameLogic.js';
+import StaticParser from './StaticChessParser.js';
 import Board from './Board.js';
 
 
@@ -21,13 +21,16 @@ class Game {
      * @param {Object} information - Information about the game sourced from StaticOpeningDatabase().
      * @param {number} idNumber - Unique ID number of the game.
      */
-    constructor(information, idNumber) {
+    constructor(information, idNumber, parentElement) {
+
+
         /**
          * The parent element where the game is rendered.
          * @type {HTMLElement}
          * @private
          */
-        this.#parentElement = document.body.querySelector("#side-board-containers");
+        this.#parentElement = parentElement
+        // this.#parentElement = document.body.querySelector("#side-board-containers");
 
 
         /**
@@ -65,14 +68,15 @@ class Game {
          * @type {string}
          * @private
          */
-        this.#notation = information[`PGN`];
+        // this.#notation = information[`PGN`];
+        this.#notation = (information===null) ? null : information[`PGN`]
 
         /**
          * The parser for the game notation.
-         * @type {Parser}
+         * @type {StaticParser}
          * @private
          */
-        this.#parser = new Parser(this.#notation);
+        this.#parser = (information===null) ? null : new StaticParser(this.information[`PGN`]);
 
         /**
          * The game board.
@@ -150,8 +154,8 @@ class Game {
 
     /**
      * Get the parser for the game notation.
-     * @type {Parser}
-     * @returns {Parser} The parser for the game notation.
+     * @type {StaticParser}
+     * @returns {StaticParser} The parser for the game notation.
      */
     get parser() {
         return this.#parser;
@@ -171,6 +175,7 @@ class Game {
      * 
      */
     createElement() {
+        if (!this.parentElement) {return}
         this.element = document.createElement('div');
         this.element.className = `chessboard-container`;
         this.element.id = `chessboard-container${this.idNumber}`;
@@ -179,7 +184,7 @@ class Game {
         // console.log(this.information.NAME)
         // console.log(this.information)
 
-
+        if (!this.information) return
 
         // Notation of the opening
         const notationEl = document.createElement('p');
@@ -202,7 +207,7 @@ class Game {
         // Delete button
         const buttonEl = document.createElement('button');
         buttonEl.textContent = "delete"
-        this.element.appendChild(buttonEl);
+        // this.element.appendChild(buttonEl);
 
 
         // Button click event
@@ -219,9 +224,9 @@ class Game {
      * 
      */
     initGame() {
-        GameLogic.processAllMoves(this.board, this.parser)
+        StaticGameLogic.processAllMoves(this.board, this.parser)
         this.TransferGameToDOM()
-        document.querySelector(`#chessboard-container${this.idNumber}`).addEventListener('click', this.handleBoardClick.bind(this));
+        // document.querySelector(`#chessboard-container${this.idNumber}`).addEventListener('click', this.handleBoardClick.bind(this));
     };
 
     handleBoardClick(event) {
@@ -267,4 +272,20 @@ class Game {
     };
 };
 
-export default Game
+
+// This is a class designed to disregard all elements / parent elements and just run without a display. printToTerminal will display the board
+class GameTest extends Game {
+    constructor(information) {
+        super(information);    
+    };
+
+    initTestGame() {
+        StaticGameLogic.processAllMoves(this.board, this.parser)
+    };
+
+    getBoardObject() {
+        return this.board;
+    }
+};
+
+export {Game, GameTest};

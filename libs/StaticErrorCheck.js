@@ -5,7 +5,7 @@ import {
     Piece, Pawn, Rook, Knight, Bishop, Queen, King
 } from "./Piece.js";
 
-class ErrorCheck {
+class StaticErrorCheck {
 
     /**
      * Handles an error by throwing it.
@@ -27,7 +27,7 @@ class ErrorCheck {
      */
     static validateTeamNumber(teamNum) {
         if (!teamNum === 0 && !teamNum === 1) {
-            ErrorCheck.handleError(`Supplied teamNum of ${teamNum} is invalid.`);
+            StaticErrorCheck.handleError(`Supplied teamNum of ${teamNum} is invalid.`);
         };
     };
 
@@ -40,7 +40,7 @@ class ErrorCheck {
      */
     static validateCastlingCommand(castlingName) {
         if (!castlingName === "Kingside" && !castlingName === "Queenside") {
-            ErrorCheck.handleError(`Supplied castlingName of ${castlingName} is invalid.`);
+            StaticErrorCheck.handleError(`Supplied castlingName of ${castlingName} is invalid.`);
         };
 
         // Maybe add more code to validate piece locations?
@@ -55,7 +55,7 @@ class ErrorCheck {
      */
     static validateCellRef(position) {
         if (typeof position !== 'string' || position.length !== 2) {
-            ErrorCheck.handleError('Invalid input format for position.');
+            StaticErrorCheck.handleError('Invalid input format for position.');
         }
 
         const [file, rank] = position;
@@ -63,7 +63,7 @@ class ErrorCheck {
         const validRanks = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
         if (!validFiles.includes(file) || !validRanks.includes(rank)) {
-            ErrorCheck.handleError('Invalid chess position.');
+            StaticErrorCheck.handleError('Invalid chess position.');
         }
     };
 
@@ -80,7 +80,7 @@ class ErrorCheck {
         const isValidRow = row >= 0 && row <= 7;
 
         if (!(isValidCol && isValidRow)) {
-            ErrorCheck.handleError('Invalid chess position in array.');
+            StaticErrorCheck.handleError('Invalid chess position in array.');
         }
     };
     
@@ -93,7 +93,7 @@ class ErrorCheck {
      */
     static validateSquareContainPiece(square) {
         if (!(square instanceof Square && square.piece)) {
-            ErrorCheck.handleError('Invalid Square object or does not contain a valid chess piece.');
+            StaticErrorCheck.handleError('Invalid Square object or does not contain a valid chess piece.');
         }
     };
 
@@ -108,7 +108,7 @@ class ErrorCheck {
     static validateContents(squareObj, whatClass) {
 
         if (!(squareObj && squareObj.piece instanceof whatClass)) {
-            ErrorCheck.handleError(`Contents of square ${squareObj.positionRef} are not an instance of ${whatClass.name}`);
+            StaticErrorCheck.handleError(`Contents of square ${squareObj.positionRef} are not an instance of ${whatClass.name}`);
         };
     };
 
@@ -121,9 +121,56 @@ class ErrorCheck {
      */
     static validateIsChessPiece(piece) {
         if (!(piece instanceof Piece)) {
-            ErrorCheck.handleError('Invalid chess piece object.');
+            StaticErrorCheck.handleError('Invalid chess piece object.');
+        }
+    };
+
+
+    static validateMoveObject(moveObject) {
+        if (typeof moveObject.teamNumber !== 'boolean') {
+            throw new Error("Invalid team number type. It must be a boolean value.");
+        }
+    
+        if (!(moveObject.teamNumber === false || moveObject.teamNumber === true)) {
+            throw new Error("Invalid team number value. It must be either false or true.");
+        }
+    
+        if (!(moveObject.notation.length > 0)) {
+            throw new Error("Invalid notation. It must have a length greater than 0.");
+        }
+    
+        if (!(moveObject.turnNumber > 0)) {
+            throw new Error("Invalid turn number. It must be greater than 0.");
+        }
+    
+        if (!(moveObject.pieceCode.length === 1)) {
+            throw new Error("Invalid piece code length. It must be exactly 1 character long.");
+        }
+    
+        if (!(moveObject.targetPosX >= 0)) {
+            throw new Error("Invalid target position X. It must be greater than or equal to 0.");
+        }
+    
+        if (!(moveObject.targetPosY >= 0)) {
+            throw new Error("Invalid target position Y. It must be greater than or equal to 0.");
+        }
+    
+        if (!(moveObject.fullPieceCode.length === 2)) {
+            throw new Error("Invalid full piece code length. It must be exactly 2 characters long.");
+        }
+    
+        if (!(moveObject.targetArray.length === 2)) {
+            throw new Error("Invalid target array length. It must contain exactly 2 elements.");
+        }
+    
+        if (!(moveObject.targetSquare.length === 2)) {
+            throw new Error("Invalid target square length. It must be exactly 2 characters long.");
+        }
+    
+        if (!(moveObject.Castling === "Kingside" || moveObject.Castling === "Queenside" || moveObject.Castling === false)) {
+            throw new Error("Invalid Castling value. It must be either 'Kingside', 'Queenside', or false.");
         }
     };
 };
 
-export default ErrorCheck;
+export default StaticErrorCheck;

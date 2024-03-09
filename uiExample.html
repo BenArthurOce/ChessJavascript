@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Opening Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #searchInput {
+            margin-bottom: 10px;
+        }
+        #results {
+            list-style-type: none;
+            padding: 0;
+        }
+        #results li {
+            margin-bottom: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #results li:hover {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Chess Opening Search</h2>
+    <input type="text" id="searchInput" placeholder="Enter move sequence or opening name">
+    <ul id="results"></ul>
+
+    <script>
+        const openings = {
+            "1.a3": {
+                "VOLUME": "A",
+                "ECO": "A00",
+                "NAME": "Anderssen's Opening",
+                "CONTINUATION": false,
+                "CONTINUATIONNAME": null,
+                "PGN": "1.a3",
+                "NUMMOVES": 1
+            },
+            "1.a3 a5 2.b4": {
+                "VOLUME": "A",
+                "ECO": "A00",
+                "NAME": "Polish Gambit, Anderssen's Opening",
+                "CONTINUATION": false,
+                "CONTINUATIONNAME": null,
+                "PGN": "1.a3 a5 2.b4",
+                "NUMMOVES": 2
+            },
+            "1.a3 e5 2.h3 d5": {
+                "VOLUME": "A",
+                "ECO": "A00",
+                "NAME": "Creepy Crawly Formation",
+                "CONTINUATION": false,
+                "CONTINUATIONNAME": null,
+                "PGN": "1.a3 e5 2.h3 d5",
+                "NUMMOVES": 2
+            },
+            "1.a3 g6 2.g4": {
+                "VOLUME": "A",
+                "ECO": "A00",
+                "NAME": "Andersspike",
+                "CONTINUATION": false,
+                "CONTINUATIONNAME": null,
+                "PGN": "1.a3 g6 2.g4",
+                "NUMMOVES": 2
+            },
+        };
+
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('results');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const results = [];
+            for (const key in openings) {
+                const opening = openings[key];
+                if (key.toLowerCase().includes(query) || opening.NAME.toLowerCase().includes(query)) {
+                    results.push(opening);
+                }
+            }
+            displayResults(results);
+        });
+
+        function displayResults(results) {
+            resultsContainer.innerHTML = '';
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<li>No results found</li>';
+                return;
+            }
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.textContent = `${result.PGN}: ${result.NAME}`;
+                resultsContainer.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -135,7 +135,7 @@ class Piece {
      * Print debugging information about the Piece() object
      */
     printToTerminal() {
-        console.log(`------Debug Piece Details------`)
+        console.log(`------Debug ${this.className} Details------`)
         console.log(`Name: ${this.name} | Team: ${this.team} | positionRef: ${this.positionRef} | positionArr: ${this.positionArr}`)
         console.log(`row: ${this.row} | col: ${this.col} | fileRef: ${this.fileRef} | rankRef: ${this.rankRef}`)
         console.log(`-----------------------`)
@@ -177,14 +177,15 @@ class Pawn extends Piece {
         const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
 
         // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
+        // The difference in ranks also needs to be 1. Otherwise pawns on the same rank will be confused
         if (moveInfo.locationPosX) {
-            return this.positionArr[0] === moveInfo.locationRow
+            return this.positionArr[0] === moveInfo.locationRow && Math.abs(rankRefDiff) === 1
         };
         if (moveInfo.locationPosY) {
-            return this.positionArr[1] === moveInfo.locationCol
+            return this.positionArr[1] === moveInfo.locationCol && Math.abs(rankRefDiff) === 1
         };
         if (moveInfo.isCapture) {
-            return this.fileRef === moveInfo.locationPosY
+            return this.fileRef === moveInfo.locationPosY && Math.abs(rankRefDiff) === 1
         };
 
         // White Pawns

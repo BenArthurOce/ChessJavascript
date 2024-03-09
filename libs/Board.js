@@ -1,5 +1,5 @@
-import ChessUtility from './StaticChessUtility.js';
-import ErrorCheck from './StaticErrorCheck.js';
+import StaticChessUtility from './StaticChessUtility.js';
+import StaticErrorCheck from './StaticErrorCheck.js';
 import Square from './Square.js';
 import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./Piece.js";
 
@@ -55,6 +55,7 @@ class Board {
      * Creates a Board() HTML object for the DOM
      */
     createElement() {
+        if (this.parentElement===null) {return}
         this.element = document.createElement('div');
         this.element.className = `chessboard`;
         this.element.id = `chessboard${this.idNumber}`;
@@ -127,7 +128,7 @@ class Board {
      * @returns {Square} The Square() object.
      */
     returnSquare(ref) {
-        ErrorCheck.validateCellRef(ref);
+        StaticErrorCheck.validateCellRef(ref);
         return this.grid.flat().find(square => square.positionRef === ref);
     };
 
@@ -139,7 +140,7 @@ class Board {
      * @param {string} refTarget 2 character string of the destination square reference that the peice is to be added to
      */
     putPieceFromRef(piece, refTarget) {
-        ErrorCheck.validateCellRef(refTarget);
+        StaticErrorCheck.validateCellRef(refTarget);
         this.returnSquare(refTarget).setPiece(piece)
     };
 
@@ -152,8 +153,8 @@ class Board {
      */
     movePiece(pieceToMove, refTarget) {
         // Check if everything is good
-        ErrorCheck.validateIsChessPiece(pieceToMove)
-        ErrorCheck.validateCellRef(refTarget)
+        StaticErrorCheck.validateIsChessPiece(pieceToMove)
+        StaticErrorCheck.validateCellRef(refTarget)
 
         // Clear contents of the current Square() and the destination Square()
         this.returnSquare(pieceToMove.positionRef).clearContents()
@@ -171,8 +172,8 @@ class Board {
      * @param {string} castlingSide The type of castling. Either "Kingside" or "Queenside"
      */
     performCastling(teamNum, castlingSide) {
-        ErrorCheck.validateTeamNumber(teamNum);
-        ErrorCheck.validateCastlingCommand(castlingSide);
+        StaticErrorCheck.validateTeamNumber(teamNum);
+        StaticErrorCheck.validateCastlingCommand(castlingSide);
 
         const key = `${teamNum}_${castlingSide}`;
         const castlingInstructions = {
@@ -183,8 +184,8 @@ class Board {
         };
         const moves = castlingInstructions[key]
 
-        ErrorCheck.validateContents(this.returnSquare(moves.kingFrom), King);
-        ErrorCheck.validateContents(this.returnSquare(moves.rookFrom), Rook);
+        StaticErrorCheck.validateContents(this.returnSquare(moves.kingFrom), King);
+        StaticErrorCheck.validateContents(this.returnSquare(moves.rookFrom), Rook);
 
         const king = this.returnSquare(moves.kingFrom).piece;
         const rook = this.returnSquare(moves.rookFrom).piece;
@@ -215,7 +216,6 @@ class Board {
      * @returns {Array<Array<string>>} The 2d array representing the specified attribute for each piece on the board.
      */
     getArray(attribute, ifNull) {
-        console.log("getArray")
         return this.grid.map(row =>
             row.map(square => (square.piece instanceof Piece ? square.piece[attribute] : ifNull))
         );
@@ -247,7 +247,7 @@ class Board {
 
             board += '\t';
 
-            let swapNum = ChessUtility.rowArrayToRef(nums[rank])
+            let swapNum = StaticChessUtility.rowArrayToRef(nums[rank])
 
             board += `${swapNum} │`;
 

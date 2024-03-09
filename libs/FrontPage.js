@@ -1,8 +1,7 @@
 
-import Game from "./Game.js";
-import StaticOpeningDatabase from "./StaticOpeningDatabase.js";
-import dropdownFavourites from './DropdownFavourites.js';
-import dropdownECO from "./DropdownECO.js";
+import {Game, GameTest} from "./Game.js";
+import JSONReader from "./JSONReader.js";
+import Dictionary from "./Dictionary.js";
 
 
 class FrontPage {
@@ -12,26 +11,19 @@ class FrontPage {
     #elements;
     #allTwoMoveContinuations;
     #allThreeMoveContinuations;
-    #openings
+    #dictionary;
     constructor() {
         this.#className = "Board";
         this.#mainGameBoard = null;
         this.#sideGameBoards = [];
-        this.#elements = {
-             btnQuery: document.body.querySelectorAll(`button`)[0]
-            ,btnClear: document.body.querySelectorAll(`button`)[1]
-            ,input1:  document.body.querySelectorAll(`select`)[0]
-            ,input2:  document.body.querySelectorAll(`input`)[0]
-            ,input3:  document.body.querySelectorAll(`input`)[1]
-            ,mainBoard: document.body.querySelector(`#main-board-container`)
-            ,sideBoardContainer: document.body.querySelector(`#side-board-containers`)
-        };
-        this.#allTwoMoveContinuations = []
-        this.#allThreeMoveContinuations = []
-        this.#openings = null
-        // this.initpage2()
 
+        this.#allTwoMoveContinuations = []      // Not currently used
+        this.#allThreeMoveContinuations = []    // Not currently used
+        this.#dictionary = new Dictionary()     // Holds all the chess openings and information about them
 
+        this.initMainBoard()
+        this.initOpeningDictionary()
+        this.initSearchInput();
     };
     get className() {
         return this.#className;
@@ -66,208 +58,83 @@ class FrontPage {
     set allThreeMoveContinuations(value) {
         this.#allThreeMoveContinuations = value;
     };
-    get openings() {
-        return this.#openings;
+    get dictionary() {
+        return this.#dictionary;
     };
-    set openings(value) {
-        this.#openings = value;
+    set dictionary(value) {
+        this.#dictionary = value;
     };
 
 
+    initMainBoard() {
+        const parentEL = document.body.querySelector("#main-board-container");
+        this.mainGameBoard = new Game(null, 0, parentEL);
+        this.mainGameBoard.resetGame()
+    };
 
-    initPage2() {
 
-        console.log(this.openings)
+    updateMainBoard(information) {
+        this.clearMainBoard()
+        const parentEL = document.body.querySelector("#main-board-container");
+        this.mainGameBoard = null
+        this.mainGameBoard = new Game(information, 0, parentEL);
+        this.mainGameBoard.initGame();
+    };
 
+
+    clearMainBoard() {
+        const mainBoard = document.body.querySelector("#main-board-container");
+        while (mainBoard.firstChild) {
+            mainBoard.removeChild(mainBoard.firstChild);
+        }
+    };
+
+
+    initOpeningDictionary() {
+        // Step 1: We read the JSON file of all the openings
+        const jsonReader = new JSONReader('./data/newChessOpenings.json');  // Loading JSON Reader
+        jsonReader.readJSONSync();
+        const jsonData = jsonReader.getData();  // Accessing data
+
+        // Step 2: Create a Dictionary() object and populate it with the JSON data
+        // const openingDictionary = new Dictionary();   // Creating a new Dictionary instance
+
+        // Transferring JSON data to Dictionary
+        for (const key in jsonData) {
+            if (Object.hasOwnProperty.call(jsonData, key)) {
+            this.dictionary.set(key, jsonData[key]);
+            }
+        }
+    };
+
+    initSearchInput() {
         const searchInput = document.getElementById('searchInput');
         const resultsContainer = document.getElementById('results');
 
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            const results = [];
-            console.log(this.openings)
-            for (const key in this.openings) {
-                const opening = this.openings[key];
-                console.log(key)
-                console.log(query)
-                if (key.toLowerCase().includes(query) || opening.NAME.toLowerCase().includes(query)) {
-                    results.push(opening);
-                }
-            }
-            displayResults(results);
+        searchInput.addEventListener('input', () => {
+            let results = [];
+            const query = searchInput.value.toLowerCase().trim();
+            results = this.dictionary.getEntriesFromAttributes("NAME", query)
+            this.displayResults(results, resultsContainer);
         });
-
-        function displayResults(results) {
-            console.log("displayResults")
-            resultsContainer.innerHTML = '';
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<li>No results found</li>';
-                return;
-            }
-            results.forEach(result => {
-                const li = document.createElement('li');
-                li.textContent = `${result.PGN}: ${result.NAME}`;
-                resultsContainer.appendChild(li);
-            });
-        }
-    }
-
-    /**
-     * Initializes the front page.
-     */
-    async initPage() {
-
-        //Dictionary of all openings
-        this.openings =  await this.queryDatabase("EVERYTHING", "", null);
-        
-
-
-
-        // This is a list of 2 move, and 3 move openings that have a continuation
-        const tempTwoMove = await this.queryDatabase("ALLCONTINUATIONS", '-', 2)
-        const tempThreeMove = await this.queryDatabase("ALLCONTINUATIONS", '-', 3)
-
-        this.allTwoMoveContinuations = Object.values(tempTwoMove).map(a => a['PGN'])
-        this.allThreeMoveContinuations = Object.values(tempThreeMove).map(a => a['PGN'])
-
-        // Populate the favourites dropdown
-        const favouritesDropdown = document.getElementById('favourites');
-
-        dropdownFavourites.forEach(favourite => {
-            const option = document.createElement('option');
-            option.value = favourite;
-            option.textContent = favourite;
-            favouritesDropdown.appendChild(option);
-        });
-
-        const ecoDropdown = document.getElementById('dropdownECO');
-
-        dropdownECO.forEach(eco => {
-            const option = document.createElement('option');
-            option.value = eco;
-            option.textContent = eco;
-            ecoDropdown.appendChild(option);
-        });
-
-        // Event Listener for rendering boards to page
-        this.elements.btnQuery.addEventListener('click', () => {
-            this.clearAllBoards();
-            //Need something that queries the database first
-            this.renderBoardsToPage();
-        });
-
-        // Event Listener for clearing boards
-        this.elements.btnClear.addEventListener('click', () => {
-            this.clearAllBoards();
-        });
-
-
-
-        //////////////////////////////////////////////////////////////
-
-        const searchInput = document.getElementById('searchInput');
-
-        // searchInput.addEventListener('input', () => {
-        //     this.performSearch()
-        // });
-
-        document.querySelector(`#searchInput`).addEventListener('input', this.performSearch.bind(this));
-
-    
     };
 
 
-    async performSearch(event) {
-        const searchInput = document.getElementById('searchInput');
-        const resultsContainer = document.getElementById('results');
-        
-        // Get the query from the search input
-        const query = searchInput.value.toLowerCase().trim();
-        console.log(query);
-
-
-        console.log(this.openings)
-
-        // Array to store matching results
-        const results = [];
-
-        // Iterate through the openings and check if the query matches the opening key or name
-        for (const key in this.openings) {
-            if (this.openings.hasOwnProperty(key)) {
-                const opening = this.openings[key];
-                if (key.toLowerCase().includes(query) || opening.NAME.toLowerCase().includes(query)) {
-                    results.push(opening);
-                }
-            }
+    displayResults(results, container) {
+        console.log("displayResults")
+        container.innerHTML = '';
+        if (results.length === 0) {
+            container.innerHTML = '<li>No results found</li>';
+            return;
         }
-
-        // Display the matching results
-        displayResults(results);
-    
-
-        // searchInput.addEventListener('input', function() {
-        //     const query = this.value.toLowerCase().trim();
-        //     const results = [];
-        //     console.log(this.openings)
-        //     for (const key in this.openings) {
-        //         const opening = this.openings[key];
-        //         console.log(key)
-        //         console.log(query)
-        //         if (key.toLowerCase().includes(query) || opening.NAME.toLowerCase().includes(query)) {
-        //             results.push(opening);
-        //         }
-        //     }
-        //     displayResults(results);
-        // });
-
-        function displayResults(results) {
-            console.log("displayResults")
-            resultsContainer.innerHTML = '';
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<li>No results found</li>';
-                return;
-            }
-            results.forEach(result => {
-                const li = document.createElement('li');
-                li.textContent = `${result.PGN}: ${result.NAME}`;
-                resultsContainer.appendChild(li);
-            });
-        }
-    }
-
-    
-    /**
-     * Renders Chessboards to DOM
-     */
-    async renderBoardsToPage() {
-        const searchCategory = this.elements.input1.value;
-        const searchTerm = this.elements.input2.value;
-        const moveNumber = this.elements.input3.value;
-
-        // After reading the database, returns the results into a variable
-        const databaseResults = await this.queryDatabase(searchCategory, searchTerm, moveNumber);
-        // console.log(databaseResults)
-
-        // Takes the database results and creates new Games based on the information
-        this.loadChessBoards(databaseResults);
-    };
-
-
-    /**
-     * Queries the database.
-     * @param {string} searchCategory The search category.
-     * @param {string} searchTerm The search term.
-     * @param {string} moveNumber The move number.
-     * @returns {Promise<Object>} The filtered openings.
-     */
-    async queryDatabase(searchCategory, searchTerm, moveNumber) {
-        try {
-            await StaticOpeningDatabase.initialize();
-            return StaticOpeningDatabase.filterOpeningDict(searchCategory, searchTerm, moveNumber);
-        } catch (error) {
-            console.error("An error occurred:", error);
-            return null;
-        }
+        results.forEach(result => {
+            const li = document.createElement('li');
+            li.textContent = `${result.PGN}: ${result.NAME}`;
+            container.appendChild(li);
+        });
+        // Generate chessboards from the RESULTS
+        this.clearAllBoards();
+        this.loadChessBoards(results);
     };
 
 
@@ -275,13 +142,22 @@ class FrontPage {
      * Loads chess boards.
      * @param {Object} openings The openings to load.
      */
-    async loadChessBoards(openings) {
+    loadChessBoards(openings) {
+        const parentEL = document.body.querySelector("#side-board-containers");
         let index = 1;
         for (const key in openings) {
             if (openings.hasOwnProperty(key)) {
                 const opening = openings[key];
-                const newGame = new Game(opening, index);
+                const newGame = new Game(opening, index, parentEL);
                 newGame.initGame();
+
+                // Use arrow function to maintain "this" context and bind index value
+                document.querySelector(`#chessboard-container${index}`).addEventListener('click', ((index) => {
+                    return (event) => {
+                        this.handleBoardClick(event, index-1);
+                    };
+                })(index));
+
                 this.sideGameBoards.push({ index, game: newGame });
                 index++;
             }
@@ -290,15 +166,24 @@ class FrontPage {
 
 
     /**
+     * Action to take when anything in the Game() object is clicked
+     */
+    handleBoardClick(event, index) {
+        const boardClicked = this.sideGameBoards[index].game;
+        this.updateMainBoard(boardClicked.information)
+    };
+
+
+    /**
      * Clears all boards.
      */
     clearAllBoards() {
-        while (this.elements.sideBoardContainer.firstChild) {
-            this.elements.sideBoardContainer.removeChild(this.elements.sideBoardContainer.firstChild);
+        const constSideboard = document.body.querySelector("#side-board-containers");
+        while (constSideboard.firstChild) {
+            constSideboard.removeChild(constSideboard.firstChild);
             this.sideGameBoards.pop();
         }
     };
-
 };
 
 export default FrontPage;

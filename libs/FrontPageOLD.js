@@ -1,4 +1,4 @@
-import Game from "./Game.js";
+import {Game, GameTest} from "./Game.js";
 import StaticOpeningDatabase from "./StaticOpeningDatabase.js";
 import dropdownFavourites from './DropdownFavourites.js';
 import dropdownECO from "./DropdownECO.js";

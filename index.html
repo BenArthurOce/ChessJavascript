@@ -9,9 +9,11 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta name='author' content='Ben Arthur'>
     <link rel="stylesheet" href="style.css">
+    <!-- <link rel="stylesheet" href="style2.css"> -->
     <title>ChessBoard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 </head>
 
 <body>
@@ -23,40 +25,16 @@
             <ul id="results"></ul>
         </div>
         <div id="main-board-container">
-            <label for="searchCategory">Search Category</label>
-            <select id="searchCategory">
-                <option value="ECO">ECO</option>
-                <option value="NAME">NAME</option>
-                <option value="PGN">PGN</option>
-                <option value="VOLUME">VOLUME</option>
-            </select>
-            <br>
-            <label for="searchTerm">Search Term</label> 
-            <input id="searchTerm" type="text">
-            <br>
-            <label for="moveNum">Move Number</label> 
-            <input id="moveNum" type="text">
-            <br>
-            <button id="queryDB">Query DB</button>
-            <br>
-            <br>
-            <button id="clearBoards">Clear Boards</button>
-            <br><br>
-            <p> Note: The following dropdowns do not do anything. They are work in progress</p>
-            <br><br>
-            <label for="favourites">Favourites</label>
-            <select id="favourites">
-                <!-- Options will be populated dynamically using JavaScript -->
-            </select>
-            <label for="dropdownECO">ECO</label>
-            <select id="dropdownECO">
-                <!-- Options will be populated dynamically using JavaScript -->
-            </select>
+
         </div>
         <div id='side-board-containers'></div>
     </div>
 
     <script type="module" src="script.js"></script>
+    <!-- <script type="module" src="script_testErrors.js"></script> -->
+    <!-- <script type="module" src="script_getOpeningBoards.js"></script> -->
+
+
 </body>
 
 
