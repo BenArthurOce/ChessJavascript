@@ -13,16 +13,16 @@ class Square {
     #contents;
     constructor(row, col, parentElement) {
         this.#parentElement = parentElement;
-        this.#element = null;
-        this.#className = "Square";
+        this.#element = document.createElement('div');
+        this.#className
         this.#row = row;                                        // base 0 - row position in grid
         this.#col = col;                                        // base 0 - col position in grid
-        this.#rankRef = StaticChessUtility.rowArrayToRef(row);        // base 1 - row position in grid   
-        this.#fileRef = StaticChessUtility.colArrayToRef(col);        // col position converted to letter
+        this.#rankRef = StaticChessUtility.rowArrayToRef(row);  // base 1 - row position in grid   
+        this.#fileRef = StaticChessUtility.colArrayToRef(col);  // col position converted to letter
         this.#positionRef = this.#fileRef + this.#rankRef;      // notational two character square reference (ie: a1)
         this.#positionArr = [row, col];                         // two element array of row and col (base 0)
         this.#contents = null;                                  // indicates if a Piece() is on the Square() object
-        this.createHTMLElement()
+        this.init()
     };
     get parentElement() {
         return this.#parentElement;
@@ -63,7 +63,9 @@ class Square {
     get piece() {
         return this.#contents;
     };
-
+    init() {
+        this.createHTMLElement()
+    };
     toggleActivated() {
         this.element.classList.toggle("activeSquare");
     };
@@ -74,7 +76,6 @@ class Square {
      */
     createHTMLElement() {
         if (this.parentElement===null) {return}
-        this.element = document.createElement('div');
         this.element.className = (this.row + this.col) % 2 === 0 ? "lightSquare square" : "darkSquare square";
         this.element.dataset.row = this.row;
         this.element.dataset.col = this.col;
@@ -99,12 +100,9 @@ class Square {
      */
     clearContents() {
         this.#contents = null;
-        
-        if (this.parentElement===null) {return}
-        while (this.element.firstChild) {
-            this.element.removeChild(this.element.firstChild)
-        }
+        this.#element.innerHTML = '';
     };
+
 
     /**
      * Print debugging information about the Square() object
@@ -119,19 +117,6 @@ class Square {
         console.log(`*******Square Contents*******`)
         this.contents.printToTerminal()
     };
-
 };
 
 export default Square;
-
-// this.#parentElement = parentElement;
-// this.#element = null;
-// this.#className = "Square";
-// this.#row = row;                                        // base 0 - row position in grid
-// this.#col = col;                                        // base 0 - col position in grid
-// this.#rankRef = StaticChessUtility.rowArrayToRef(row);        // base 1 - row position in grid   
-// this.#fileRef = StaticChessUtility.colArrayToRef(col);        // col position converted to letter
-// this.#positionRef = this.#fileRef + this.#rankRef;      // notational two character square reference (ie: a1)
-// this.#positionArr = [row, col];                         // two element array of row and col (base 0)
-// this.#contents = null;                                  // indicates if a Piece() is on the Square() object
-// this.createHTMLElement()

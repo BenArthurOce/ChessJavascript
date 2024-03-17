@@ -1,11 +1,12 @@
 // import Overlay from "./Overlay.js";
 // import Caller from "./Overlay.js";
-import { Game, GameTest } from "./Game.js";
+import { Game, GameTest, GameInteractive } from "./Game.js";
 // import Game from "./Game.js";
 import JSONReader from "./JSONReader.js";
 import {Dictionary, ChessDictionary} from "./Dictionary.js";
 
 import {Form, Popup} from "./Form.js"; 
+import { BoardInteractive } from "./Board.js";
 
 
 // UI ideas
@@ -38,7 +39,9 @@ class FrontPage {
 
 
     constructor() {
+        console.log("Func: START constructor (FrontPage)")
         this.init();
+        console.log("Func: END constructor (FrontPage)")
     };
 
     get className() {
@@ -100,7 +103,14 @@ class FrontPage {
 
 
     async init() {
-        await this.initMainBoard();             // Create the main chessboard
+        console.log("Func: START init (FrontPage)")
+        // await this.initMainBoard();             // Create the main chessboard
+
+
+
+
+        this.#mainGame = new GameInteractive(null, 0, this.#parentELMain)
+        this.#mainGame.init()
         await this.initDictionary();            // Create the "database" of all the openings
 
         clearTimeout(this.#searchTimeout);      // Stop all the setup async functions
@@ -111,7 +121,7 @@ class FrontPage {
 
 
 
-
+        console.log("Func: END init (FrontPage)")
 
         // twoMovesDropdown
         // threeMovesDropdown
@@ -119,7 +129,9 @@ class FrontPage {
 
 
     async initMainBoard() {
-        this.#mainGame = this.#createGame(null, 0, this.#parentELMain)
+        console.log(`Func: initMainBoard \n--------------------`)
+        // this.#mainGame = this.#createGame(null, 0, this.#parentELMain)
+        this.#mainGame = new GameInteractive(null, 0, this.#parentELMain)   
     };
 
 
@@ -507,20 +519,26 @@ class FrontPage {
     #createGame(information, index, parentEl) {
 
         if (index ===  0 ) {
-            console.log(`Func: #createGame: |  information=${information}  |   index=${index}  |   parentEl=${parentEl}  |`)
+
+            // console.log(`Func: #createGame: |  information=${information}  |   index=${index}  |   parentEl=${parentEl}  |`)
         }
         
         let newGame;
 
         // Create Game() Object
         if (index === 0) {
-            newGame = new Game(information, 0, parentEl);   // Create the Game
 
 
+            //ITS THIS LINE. THIS IS THE ISSUE.
+            newGame = new GameInteractive(information, 0, parentEl);   // Create the Game
+
+
+            
         }
         else if (index > 0) {
             newGame = new Game(information, index, parentEl);   // Create the Game
-            newGame.initGame();
+            // newGame.initGame();
+            newGame.init()
 
             // Create click event
             newGame.element.addEventListener('click', (event) => {

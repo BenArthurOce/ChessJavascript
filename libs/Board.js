@@ -10,17 +10,18 @@ class Board {
     #idNumber
     #grid
     constructor(idNumber, parentElement) {
+        console.log(`\t\t\tFunc: START constructor (Board)`);
         this.#parentElement = parentElement;
-        this.#element = null;
+        this.#element = document.createElement('div');
         this.#className = "Board";
         this.#idNumber = idNumber
         this.#grid = [];
+        // this.init()
+        console.log(`\t\t\tFunc: END constructor (Board)`);
 
         // this.#parentElement = document.body.querySelector("#side-board-container")
 
-        this.createElement();       // Creates the board HTML element and adds it to the Board() class
-        this.initSquares();         // Creates the Square() objects, and appends them to the Board() grid, and Board() element
-        this.initPieces();          // Creates the Piece() objects, and appends them to the Square() contents, and Square() element
+
     };
     get parentElement() {
         return this.#parentElement;
@@ -43,6 +44,14 @@ class Board {
     set grid(value) {
         this.#grid = value;
     };
+    
+    init() {
+        console.log(`\t\t\tFunc: START init (Board)`);
+        this.createElement();       // Creates the board HTML element and adds it to the Board() class
+        this.initSquares();         // Creates the Square() objects, and appends them to the Board() grid, and Board() element
+        this.initPieces();          // Creates the Piece() objects, and appends them to the Square() contents, and Square() element
+        console.log(`\t\t\tFunc: END init (Board)`);
+    };
 
     // Add method to handle click event
     handleClick(event) {
@@ -55,8 +64,8 @@ class Board {
      * Creates a Board() HTML object for the DOM
      */
     createElement() {
-        if (this.parentElement===null) {return}
-        this.element = document.createElement('div');
+        // if (this.parentElement===null) {return}
+
         this.element.className = `chessboard`;
         this.element.id = `chessboard${this.idNumber}`;
         this.parentElement.appendChild(this.element);
@@ -67,6 +76,7 @@ class Board {
      * Creates the 64 Square Objects, and adds them to the grid attribute of Board(). Also appends the HTML elements
      */
     initSquares() {
+        console.log(`\t\t\t\tFunc: START initSquares (Square)`);
         // Using the id number of Game(), determine the Board() element that the Square() needs to be added to
         const parentEL = document.body.querySelector(`#chessboard${this.idNumber}`)
 
@@ -74,6 +84,7 @@ class Board {
         this.grid = Array.from({ length: 8 }, (_, row) =>
             Array.from({ length: 8 }, (_, col) => new Square(row, col, parentEL))
         );
+        console.log(`\t\t\t\tFunc: END initSquares (Square)`);
     };
 
 
@@ -299,13 +310,26 @@ class Board {
 };
 
 
-class BoardInteract extends Board {
+class BoardInteractive extends Board {
     constructor(idNumber, parentElement) {
+        console.log(`\t\tFunc: START constructor (BoardInteractive)`);
         super(idNumber, parentElement);
 
         this.firstSquareClicked = null;
         this.secondSquareClicked = null;
-        
+
+        console.log(`\t\tFunc: END constructor (BoardInteractive)`);  
+    };
+
+
+
+    init() {
+        console.log(`\t\tFunc: START init (BoardInteractive)`);
+        this.createElement();       // Creates the board HTML element and adds it to the Board() class
+        this.initSquares();         // Creates the Square() objects, and appends them to the Board() grid, and Board() element
+        this.initPieces();          // Creates the Piece() objects, and appends them to the Square() contents, and Square() element
+        // this.#initLocalEventListeners()
+        console.log(`\t\tFunc: END init (BoardInteractive)`);
     };
 
 
@@ -319,6 +343,7 @@ class BoardInteract extends Board {
                 //movePiece(pieceToMove, refTarget)
 
     initLocalEventListeners() {
+        console.log(`\t\t\tFunc: START initLocalEventListeners (BoardInteractive)`);
         const allSquares = this.grid.flat()
 
         allSquares.forEach(square => {
@@ -348,7 +373,7 @@ class BoardInteract extends Board {
                     this.secondSquareClicked = square
                     this.secondSquareClicked.toggleActivated()
 
-                    this.logMovement()
+                    // this.#logMovement()
 
                     this.movePiece(this.firstSquareClicked.contents, this.secondSquareClicked.positionRef)
 
@@ -364,9 +389,11 @@ class BoardInteract extends Board {
 
         });
 
+        console.log(`\t\t\tFunc: END initLocalEventListeners (BoardInteractive)`);
+
     };
 
-    logMovement() {
+    #logMovement() {
         // Determine the text that gets updated
         const pgnTextBox = document.querySelector("#pgnInput")
 
@@ -413,8 +440,8 @@ class BoardInteract extends Board {
     }
 }
 
-// export default Board;
-export {Board, BoardInteract}
+export {Board, BoardInteractive}
 
 
-// // searchInput.addEventListener('input', () => {    
+
+

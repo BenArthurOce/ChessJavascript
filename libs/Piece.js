@@ -22,6 +22,7 @@ class Piece {
         this.#rankRef = -1;             //Base 1 - alphabetical column position in grid
         this.#positionRef = '';         //Notational string of piece position
         this.#positionArr = [-1, -1];   //Array position of piece
+        this.init();
     };
     get element() {
         return this.#element;
@@ -73,6 +74,9 @@ class Piece {
     };
     set positionArr(value) {
         this.#positionArr = value;
+    };
+    init() {
+        // this.createHTMLElement()
     };
 
 

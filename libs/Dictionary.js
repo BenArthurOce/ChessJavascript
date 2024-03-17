@@ -136,51 +136,14 @@ class Dictionary {
     };
 };
 
-        //=================SEARCH DICTIONARY BY KEYWORD=================
-        // const aa = 'ECO'
-        // myResults = Array.from(this.dictionary.values(), obj => obj[aa]);
-        // console.log(myResults)
-
-
-// class ChessDictionary extends Dictionary {
-//     constructor(toStrFn = defaultToString) {
-//         super(toStrFn);
-//     }
-
-//     getEntriesFromAttribute(attribute, searchWord) {
-//         return Array.from(this.entries())
-//             .filter(([key, value]) => value[attribute].toLowerCase().includes(searchWord.toLowerCase()))
-//             .map(([key, value]) => value);
-//     };
-
-
-
-//     getOpeningsWithE4OnFifthMove(dictionary) {
-//         const openings = [];
-//         for (const key in dictionary) {
-//             if (dictionary.hasOwnProperty(key)) {
-//                 const movesString = dictionary[key].MOVESSTRING;
-//                 const moves = movesString.match(/\{(\d+) # (\S+) # (\S+)\}/g);
-//                 if (moves.length >= 5 && moves[4].includes("# e4")) {
-//                     openings.push(key);
-//                 }
-//             }
-//         }
-//         return openings;
-//     }
-    
-// }
-
 
 class ChessDictionary extends Dictionary {
     constructor(toStrFn = defaultToString) {
         super(toStrFn);
-
-
-        // const test = "[{1 # d4 # f5}, {2 # c4 # e6}, {3 # Nf3 # Nf6}, {4 # g3 # c6}, {5 # Bg2 # d5}, {6 # O-O # Bd6}]";
-        
     }
 
+    // In the JSON file, there is a long PGN string seperated by "||"
+    // This function unpacks that into an array of arrays
     updateWithMoveObj() {
         this.values().forEach(element => {
             const moveString = element['MOVESSTRING'];
@@ -213,28 +176,6 @@ class ChessDictionary extends Dictionary {
     };
   
     
-
-    hasCapture(move) {
-        // Iterate through each part of the move
-        for (const part of move) {
-            // If any part contains the character "x", return true
-            if (part.includes("x")) {
-                return true;
-            }
-        }
-        // If no part contains "x", return false
-        return false;
-    }
-
-
-
-
-    // const id = "A00"
-    // result =  this.values().filter(({ ECO, VOLUME }) => ECO.includes(id) && VOLUME=="A");
-    // console.log(result)
-    // result =  this.values().filter(({ ECO, VOLUME }) => ECO.includes(id) && VOLUME=="A");
-
-
     filterCaptureOnSquare(ref, moveNum) {
         const isExists = (object) => object !== undefined && object !== null
         const isCapturedSquare = (string) => (string !== undefined && string !== null) ? (string.includes("x") && string.includes(`${ref}`)) : false;
@@ -260,29 +201,6 @@ class ChessDictionary extends Dictionary {
         return results
     };
 
-
-
-    // filterCaptureOnMove(square, move) {
-    //     return this.values().filter(({ MOVEOBJ }) => MOVEOBJ.some(([_, piece, dest]) => piece === square && dest === move));
-    // };
-
-    // case "CONTINUATION":
-    //     result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"] && key.startsWith(searchItem)));
-    //     break;
-    // case "ALLCONTINUATIONS":
-    //     result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"] && value['NUMMOVES'] >= moveNumber));
-    //     break;
-
-
-
-    
-    // Example usage:
-    // Assuming massiveList is your array of arrays
-    // const uniqueArrays = getUniqueArrays(massiveList);
-    // console.log(uniqueArrays);
-    
-
-    
     filterECO(eco) {
         return this.values().filter(({ ECO }) => ECO.includes(eco));
     };
@@ -323,9 +241,7 @@ class ChessDictionary extends Dictionary {
         return this.values().filter(({ NEXTTOMOVE }) => team === NEXTTOMOVE);
     };
 
-    // filterNumMoves(numMoves) {
-    //     return this.values().filter(({ NUMMOVES }) => numMoves > NUMMOVES);
-    // };
+
 
     // filterCaptureOnTurn(team) {
     //     return this.values().filter(({ NEXTTOMOVE }) => team === NEXTTOMOVE);

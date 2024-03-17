@@ -18,4 +18,17 @@ import FrontPage from "./libs/FrontPage.js";
 // Successful gambits
 //
 
+
+// class Rectangle {
+//     #height = 20;
+//     #width;
+//     constructor( width) {
+//     //   this.#height 
+//       this.#width = width;
+//     }
+//   }
+  
+// const a = new Rectangle()
+// console.log(a)
+
 const frontpage = new FrontPage()
