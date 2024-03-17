@@ -1,5 +1,5 @@
-import ChessUtility from './StaticChessUtility.js';
-import ErrorCheck from './StaticErrorCheck.js';
+import StaticChessUtility from './StaticChessUtility.js';
+import StaticErrorCheck from './StaticErrorCheck.js';
 import Square from './Square.js';
 import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./Piece.js";
 
@@ -16,7 +16,7 @@ class Board {
         this.#idNumber = idNumber
         this.#grid = [];
 
-        // this.#parentElement = document.body.querySelector("#side-board-containers")
+        // this.#parentElement = document.body.querySelector("#side-board-container")
 
         this.createElement();       // Creates the board HTML element and adds it to the Board() class
         this.initSquares();         // Creates the Square() objects, and appends them to the Board() grid, and Board() element
@@ -44,11 +44,18 @@ class Board {
         this.#grid = value;
     };
 
+    // Add method to handle click event
+    handleClick(event) {
+        // Handle the click event here
+        console.log('Clicked on board');
+    }
+
     
     /**
      * Creates a Board() HTML object for the DOM
      */
     createElement() {
+        if (this.parentElement===null) {return}
         this.element = document.createElement('div');
         this.element.className = `chessboard`;
         this.element.id = `chessboard${this.idNumber}`;
@@ -121,7 +128,7 @@ class Board {
      * @returns {Square} The Square() object.
      */
     returnSquare(ref) {
-        ErrorCheck.validateCellRef(ref);
+        StaticErrorCheck.validateCellRef(ref);
         return this.grid.flat().find(square => square.positionRef === ref);
     };
 
@@ -133,7 +140,7 @@ class Board {
      * @param {string} refTarget 2 character string of the destination square reference that the peice is to be added to
      */
     putPieceFromRef(piece, refTarget) {
-        ErrorCheck.validateCellRef(refTarget);
+        StaticErrorCheck.validateCellRef(refTarget);
         this.returnSquare(refTarget).setPiece(piece)
     };
 
@@ -146,8 +153,8 @@ class Board {
      */
     movePiece(pieceToMove, refTarget) {
         // Check if everything is good
-        ErrorCheck.validateIsChessPiece(pieceToMove)
-        ErrorCheck.validateCellRef(refTarget)
+        StaticErrorCheck.validateIsChessPiece(pieceToMove)
+        StaticErrorCheck.validateCellRef(refTarget)
 
         // Clear contents of the current Square() and the destination Square()
         this.returnSquare(pieceToMove.positionRef).clearContents()
@@ -165,8 +172,8 @@ class Board {
      * @param {string} castlingSide The type of castling. Either "Kingside" or "Queenside"
      */
     performCastling(teamNum, castlingSide) {
-        ErrorCheck.validateTeamNumber(teamNum);
-        ErrorCheck.validateCastlingCommand(castlingSide);
+        StaticErrorCheck.validateTeamNumber(teamNum);
+        StaticErrorCheck.validateCastlingCommand(castlingSide);
 
         const key = `${teamNum}_${castlingSide}`;
         const castlingInstructions = {
@@ -177,8 +184,8 @@ class Board {
         };
         const moves = castlingInstructions[key]
 
-        ErrorCheck.validateContents(this.returnSquare(moves.kingFrom), King);
-        ErrorCheck.validateContents(this.returnSquare(moves.rookFrom), Rook);
+        StaticErrorCheck.validateContents(this.returnSquare(moves.kingFrom), King);
+        StaticErrorCheck.validateContents(this.returnSquare(moves.rookFrom), Rook);
 
         const king = this.returnSquare(moves.kingFrom).piece;
         const rook = this.returnSquare(moves.rookFrom).piece;
@@ -209,7 +216,6 @@ class Board {
      * @returns {Array<Array<string>>} The 2d array representing the specified attribute for each piece on the board.
      */
     getArray(attribute, ifNull) {
-        console.log("getArray")
         return this.grid.map(row =>
             row.map(square => (square.piece instanceof Piece ? square.piece[attribute] : ifNull))
         );
@@ -241,7 +247,7 @@ class Board {
 
             board += '\t';
 
-            let swapNum = ChessUtility.rowArrayToRef(nums[rank])
+            let swapNum = StaticChessUtility.rowArrayToRef(nums[rank])
 
             board += `${swapNum} │`;
 
@@ -292,4 +298,123 @@ class Board {
     };
 };
 
-export default Board;
+
+class BoardInteract extends Board {
+    constructor(idNumber, parentElement) {
+        super(idNumber, parentElement);
+
+        this.firstSquareClicked = null;
+        this.secondSquareClicked = null;
+        
+    };
+
+
+    // To make pieces move
+    // select a square.
+        // If the square has a peice, the square becomes active
+        // click on another square..
+            // if its a different square
+                // move it
+
+                //movePiece(pieceToMove, refTarget)
+
+    initLocalEventListeners() {
+        const allSquares = this.grid.flat()
+
+        allSquares.forEach(square => {
+
+            square.element.addEventListener('click', () => { 
+
+
+                // If the square clicked is the same as the first square, then reset
+                if (this.firstSquareClicked === square) {
+                    this.firstSquareClicked.toggleActivated()
+                    this.firstSquareClicked = null
+                    this.secondSquareClicked = null
+                    return
+                }
+
+                // If the first active square is null - then we populate it
+                if (!this.firstSquareClicked) {
+
+                    // However, if a non piece square was clicked, we exit
+                    if (!square.contents) {return}
+                    this.firstSquareClicked = square
+                    this.firstSquareClicked.toggleActivated()
+                }
+
+                // If the first active square is selected, then we nominate the second selected square
+                else {
+                    this.secondSquareClicked = square
+                    this.secondSquareClicked.toggleActivated()
+
+                    this.logMovement()
+
+                    this.movePiece(this.firstSquareClicked.contents, this.secondSquareClicked.positionRef)
+
+                    // restart
+                    this.firstSquareClicked.toggleActivated()
+                    this.secondSquareClicked.toggleActivated()
+
+                    this.firstSquareClicked = null
+                    this.secondSquareClicked = null
+                }
+
+            })
+
+        });
+
+    };
+
+    logMovement() {
+        // Determine the text that gets updated
+        const pgnTextBox = document.querySelector("#pgnInput")
+
+        // Is there a capture?
+        let isCapture = false
+        let isPawnCapture = false
+        if (this.firstSquareClicked.contents && this.secondSquareClicked.contents) {isCapture = true}
+
+        // If it was a pawn capture
+        if (isCapture && this.firstSquareClicked.contents.pieceCodeStr === "p") {isPawnCapture = true}
+
+
+        // Piece that was moved
+        let pieceCode = this.firstSquareClicked.contents.pieceCodeStr
+        if (pieceCode === "p") {pieceCode = ""}
+
+
+        // Destination Square
+        let destination = this.secondSquareClicked.positionRef
+
+        // Pawn Capture file (if pawn capture)
+        let pawnFileCapture = this.firstSquareClicked.fileRef
+
+
+        //
+        //  Final result
+        //
+        let finalResult
+
+        
+        // if there was no capture
+        if (!isCapture) {
+            finalResult = pieceCode + destination + " ";
+        } 
+        // If there was a capture (no pawn)
+        else if (isCapture && !isPawnCapture) {
+            finalResult = pieceCode + "x" + destination + " ";
+        }
+        else if (isCapture && isPawnCapture) {
+            finalResult = pawnFileCapture + "x" + destination + " ";
+        }
+
+        pgnTextBox.value += finalResult
+    }
+}
+
+// export default Board;
+export {Board, BoardInteract}
+
+
+// // searchInput.addEventListener('input', () => {    

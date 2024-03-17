@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name='description' content='ChessBoard'>
+    <meta name='keywords' content='HTML, CSS, JavaScript'>
+    <meta name='ChessBoard' content='ChessBoard'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta name='author' content='Ben Arthur'>
+    <link rel="stylesheet" href="style.css">
+    <!-- <link rel="stylesheet" href="style2.css"> -->
+    <title>ChessBoard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+
+
+    <label for="pgnInput">PGN:</label>
+    <input type="text" id="pgnInput"><br>
+
+
+    <input type="text" id="tbox-number" value="0"/><br>
+    <input type="button" id="btn_inc" onclick="incrementValue()" value="Increment Value" /><br>
+
+    <input type="button" id="btn_clear" onclick="clearValues()" value="Clear PGN" /><br>
+
+
+    <div id="wrapper2">
+
+    </div>
+
+
+
+
+    <script type="module" src="script_interactiveGame.js"></script>
+
+
+    <script>
+        function incrementValue()
+        {
+            let value = parseInt(document.getElementById('tbox-number').value, 10);
+            value = isNaN(value) ? 0 : value;
+            value++;
+            document.getElementById('tbox-number').value = value;
+
+            let pgnInput = document.getElementById('pgnInput')
+            // let value = parseInt(document.getElementById('tbox-number').value, 10);
+            let string = value + "."
+            pgnInput.value += string
+        }
+
+        function storeNumber()
+        {
+            let pgnInput = document.getElementById('pgnInput')
+            let value = parseInt(document.getElementById('tbox-number').value, 10);
+            let string = value + "."
+            pgnInput.value += string
+            // console.log(string)
+        }
+
+        function clearValues()
+        {
+            let pgnInput = document.getElementById('pgnInput')
+            pgnInput.value = ""
+            document.getElementById('tbox-number').value = 0
+        }
+    </script>
+
+
+</body>
+
+</html>

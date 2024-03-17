@@ -1,74 +1,253 @@
+:root {
 
-#wrapper {
-    display: flex;
-    gap: 40px;
-    height: 100vh;
-    width: 100vw;
-    grid-template-columns: 50% 50%;
+/* --declare-board-size: 50vw;
+--board-size-large: var(--declare-board-size);
+--board-size-small: calc(var(--declare-board-size) / 2);
+
+--square-size-large: calc(var(--board-size-large) / 8);
+--square-size-small: calc(var(--board-size-small) / 8);
+
+--piece-size-large: calc(var(--square-size-large) * 0.8);
+--piece-size-small: calc(var(--square-size-small) * 0.8);
+
+--declare-light-square-colour: #8b6c5c;
+--declare-dark-square-colour: #3d251e;
+--declare-white-piece-colour: white;
+--declare-black-piece-colour: black;
+
+--light-square-colour: var(--declare-light-square-colour);
+--dark-square-colour: var(--declare-dark-square-colour);
+--white-piece-colour: var(--declare-white-piece-colour);
+--black-piece-colour: var(--declare-black-piece-colour); */
+
+    /* --declare-board-size: 500px; */
+    --declare-board-size: 30vw;
+    --square-size: var(--declare-square-size);
+
+
+    --board-size-large: calc(var(--declare-board-size) * 1.0);  /* full size */
+    --board-size-small: calc(var(--declare-board-size) * 0.5);  /* half size */
+
+    --square-size-large: calc(var(--board-size-large) * 0.125);  /* 8 squares */
+    --square-size-small: calc(var(--board-size-small) * 0.125);  /* 8 squares */
+
+    --piece-size-large: calc(var(--square-size-large) * 0.5);   /* Half size of square */
+    --piece-size-small: calc(var(--square-size-small) * 0.5);   /* Half size of square */
+
+    /* Declare Square and Piece colours */
+    --declare-light-square-colour: #8b6c5c;
+    --declare-dark-square-colour:  #3d251e;
+    --declare-white-piece-colour: white;
+    --declare-black-piece-colour: black;
+
+    /* Declare Square and Piece colours */
+    --light-square-colour: var(--declare-light-square-colour);
+    --dark-square-colour: var(--declare-dark-square-colour);
+    --white-piece-colour: var(--declare-white-piece-colour);
+    --black-piece-colour: var(--declare-black-piece-colour);
+
 }
 
-/* #main-board-container {
 
-    width: 50vw
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    border: none;
+    font-size: 1rem;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+
+
+
+#wrapper {
+    display: grid;
+    gap: 40px;
+    width: calc(100vw - 60px);
+    grid-template-columns: minmax(300px, 20%) 70%;
+    column-gap: 10vw;
+    padding-left: 2%;
+    padding-right: 2%;
+
+
+}
+
+
+#side-board-container {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex-direction: row;
+    overflow-y: auto;
+    justify-content: center;
+}
+
+/* #side-board-container p {
+    display: none;
 } */
 
 
-#side-board-containers {
-    flex-basis: 70%;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
 
 
-.chessboard-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    flex-direction: column-reverse;
-}
 
+/* ------------------------- */
+/* ------ Chessboard ------- */
+/* ------------------------- */
 
 .chessboard {
     display: inline-grid;
     border: 10px solid black;
-    grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
-    grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+    width: var(--main-board-size);
+    height: var(--main-board-size);
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
 }
 
 
+/* ------------Squares------------ */
 .square {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: center;            /* Allows chess pieces to be vertically center */
+    justify-content: center;        /* Allows chess pieces to be horizontally center */
     border: 1px solid black;
-    min-width: 50px;
-    min-height: 50px;
-    max-width: 50px;
-    max-height: 50px;
 }
-
 
 .lightSquare {
-    background-color: #8b6c5c;
+    background-color: var(--light-square-colour);
 }
-
 
 .darkSquare {
-    background-color: #3d251e;
+    background-color: var(--dark-square-colour);
 }
 
-.chess-piece {
-    font-size: 180%;
-}
+/* ------------Pieces------------ */
+/* .white-piece, .black-piece {
+    font-size: var(--piece-size-large);
+} */
 
 .white-piece {
-    color: white;
+    color: var(--white-piece-colour);
 }
 
 .black-piece {
-    color: black;
+    color: var(--black-piece-colour);
 }
+
+
+
+/* ------------------------- */
+/* ----- Chessboard LRG ---- */
+/* ------------------------- */
+
+#main-board-container {
+    display: flex;
+    position: sticky;
+    left: 0; /* Stick to the left edge of the container */
+    top: 0;
+
+
+    height: 100vh;
+    /* overflow-y: auto; */
+    /* z-index: 1; */
+}
+
+#main-board-container .chessboard .square {
+    min-width: var(--square-size-large);
+    min-height: var(--square-size-large);
+    max-width: var(--square-size-large);
+    max-height: var(--square-size-large);
+}
+
+/* ------------------------- */
+/* ----- Chessboard SML ---- */
+/* ------------------------- */
+
+#side-board-container .chessboard .square {
+    min-width: var(--square-size-small);
+    min-height: var(--square-size-small);
+    max-width: var(--square-size-small);
+    max-height: var(--square-size-small);
+}
+
+
+#side-board-container .chessboard-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#side-board-container .chessboard-container > p, 
+#side-board-container .chessboard-container > p > strong {
+    font-size: 10px;
+}
+
+#side-board-container .chessboard-container .family,
+#side-board-container .chessboard-container .variation, 
+#side-board-container .chessboard-container .subvariation, 
+#side-board-container .chessboard-container .nummoves {
+    display:initial;
+}
+
+
+#side-board-container .chessboard-container .pgn,
+#side-board-container .chessboard-container .name,
+#side-board-container .chessboard-container .eco,
+#side-board-container .chessboard-container .nexttomove {
+    display:none;
+}
+
+/* SUBVARIATION */
+
+/* #side-board-container .chessboard {} */
+
+
+
+/* .chessboard-container {
+    display: flex;
+    max-width: 100%;
+    flex-direction: column-reverse;
+} */
+
+
+
+#searchInput {
+    margin-bottom: 10px;
+}
+#results {
+    list-style-type: none;
+    padding: 0;
+}
+#results li {
+    margin-bottom: 5px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+#results li:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+
+
+
+
+
+/* .chessboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    flex-direction: column-reverse;
+} */
+
+
+
 
 /* .chess-piece > i {
     display: inline-block;
@@ -90,32 +269,31 @@
     max-height: 50px;
 } */
 
-.caption > p {
+/* .caption > p {
     font-size: 80px;
-}
+} */
 
-.chessboard + p {
+/* .chessboard + p {
     display:flex;
-    margin-top: 10px; /* Adjust as needed */
+    margin-top: 10px;
 }
 
 p {
     display: flex
-}
+} */
 
-@media (min-height: 680px), screen and (orientation: portrait) {
+/* @media (min-height: 680px), screen and (orientation: portrait) {
 
 
     #wrapper {
         display: flex;
-        /* grid-template-columns:30% 70% */
         flex-direction: column;
         overflow-y: scroll;
         height: initial;
         width: initial;
     }
 
-    #side-board-containers {
+    #side-board-container {
         flex-basis: 70%;
         display: flex;
         flex-wrap: wrap;
@@ -123,5 +301,63 @@ p {
         overflow-y: scroll;
     }
 
-}
+} */
   
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 10%;
+    padding-right: 10%;
+    padding-top:10%
+  }
+
+  label {
+    background-color: aqua;
+  }
+  
+  .overlay input[type="text"],
+  .overlay input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    background-color: yellowgreen;
+  }
+  
+  .overlay button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .overlay button:hover {
+    background-color: #0056b3;
+  }
+  
+
+
+  .ui-input {
+    display: flex;
+    position: sticky;
+    left: 0; /* Stick to the left edge of the container */
+    top: 0;
+  }
+
+#pgnInput {
+    width: 100%
+}
+
+.activeSquare {
+    background-color: red;
+}

@@ -1,0 +1,11 @@
+    "1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. Ne2 dxe4 5. a3 Be7 6. Nxe4 Nf6 7. N2g3 O-O 8. Be2 Nc6": {
+        "ECO": "C15",
+        "VOLUME": "C",
+        "NAME": "French Defense: Winawer Variation; Alekhine Gambit; Alatortsev Variation",
+        "PGN": "1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. Ne2 dxe4 5. a3 Be7 6. Nxe4 Nf6 7. N2g3 O-O 8. Be2 Nc6",
+        "NUMMOVES": 8,
+        "FAVOURITE": null,
+        "ISERROR": null,
+        "BOARDSTRING": null
+    },
+    Corrected to: 1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. Nge2 dxe4 5. a3 Be7 6. Nxe4 Nf6 7. N2g3 O-O 8. Be2 Nc6"

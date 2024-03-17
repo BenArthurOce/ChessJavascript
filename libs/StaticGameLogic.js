@@ -1,8 +1,8 @@
-import ChessUtility from './StaticChessUtility.js';
-import ErrorCheck from './StaticErrorCheck.js';
+import StaticChessUtility from './StaticChessUtility.js';
+import StaticErrorCheck from './StaticErrorCheck.js';
 import {Piece, Pawn, Rook, Knight, Bishop, Queen, King} from "./Piece.js";
 
-class GameLogic {
+class StaticGameLogic {
 
     /**
      * Loops through all the move instructions found in the Parser() object, and calls "processPlayerMove" on each move instruction
@@ -10,12 +10,18 @@ class GameLogic {
      * @throws {Error} If move instructions for both black and white are non existent for that turn number
      */
     static processAllMoves(boardState, parserObject) {
+
+
+        // console.log(`processAllMoves`)
+        // console.log(parserObject)
         for (const [turnNum, [whiteMoveInfo, blackMoveInfo]] of Object.entries(parserObject)) {
+            // console.log(whiteMoveInfo)
+            // console.log(blackMoveInfo)
             if (whiteMoveInfo) {
-                GameLogic.processPlayerMove(boardState, 0, whiteMoveInfo);
+                StaticGameLogic.processPlayerMove(boardState, 0, whiteMoveInfo);
             }
             if (blackMoveInfo) {
-                GameLogic.processPlayerMove(boardState, 1, blackMoveInfo);
+                StaticGameLogic.processPlayerMove(boardState, 1, blackMoveInfo);
             }
             if (!whiteMoveInfo && !blackMoveInfo) {
                 throw new Error(`processAllMoves: a move on turn ${turnNum} was not found`);
@@ -46,7 +52,7 @@ class GameLogic {
             }
 
             // Find the location of the piece as a 2 character string. If nothing found, return an error
-            const pieceLocated = GameLogic.findLocation(boardState, teamNum, moveInfo);
+            const pieceLocated = StaticGameLogic.findLocation(boardState, teamNum, moveInfo);
             if (!pieceLocated) {
                 throw new Error(`Piece not found || Turn: ${moveInfo.turnNumber} | MoveNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
             }
@@ -68,7 +74,7 @@ class GameLogic {
         let foundPiece = null   // If this remains null, an error will be triggered
 
         // Check that the code letter represents an actual Piece() object
-        const searchItem = ChessUtility.codeToPieceObject(moveInfo.pieceCode);
+        const searchItem = StaticChessUtility.codeToPieceObject(moveInfo.pieceCode);
         if (!searchItem) {
             // throw new Error(`Piece not found for letter: ${moveInfo.pieceCode}`, StaticLogic.parser.printToTerminal(moveInfo));
         };
@@ -82,7 +88,10 @@ class GameLogic {
 
         // If no Piece() object that could move to the destination square was found, return an error
         if (!foundPiece) {
+            boardState.printToTerminal()
+            moveInfo.printToTerminal()
             throw new Error(`Piece not found || Turn: ${moveInfo.turnNumber} | TeamNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
+            
         }
         return foundPiece;
     };
@@ -96,4 +105,4 @@ class GameLogic {
     };
 };
 
-export default GameLogic;
+export default StaticGameLogic;

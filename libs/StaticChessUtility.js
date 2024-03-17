@@ -1,6 +1,6 @@
 import {Piece, Pawn, Rook, Knight, Bishop, Queen, King} from "./Piece.js";
 
-class ChessUtility {
+class StaticChessUtility {
     static #rowRefToArray = { 8: 0, 7: 1, 6: 2, 5: 3, 4: 4, 3: 5, 2: 6, 1: 7};
     static #rowArrayToRefMap = { 0: 8, 1: 7, 2: 6, 3: 5, 4: 4, 5: 3, 6: 2, 7: 1};
     static #colRefToArray = { 'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7 };
@@ -24,14 +24,14 @@ class ChessUtility {
     };
 
     static chessRefToArrayPos(positionRef) {
-        const col = ChessUtility.#colRefToArray[positionRef[0]];
-        const row = ChessUtility.#rowRefToArray[positionRef[1]];
+        const col = StaticChessUtility.#colRefToArray[positionRef[0]];
+        const row = StaticChessUtility.#rowRefToArray[positionRef[1]];
         return [row, col];
     };
 
     static arrayPosToChessRef(arrayRef) {
-        const col = ChessUtility.#colArrayToRefMap[arrayRef[1]];
-        const row = ChessUtility.#rowArrayToRefMap[arrayRef[0]];
+        const col = StaticChessUtility.#colArrayToRefMap[arrayRef[1]];
+        const row = StaticChessUtility.#rowArrayToRefMap[arrayRef[0]];
         return `${col}${row}`;
     };
 
@@ -40,4 +40,4 @@ class ChessUtility {
     };
 };
 
-export default ChessUtility;
+export default StaticChessUtility;

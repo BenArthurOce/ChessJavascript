@@ -9,57 +9,75 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <meta name='author' content='Ben Arthur'>
     <link rel="stylesheet" href="style.css">
+    <!-- <link rel="stylesheet" href="style2.css"> -->
     <title>ChessBoard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 
 <body>
+    <div id="ui-input">
+        <h2>Chess Opening Search</h2>
 
-    <div id="wrapper">
-        <div id="main-board-container">
-            <br><br>
-            <p>to use: have the search category as "ECO" and type in an ECO number. C44</p>
-            <p>"move number" takes a single digit. It removes all results that have PGNs that end before that move number</p>
-            <p>you can change the search category to "PGN" but typing in the correct search term and move number can be difficult.</p>
-            <p>Until i get the continuation openings set up, it straight up wont work. Just use ECO for now.</p>
-            <p>LMAO i can even to get it to scroll on mobile yet. Sorry. Best to use PC.</p>
-            <br><br>
-            <label for="searchCategory">Search Category</label>
-            <select id="searchCategory">
-                <option value="ECO">ECO</option>
-                <option value="NAME">NAME</option>
-                <option value="PGN">PGN</option>
-                <option value="VOLUME">VOLUME</option>
-            </select>
-            <br>
-            <label for="searchTerm">Search Term</label> 
-            <input id="searchTerm" type="text">
-            <br>
-            <label for="moveNum">Move Number</label> 
-            <input id="moveNum" type="text">
-            <br>
-            <button id="queryDB">Query DB</button>
-            <br>
-            <br>
-            <button id="clearBoards">Clear Boards</button>
-            <br><br>
-            <p> Note: The following dropdowns do not do anything. They are work in progress</p>
-            <br><br>
-            <label for="favourites">Favourites</label>
-            <select id="favourites">
-                <!-- Options will be populated dynamically using JavaScript -->
-            </select>
-            <label for="dropdownECO">ECO</label>
-            <select id="dropdownECO">
-                <!-- Options will be populated dynamically using JavaScript -->
+        <input type="radio" name="moveType" value="oneMoves" id="oneMovesRadio">
+        <label for="oneMovesRadio">One Moves</label>
+        <input type="radio" name="moveType" value="twoMoves" id="twoMovesRadio">
+        <label for="twoMovesRadio">Two Moves</label>
+        <input type="radio" name="moveType" value="threeMoves" id="threeMovesRadio">
+        <label for="threeMovesRadio">Three Moves</label>
+    
+        <div id="oneMovesDropdown" style="display: none;">
+            <h3>Select one moves:</h3>
+            <select id="oneMovesDropdownSelect">
+                <!-- Options will be populated dynamically -->
             </select>
         </div>
-        <div id='side-board-containers'></div>
+
+        <div id="twoMovesDropdown" style="display: none;">
+            <h3>Select two moves:</h3>
+            <select id="twoMovesDropdownSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+    
+        <div id="threeMovesDropdown" style="display: none;">
+            <h3>Select three moves:</h3>
+            <select id="threeMovesDropdownSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+
+
+        <button id="popUpButton">Overlay</button>
+        <input type="text" id="searchInput" placeholder="Opening Name">
+        <input type="text" id="searchInputPGN" placeholder="PGN">
+        <input type="text" id="searchInputCapture" placeholder="capture on square">
+        <!-- <input type="text" id="searchInputCapture" placeholder="capture on square"> -->
+        <!-- <input type="text" id="searchInputPGN" placeholder="PGN"> -->
+
+        <ul id="results"></ul>
+    </div>
+    <div id="wrapper">
+        <div id="main-board-container"></div>
+        <div id='side-board-container'></div>
     </div>
 
-    <script type="module" src="script.js"></script>
-</body>
+    <template id="game-template">
+        <div class="chessboard-container">
+            <div class="chessboard"></div>
+            <p class="pgn"></p>
+            <p class="name"></p>
+            <p class="eco"></p>
+            <p class="nextmove"></p>
+        </div>
+    </template>
 
+    <script type="module" src="script.js"></script>
+    <!-- <script type="module" src="script_testErrors.js"></script> -->
+    <!-- <script type="module" src="script_getOpeningBoards.js"></script> -->
+
+
+
+</body>
 
 </html>

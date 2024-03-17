@@ -1,29 +1,28 @@
 class StaticOpeningDatabase {
-    static openings = {};
+    #openings;
+    constructor() {
+        this.#openings = null;
+    };
+    get openings() {
+        return this.#openings;
+    };
+    set openings(value) {
+        this.#openings = value;
+    };
 
-    static fetchOpeningsData() {
-        return fetch('./data/newChessOpenings.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch data. Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                this.openings = data;
-            })
-            .catch(error => {
-                console.error(error.message);
-            });
-    }
-
-    static async initialize() {
+    static async fetchOpeningsData() {
         try {
-            await this.fetchOpeningsData();
+            const response = await fetch('./data/newChessOpenings.json');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch data. Status: ${response.status}`);
+            }
+            const data = await response.json();
+            this.openings = data;
         } catch (error) {
             console.error(error.message);
         }
-    }
+    };
+
 
     /**
      * Filters the dictionary based on specified criteria.
@@ -33,13 +32,13 @@ class StaticOpeningDatabase {
      * @returns {Object} - The filtered dictionary containing matching entries.
      * @throws {Error} - Throws an error if the search category is not valid, no entries are found, or no entries match the specified move number.
      */
-    static filterOpeningDict(searchCategory, searchItem, moveNumber) {
+    static async filterOpeningDict(searchCategory, searchItem, moveNumber) {
+        await StaticOpeningDatabase.fetchOpeningsData();
         let result = {};
 
         switch (searchCategory.toUpperCase()) {
             case "EVERYTHING":
                 result = Object.fromEntries(Object.entries(this.openings))
-                console.log(this.openings)
                 break
             case "PGN":
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => key === searchItem));
@@ -101,8 +100,5 @@ class StaticOpeningDatabase {
         return result;
     }
 }
-
-// Initialize the static variable openings
-StaticOpeningDatabase.initialize();
 
 export default StaticOpeningDatabase;
