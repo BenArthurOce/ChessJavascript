@@ -10,6 +10,8 @@ class StaticGameLogic {
      * @throws {Error} If move instructions for both black and white are non existent for that turn number
      */
     static processAllMoves(boardState, parserObject) {
+
+
         // console.log(`processAllMoves`)
         // console.log(parserObject)
         for (const [turnNum, [whiteMoveInfo, blackMoveInfo]] of Object.entries(parserObject)) {

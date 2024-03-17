@@ -13,29 +13,71 @@
     <title>ChessBoard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
 </head>
 
 <body>
+    <div id="ui-input">
+        <h2>Chess Opening Search</h2>
 
-    <div id="wrapper">
-        <div id="ui-input">
-            <h2>Chess Opening Search</h2>
-            <input type="text" id="searchInput" placeholder="Enter move sequence or opening name">
-            <ul id="results"></ul>
+        <input type="radio" name="moveType" value="oneMoves" id="oneMovesRadio">
+        <label for="oneMovesRadio">One Moves</label>
+        <input type="radio" name="moveType" value="twoMoves" id="twoMovesRadio">
+        <label for="twoMovesRadio">Two Moves</label>
+        <input type="radio" name="moveType" value="threeMoves" id="threeMovesRadio">
+        <label for="threeMovesRadio">Three Moves</label>
+    
+        <div id="oneMovesDropdown" style="display: none;">
+            <h3>Select one moves:</h3>
+            <select id="oneMovesDropdownSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
         </div>
-        <div id="main-board-container">
 
+        <div id="twoMovesDropdown" style="display: none;">
+            <h3>Select two moves:</h3>
+            <select id="twoMovesDropdownSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
         </div>
-        <div id='side-board-containers'></div>
+    
+        <div id="threeMovesDropdown" style="display: none;">
+            <h3>Select three moves:</h3>
+            <select id="threeMovesDropdownSelect">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+
+
+        <button id="popUpButton">Overlay</button>
+        <input type="text" id="searchInput" placeholder="Opening Name">
+        <input type="text" id="searchInputPGN" placeholder="PGN">
+        <input type="text" id="searchInputCapture" placeholder="capture on square">
+        <!-- <input type="text" id="searchInputCapture" placeholder="capture on square"> -->
+        <!-- <input type="text" id="searchInputPGN" placeholder="PGN"> -->
+
+        <ul id="results"></ul>
     </div>
+    <div id="wrapper">
+        <div id="main-board-container"></div>
+        <div id='side-board-container'></div>
+    </div>
+
+    <template id="game-template">
+        <div class="chessboard-container">
+            <div class="chessboard"></div>
+            <p class="pgn"></p>
+            <p class="name"></p>
+            <p class="eco"></p>
+            <p class="nextmove"></p>
+        </div>
+    </template>
 
     <script type="module" src="script.js"></script>
     <!-- <script type="module" src="script_testErrors.js"></script> -->
     <!-- <script type="module" src="script_getOpeningBoards.js"></script> -->
 
 
-</body>
 
+</body>
 
 </html>

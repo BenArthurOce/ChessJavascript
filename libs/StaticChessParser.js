@@ -5,10 +5,13 @@ import StaticErrorCheck from './StaticErrorCheck.js';
 class StaticParser {
     #fullNotationString
     #parsedMoves;
+    #nextPlayerToMove
     constructor(string) {
         this.#parsedMoves = {};
         this.#fullNotationString = string
         this.runParser(string);
+        // this.#nextPlayerToMove = this.getNextPlayerToMove();
+        // console.log(this.parsedMoves)
     };
     get fullNotationString() {
         return this.#fullNotationString;
@@ -18,6 +21,12 @@ class StaticParser {
     };
     set parsedMoves(value) {
         this.#parsedMoves = value;
+    };
+    get nextPlayerToMove() {
+        return this.#nextPlayerToMove;
+    };
+    set nextPlayerToMove(value) {
+        this.#nextPlayerToMove = value;
     };
 
 
@@ -228,6 +237,21 @@ class StaticParser {
         // If it fails, require error handle
         return null;
     };
+
+
+
+    // Method to determine which player would move next
+    // getNextPlayerToMove() {
+    //     const totalMoves = Object.keys(this.parsedMoves).length;
+    //     const lastMove = this.parsedMoves[totalMoves]; // Get the moves of the last turn
+
+    //     // If the second move is "undefined", then its blacks turn to move. Otherwise its white
+    //     if (lastMove[1] === undefined) {
+    //         return "Black"
+    //     } else {
+    //         return "White"
+    //     }
+    // };
 
 
     printToTerminal() {

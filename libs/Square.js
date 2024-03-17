@@ -64,6 +64,10 @@ class Square {
         return this.#contents;
     };
 
+    toggleActivated() {
+        this.element.classList.toggle("activeSquare");
+    };
+
 
     /**
      * Creates a Square() HTML object for the DOM

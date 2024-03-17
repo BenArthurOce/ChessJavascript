@@ -1,63 +1,85 @@
-
-import {Game, GameTest} from "./Game.js";
+// import Overlay from "./Overlay.js";
+// import Caller from "./Overlay.js";
+import { Game, GameTest } from "./Game.js";
+// import Game from "./Game.js";
 import JSONReader from "./JSONReader.js";
-import Dictionary from "./Dictionary.js";
+import {Dictionary, ChessDictionary} from "./Dictionary.js";
+
+import {Form, Popup} from "./Form.js"; 
+
+
+// UI ideas
+// Dialog Box
+// Move that occured on move x / capture that occured on move x
 
 
 class FrontPage {
-    #className;
-    #mainGameBoard;
-    #sideGameBoards;
-    #elements;
-    #allTwoMoveContinuations;
-    #allThreeMoveContinuations;
-    #dictionary;
+    #className = "Board";
+    #mainGame = null;
+    #sideGames = [];
+    #dictionary = new ChessDictionary();
+    #searchTimeout = null;
+    #parentELMain = document.querySelector("#main-board-container");
+    #parentELSide = document.querySelector("#side-board-container");
+
+    #searchInput = document.getElementById('searchInput');
+    #searchInputPGN = document.getElementById('searchInputPGN');
+
+    #searchInputCapture = document.querySelector(`#searchInputCapture`)
+
+    #overlayButton = document.getElementById('popUpButton');
+
+    #allOneMovePGN = null
+    #allTwoMovePGN = null
+    #allThreeMovePGN = null
+
+
+    #formData = null
+
+
     constructor() {
-        this.#className = "Board";
-        this.#mainGameBoard = null;
-        this.#sideGameBoards = [];
-
-        this.#allTwoMoveContinuations = []      // Not currently used
-        this.#allThreeMoveContinuations = []    // Not currently used
-        this.#dictionary = new Dictionary()     // Holds all the chess openings and information about them
-
-        this.initMainBoard()
-        this.initOpeningDictionary()
-        this.initSearchInput();
+        this.init();
     };
+
     get className() {
         return this.#className;
     };
     set className(value) {
         this.#className = value;
     };
-    get mainGameBoard() {
-        return this.#mainGameBoard;
+    get mainGame() {
+        return this.#mainGame;
     };
-    set mainGameBoard(value) {
-        this.#mainGameBoard = value;
+    set mainGame(value) {
+        this.#mainGame = value;
     };
-    get sideGameBoards() {
-        return this.#sideGameBoards;
+    get parentELMain() {
+        return this.#parentELMain;
     };
-    set sideGameBoards(value) {
-        this.#sideGameBoards = value;
+    get parentELSide() {
+        return this.#parentELSide;
     };
-    get elements() {
-        return this.#elements;
+    get sideGames() {
+        return this.#sideGames;
     };
-    get allTwoMoveContinuations() {
-        return this.#allTwoMoveContinuations;
+    set sideGames(value) {
+        this.#sideGames = value;
     };
-    set allTwoMoveContinuations(value) {
-        this.#allTwoMoveContinuations = value;
-    };
-    get allThreeMoveContinuations() {
-        return this.#allThreeMoveContinuations;
-    };
-    set allThreeMoveContinuations(value) {
-        this.#allThreeMoveContinuations = value;
-    };
+    // get elements() {
+    //     return this.#elements;
+    // };
+    // get allTwoMoveContinuations() {
+    //     return this.#allTwoMoveContinuations;
+    // };
+    // set allTwoMoveContinuations(value) {
+    //     this.#allTwoMoveContinuations = value;
+    // };
+    // get allThreeMoveContinuations() {
+    //     return this.#allThreeMoveContinuations;
+    // };
+    // set allThreeMoveContinuations(value) {
+    //     this.#allThreeMoveContinuations = value;
+    // };
     get dictionary() {
         return this.#dictionary;
     };
@@ -65,125 +87,472 @@ class FrontPage {
         this.#dictionary = value;
     };
 
+    get formDataObject() {
+        return this.#formData;
+    };
+    set formDataObject(value) {
+        this.#formData = value;
+    };
 
-    initMainBoard() {
-        const parentEL = document.body.querySelector("#main-board-container");
-        this.mainGameBoard = new Game(null, 0, parentEL);
-        this.mainGameBoard.resetGame()
+    ////////////////////////////////////////////////////
+    ////////////// --- Init Functions --- //////////////
+    ////////////////////////////////////////////////////
+
+
+    async init() {
+        await this.initMainBoard();             // Create the main chessboard
+        await this.initDictionary();            // Create the "database" of all the openings
+
+        clearTimeout(this.#searchTimeout);      // Stop all the setup async functions
+        this.initSearchInput();                 // Sets up the UI (Needs to be removed)
+        this.initEventListeners()               // To be filled
+
+        this.initDropDownBoxes()
+
+
+
+
+
+        // twoMovesDropdown
+        // threeMovesDropdown
     };
 
 
-    updateMainBoard(information) {
-        this.clearMainBoard()
-        const parentEL = document.body.querySelector("#main-board-container");
-        this.mainGameBoard = null
-        this.mainGameBoard = new Game(information, 0, parentEL);
-        this.mainGameBoard.initGame();
+    async initMainBoard() {
+        this.#mainGame = this.#createGame(null, 0, this.#parentELMain)
     };
 
 
-    clearMainBoard() {
-        const mainBoard = document.body.querySelector("#main-board-container");
-        while (mainBoard.firstChild) {
-            mainBoard.removeChild(mainBoard.firstChild);
-        }
+    async initDictionary() {
+        const filepath = './data/newChessOpenings.json'
+
+        // Find the JSON file and read the data
+        const jsonData = await this.readJSONFile(filepath);
+
+        // Go through each JSON item and add it to the Dictionary() class
+        Object.entries(jsonData).forEach(([key, value]) => this.#dictionary.set(key, value));
+
+        // In the Dictionary() Object, parse "MOVESTRING" into "MOVEOBJ"
+        this.#dictionary.updateWithMoveObj();
     };
 
 
-    initOpeningDictionary() {
-        // Step 1: We read the JSON file of all the openings
-        const jsonReader = new JSONReader('./data/newChessOpenings.json');  // Loading JSON Reader
-        jsonReader.readJSONSync();
-        const jsonData = jsonReader.getData();  // Accessing data
+    async readJSONFile(filePath) {
+        const jsonReader = new JSONReader(filePath);
+        await jsonReader.readJSONSync();
+        return jsonReader.getData();
+    };
 
-        // Step 2: Create a Dictionary() object and populate it with the JSON data
-        // const openingDictionary = new Dictionary();   // Creating a new Dictionary instance
+    
+    initDropDownBoxes() {
 
-        // Transferring JSON data to Dictionary
-        for (const key in jsonData) {
-            if (Object.hasOwnProperty.call(jsonData, key)) {
-            this.dictionary.set(key, jsonData[key]);
+        const oneMovers = this.#dictionary.filterNumMovesBetween(1, 1)
+        this.#allOneMovePGN = oneMovers.map(({ PGN }) => PGN);
+
+        const twoMovers = this.#dictionary.filterNumMovesBetween(2, 2)
+        this.#allTwoMovePGN = twoMovers.map(({ PGN }) => PGN);
+
+        const threeMovers = this.#dictionary.filterNumMovesBetween(3, 3)
+        this.#allThreeMovePGN = threeMovers.map(({ PGN }) => PGN);
+
+        // Access radio buttons and dropdown divs
+        const oneMovesRadio = document.getElementById("oneMovesRadio");
+        const twoMovesRadio = document.getElementById("twoMovesRadio");
+        const threeMovesRadio = document.getElementById("threeMovesRadio");
+        const oneMovesDropdownSelect = document.getElementById("oneMovesDropdownSelect");
+        const twoMovesDropdownSelect = document.getElementById("twoMovesDropdownSelect");
+        const threeMovesDropdownSelect = document.getElementById("threeMovesDropdownSelect");
+
+
+        // Event listener for radio buttons
+        oneMovesRadio.addEventListener("change", () => {
+            if (oneMovesRadio.checked) {
+                showDropdown(oneMovesDropdown);
+                hideDropdown(twoMovesDropdown);
+                hideDropdown(threeMovesDropdown);
+                populateDropdown("oneMovesDropdownSelect", this.#allOneMovePGN);
             }
+        });
+
+        twoMovesRadio.addEventListener("change", () => {
+            if (twoMovesRadio.checked) {
+                hideDropdown(oneMovesDropdown);
+                showDropdown(twoMovesDropdown);
+                hideDropdown(threeMovesDropdown);
+                populateDropdown("twoMovesDropdownSelect", this.#allTwoMovePGN);
+            }
+        });
+
+        threeMovesRadio.addEventListener("change", () => {
+            if (threeMovesRadio.checked) {
+                hideDropdown(oneMovesDropdown);
+                hideDropdown(twoMovesDropdown);
+                showDropdown(threeMovesDropdown);
+                populateDropdown("threeMovesDropdownSelect", this.#allThreeMovePGN);
+            }
+        });
+
+        // Function to show dropdown
+        function showDropdown(dropdown) {
+            dropdown.style.display = "block";
         }
+
+        // Function to hide dropdown
+        function hideDropdown(dropdown) {
+            dropdown.style.display = "none";
+        }
+
+        // Function to populate dropdown
+        function populateDropdown(dropdownId, optionsArray) {
+            const dropdown = document.getElementById(dropdownId);
+            dropdown.innerHTML = ""; // Clear existing options
+
+            // Sort the options array alphabetically
+            optionsArray.sort();
+
+            // Iterate through the sorted array and populate options
+            optionsArray.forEach(optionText => {
+                // Create an option element
+                const option = document.createElement("option");
+                // Set the text content of the option
+                option.textContent = optionText;
+                // Append the option to the select element
+                dropdown.appendChild(option);
+            });
+        }
+
+
+
+        // const twoMovesDropdown = document.getElementById("twoMovesDropdown");
+
+        // console.log(twoMovesDropdown); // Just for debugging to ensure you're getting the correct element
+
+
+        oneMovesDropdownSelect.addEventListener("change", () => {
+            const selectedOption = oneMovesDropdownSelect.options[oneMovesDropdownSelect.selectedIndex].value;
+            this.handleDropDownBoxChange(selectedOption)
+            // console.log(selectedOption);
+        });
+        
+        
+        twoMovesDropdownSelect.addEventListener("change", () => {
+            const selectedOption = twoMovesDropdownSelect.options[twoMovesDropdownSelect.selectedIndex].value;
+            this.handleDropDownBoxChange(selectedOption)
+            // console.log(selectedOption);
+        });
+        
+
+        threeMovesDropdownSelect.addEventListener("change", () => {
+            const selectedOption = threeMovesDropdownSelect.options[threeMovesDropdownSelect.selectedIndex].value;
+            this.handleDropDownBoxChange(selectedOption)
+            // console.log(selectedOption);
+        });
+        
+};
+
+
+    handleDropDownBoxChange(pgn) {
+        const searchResults = this.#dictionary.filterPGN(pgn)
+        this.#clearSideBoards();
+        this.#updateSideBoards(searchResults);
+    }
+
+
+    ////////////// --- xxxxxxx --- //////////////
+
+
+    initEventListeners() {
+        this.#searchInputPGN.addEventListener('input', () => {
+            console.log(`#searchInputPGN.`)
+        });
+        this.#searchInput.addEventListener('input', () => {
+            console.log(`#searchInput.`)
+        });
+        this.#searchInputCapture.addEventListener('input', () => {
+            console.log(`#searchInputCapture.`)
+        });
+        this.#overlayButton.addEventListener('click', () => {
+            console.log(`#overlayButton.`)
+        });
     };
+
+    // searchInputCapture
+
+    ////////////// ------------------- //////////////
+    ////////////// --- FORM SEARCH --- //////////////
+    ////////////// ------------------- //////////////
+
+    handleOverlayPopup() {
+        this.printSeperator();
+        this.formDataObject = null; // Reset formDataObject
+        
+        const newForm = new Form();
+        newForm.eventMethod(this.updateFormData.bind(this));
+    };
+
+
+    updateFormData(formData) {
+        this.formDataObject = formData; // Update formDataObject
+        this.receiveFormData(); // Call receiveFormData after updating formDataObject
+    };
+
+
+    receiveFormData() {
+        console.log(`Func: receiveFormData || formData=`);
+        console.log(this.formDataObject);
+
+        const searchResult = this.performSearch(this.formDataObject);
+        console.log(searchResult);
+
+        this.#clearSideBoards();
+        this.#updateSideBoards(searchResult);
+    };
+
+
+    performSearch(formData) {
+
+        // console.log(formData)
+        let searchResults
+        if (formData.eco) {
+            searchResults = this.#dictionary.filterECO(formData.eco)
+            return searchResults
+        }
+
+        if (formData.name) {
+            searchResults = this.#dictionary.filterName(formData.name)
+            return searchResults
+        }
+
+        if (formData.family) {
+            searchResults = this.#dictionary.filterFamily(formData.family)
+            return searchResults
+        }
+
+        if (formData.variation) {
+            searchResults = this.#dictionary.filterVariation(formData.variation)
+            return searchResults
+        }
+
+        if (formData.nextMove) {
+            searchResults = this.#dictionary.filterNextMove(formData.nextMove)
+            return searchResults
+        }
+
+        if (formData.pgn) {
+            searchResults = this.#dictionary.filterPGN(formData.pgn)
+            return searchResults
+        }
+
+        if (formData.numMoves) {
+            searchResults = this.#dictionary.filterNumMovesOver(formData.numMoves)
+            return searchResults
+        }
+
+        if (formData.captureSquare && formData.captureTurn) {
+            searchResults = this.#dictionary.filterCaptureOnSquare(formData.captureSquare, formData.captureTurn)
+            return searchResults
+        }
+
+    };
+
+
 
     initSearchInput() {
-        const searchInput = document.getElementById('searchInput');
+        // console.log(`Func: initSearchInput`)
+
+
+        const button = document.getElementById('popUpButton');
+        button.addEventListener('click', () => this.handleOverlayPopup());
+
         const resultsContainer = document.getElementById('results');
 
+        // const searchInput = document.getElementById('searchInput');
+
         searchInput.addEventListener('input', () => {
-            let results = [];
-            const query = searchInput.value.toLowerCase().trim();
-            results = this.dictionary.getEntriesFromAttributes("NAME", query)
-            this.displayResults(results, resultsContainer);
+
+            // this.#handleInputEvent()
+
+
+            // The main chessboard is cleared of all its pieces
+            this.#returnGame(0).resetGame();
+
+            // The sideboards are cleared out
+            this.#clearSideBoards()
+
+            // The dictionary returns a list of games based on the search input
+            const searchResults = this.#searchInDictionary("NAME", this.#readSearchBox())
+
+            // The sideboards generated depending on the search results
+            this.#updateSideBoards(searchResults)
+
+
+            clearTimeout(this.#searchTimeout);
+            // this.searchCommandActivated()
+
+            // // const a = this.#returnGame(0)
+            // // console.log(a)
+            // this.#clearMainBoard()
+            // this.#searchTimeout = setTimeout(() => {
+            //     // console.log(this.#returnGame(3))
+            //     const query = searchInput.value.toLowerCase().trim();
+            //     // const results = this.#dictionary.getEntriesFromAttributes("NAME", query);
+
+            //     const results = this.searchInDictionary("NAME", query)
+            //     this.handleSearchInput(results, resultsContainer);
+            // }, 500); // Time delay / Debounce
+        });
+
+        this.#searchInputPGN.addEventListener('input', () => {
+
+            // The main chessboard is cleared of all its pieces
+            this.#returnGame(0).resetGame();
+
+            // The sideboards are cleared out
+            this.#clearSideBoards()
+
+            const searchResults = this.#searchInDictionary("PGN", this.#readSearchBoxPGN())
+
+            // The sideboards generated depending on the search results
+            this.#updateSideBoards(searchResults)
+
+            // this.#handleInputEvent()
+            clearTimeout(this.#searchTimeout);
+
+        });
+
+
+    };
+
+
+    #handleGameClickEvent(event, index) {
+        console.log(`Func: #handleBoardClick  | event=${event} | index=${index}`)
+        // This is when a chessboard is clicked
+
+        // The main chessboard gets wiped
+        this.#clearMainBoard()
+
+        // We store the index of the chessboard that was clicked
+        const clickedGame = this.#returnGame(index)
+        // console.log(clickedGame)
+
+        // The main Chessboard becomes that chessboard
+        const newGame = this.#createGame(clickedGame.information, 0, this.#parentELMain)
+
+        newGame.initGame();
+
+        this.#mainGame = newGame
+
+    };
+
+
+    // Do not adjust.
+    #readSearchBox() {
+        return this.#searchInput.value.toLowerCase().trim();
+    };
+
+    #readSearchBoxPGN() {
+        return this.#searchInputPGN.value.toLowerCase().trim();
+    };
+
+    #readSearchInputCapture() {
+        return this.#searchInputCapture.value.toLowerCase().trim();
+    };
+
+
+    /**
+     * xxx
+     * 
+     */
+    #searchInDictionary(queryType, searchTerm) {
+        console.log(`Func: searchInDictionary  | queryType=${queryType} | searchTerm=${searchTerm}`)
+        return this.#dictionary.getEntriesFromAttributes(queryType, searchTerm);
+    };
+
+
+    /**
+     * xxx
+     * 
+     */
+    #clearMainBoard() {
+        console.log(`Func: #clearMainBoard`)
+        this.#mainGame = null;
+        this.#parentELMain.innerHTML = '';
+    };
+
+
+    /**
+     * xxx
+     * 
+     */
+    #clearSideBoards() {
+        console.log(`Func: #clearSideBoards`)
+        this.sideGames = [];
+        this.#parentELSide.innerHTML = '';
+    };
+
+
+    /**
+     * xxx
+     * 
+     */
+    #updateSideBoards(openings) {
+        console.log(`Func: #updateSideBoards  | openings=ommitted`)
+        openings.forEach((opening, index) => {
+            this.#createGame(opening, index + 1, this.#parentELSide)
         });
     };
 
 
-    displayResults(results, container) {
-        console.log("displayResults")
-        container.innerHTML = '';
-        if (results.length === 0) {
-            container.innerHTML = '<li>No results found</li>';
-            return;
+
+    #createGame(information, index, parentEl) {
+
+        if (index ===  0 ) {
+            console.log(`Func: #createGame: |  information=${information}  |   index=${index}  |   parentEl=${parentEl}  |`)
         }
-        results.forEach(result => {
-            const li = document.createElement('li');
-            li.textContent = `${result.PGN}: ${result.NAME}`;
-            container.appendChild(li);
-        });
-        // Generate chessboards from the RESULTS
-        this.clearAllBoards();
-        this.loadChessBoards(results);
-    };
+        
+        let newGame;
+
+        // Create Game() Object
+        if (index === 0) {
+            newGame = new Game(information, 0, parentEl);   // Create the Game
 
 
-    /**
-     * Loads chess boards.
-     * @param {Object} openings The openings to load.
-     */
-    loadChessBoards(openings) {
-        const parentEL = document.body.querySelector("#side-board-containers");
-        let index = 1;
-        for (const key in openings) {
-            if (openings.hasOwnProperty(key)) {
-                const opening = openings[key];
-                const newGame = new Game(opening, index, parentEL);
-                newGame.initGame();
-
-                // Use arrow function to maintain "this" context and bind index value
-                document.querySelector(`#chessboard-container${index}`).addEventListener('click', ((index) => {
-                    return (event) => {
-                        this.handleBoardClick(event, index-1);
-                    };
-                })(index));
-
-                this.sideGameBoards.push({ index, game: newGame });
-                index++;
-            }
         }
-    };
+        else if (index > 0) {
+            newGame = new Game(information, index, parentEl);   // Create the Game
+            newGame.initGame();
 
+            // Create click event
+            newGame.element.addEventListener('click', (event) => {
+                this.#handleGameClickEvent(event, index)
+            })
 
-    /**
-     * Action to take when anything in the Game() object is clicked
-     */
-    handleBoardClick(event, index) {
-        const boardClicked = this.sideGameBoards[index].game;
-        this.updateMainBoard(boardClicked.information)
-    };
-
-
-    /**
-     * Clears all boards.
-     */
-    clearAllBoards() {
-        const constSideboard = document.body.querySelector("#side-board-containers");
-        while (constSideboard.firstChild) {
-            constSideboard.removeChild(constSideboard.firstChild);
-            this.sideGameBoards.pop();
+            this.sideGames.push(newGame)
         }
+
+        this.#mainGame = newGame;
+
+        return newGame
     };
-};
+    
+
+
+    #returnGame(index) {
+        console.log(`Func: returnGame  | index=${index}`)
+        if (typeof index !== 'number') {
+            throw new Error(`index: ${index} is not a number. Game could not be returned`)
+        }
+        if (index===0) {return this.#mainGame}                            // 0 = Main game board
+        index -=1   //Reduce index by 1 (to make it fit the base 0 requirements)
+        return this.#sideGames[index]                                      // Otherwise side board
+    };
+
+
+    printSeperator() {
+        console.log("//////////////////////")
+        console.log("//////////////////////")
+        console.log("//////////////////////")
+    }
+}
 
 export default FrontPage;

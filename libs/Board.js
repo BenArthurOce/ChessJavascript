@@ -16,7 +16,7 @@ class Board {
         this.#idNumber = idNumber
         this.#grid = [];
 
-        // this.#parentElement = document.body.querySelector("#side-board-containers")
+        // this.#parentElement = document.body.querySelector("#side-board-container")
 
         this.createElement();       // Creates the board HTML element and adds it to the Board() class
         this.initSquares();         // Creates the Square() objects, and appends them to the Board() grid, and Board() element
@@ -298,4 +298,123 @@ class Board {
     };
 };
 
-export default Board;
+
+class BoardInteract extends Board {
+    constructor(idNumber, parentElement) {
+        super(idNumber, parentElement);
+
+        this.firstSquareClicked = null;
+        this.secondSquareClicked = null;
+        
+    };
+
+
+    // To make pieces move
+    // select a square.
+        // If the square has a peice, the square becomes active
+        // click on another square..
+            // if its a different square
+                // move it
+
+                //movePiece(pieceToMove, refTarget)
+
+    initLocalEventListeners() {
+        const allSquares = this.grid.flat()
+
+        allSquares.forEach(square => {
+
+            square.element.addEventListener('click', () => { 
+
+
+                // If the square clicked is the same as the first square, then reset
+                if (this.firstSquareClicked === square) {
+                    this.firstSquareClicked.toggleActivated()
+                    this.firstSquareClicked = null
+                    this.secondSquareClicked = null
+                    return
+                }
+
+                // If the first active square is null - then we populate it
+                if (!this.firstSquareClicked) {
+
+                    // However, if a non piece square was clicked, we exit
+                    if (!square.contents) {return}
+                    this.firstSquareClicked = square
+                    this.firstSquareClicked.toggleActivated()
+                }
+
+                // If the first active square is selected, then we nominate the second selected square
+                else {
+                    this.secondSquareClicked = square
+                    this.secondSquareClicked.toggleActivated()
+
+                    this.logMovement()
+
+                    this.movePiece(this.firstSquareClicked.contents, this.secondSquareClicked.positionRef)
+
+                    // restart
+                    this.firstSquareClicked.toggleActivated()
+                    this.secondSquareClicked.toggleActivated()
+
+                    this.firstSquareClicked = null
+                    this.secondSquareClicked = null
+                }
+
+            })
+
+        });
+
+    };
+
+    logMovement() {
+        // Determine the text that gets updated
+        const pgnTextBox = document.querySelector("#pgnInput")
+
+        // Is there a capture?
+        let isCapture = false
+        let isPawnCapture = false
+        if (this.firstSquareClicked.contents && this.secondSquareClicked.contents) {isCapture = true}
+
+        // If it was a pawn capture
+        if (isCapture && this.firstSquareClicked.contents.pieceCodeStr === "p") {isPawnCapture = true}
+
+
+        // Piece that was moved
+        let pieceCode = this.firstSquareClicked.contents.pieceCodeStr
+        if (pieceCode === "p") {pieceCode = ""}
+
+
+        // Destination Square
+        let destination = this.secondSquareClicked.positionRef
+
+        // Pawn Capture file (if pawn capture)
+        let pawnFileCapture = this.firstSquareClicked.fileRef
+
+
+        //
+        //  Final result
+        //
+        let finalResult
+
+        
+        // if there was no capture
+        if (!isCapture) {
+            finalResult = pieceCode + destination + " ";
+        } 
+        // If there was a capture (no pawn)
+        else if (isCapture && !isPawnCapture) {
+            finalResult = pieceCode + "x" + destination + " ";
+        }
+        else if (isCapture && isPawnCapture) {
+            finalResult = pawnFileCapture + "x" + destination + " ";
+        }
+
+        pgnTextBox.value += finalResult
+    }
+}
+
+// export default Board;
+export {Board, BoardInteract}
+
+
+// // searchInput.addEventListener('input', () => {    
