@@ -123,7 +123,7 @@ class StaticParser {
                 ,targetArray: null // Array (base 0) of destination square
                 ,locationArray: null // Kept blank. Used for printToTerminal completeness
 
-                ,printToTerminal: function() {
+                ,printToTerminal2: function() {
                     console.log(`------Debug Move Map Details------`);
                     console.log(`teamNumber: ${this.teamNumber} | turnNumber: ${this.turnNumber} | notation: ${this['notation']}`);
                     console.log(`pieceCode: ${this.pieceCode} | fullPieceCode: ${this.fullPieceCode}`);
@@ -134,6 +134,19 @@ class StaticParser {
                     console.log(`fullNotationString: ${this.fullNotationString}`);
                     console.log(`-----------------------`);
                 }
+
+                ,printToTerminal: function() {
+                    console.log(`
+                        ------Debug Move Map Details------
+                        teamNumber: ${this.teamNumber} | turnNumber: ${this.turnNumber} | notation: ${this['notation']}
+                        pieceCode: ${this.pieceCode} | fullPieceCode: ${this.fullPieceCode}
+                        targetSquare: ${this.targetSquare} | targetPosX: ${this.targetPosX} | targetPosY: ${this.targetPosY} | targetArray: ${this.targetArray}
+                        locationSquare: ${this.locationSquare} | locationPosX: ${this.locationPosX} | locationPosY: ${this.locationPosY} | locationArray: ${this.locationArray}
+                        locationRow: ${this.locationRow} | locationCol: ${this.locationCol}
+                        castlingSide: ${this.castlingSide} | isCapture: ${this.isCapture} | isCheckOrMate: ${this.isCheckOrMate} | isPromotion: ${this.isPromotion}
+                        fullNotationString: ${this.fullNotationString}
+                        --------------------------------`
+                )}
             };
 
             // console.log("Review castling")

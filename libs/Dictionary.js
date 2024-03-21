@@ -241,6 +241,12 @@ class ChessDictionary extends Dictionary {
         return this.values().filter(({ NEXTTOMOVE }) => team === NEXTTOMOVE);
     };
 
+    filterPossibleMoves(moveNum, teamNum) {
+        const b = this.values().map(({ MOVEOBJ }) => MOVEOBJ[moveNum] && MOVEOBJ[moveNum][teamNum]);
+        const uniqueValues = new Set(b);
+        return Array.from(uniqueValues);
+    };
+
 
 
     // filterCaptureOnTurn(team) {
@@ -248,6 +254,32 @@ class ChessDictionary extends Dictionary {
     // };
 
 };
+
+
+
+class ChessMoves extends Dictionary {
+    constructor(toStrFn = defaultToString) {
+        super(toStrFn);
+    }
+
+    // Add a chess move to the dictionary
+    addMove(moveNumber, move) {
+        return this.set(moveNumber, move);
+    }
+
+    // Reverse the order of chess moves in the dictionary
+    reverseMoves() {
+        const reversedMoves = new ChessMoves(this.toStrFn);
+        const moves = this.keyValues();
+        for (let i = moves.length - 1; i >= 0; i--) {
+            reversedMoves.addMove(moves.length - i, moves[i].value);
+        }
+        return reversedMoves;
+    }
+}
+
+
+
 
 
 export {Dictionary, ChessDictionary}

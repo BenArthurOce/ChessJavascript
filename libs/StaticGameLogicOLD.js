@@ -4,13 +4,6 @@ import {Piece, Pawn, Rook, Knight, Bishop, Queen, King} from "./Piece.js";
 
 class StaticGameLogic {
 
-
-    // Takes the Game() (it has the board state inside it)
-    // Takes the MoveObject from the Dictionary()
-    // the MoveObject is the same thing as the parser... no its not. The parser has a lot of important info
-
-
-
     /**
      * Loops through all the move instructions found in the Parser() object, and calls "processPlayerMove" on each move instruction
      *
@@ -95,10 +88,9 @@ class StaticGameLogic {
 
         // If no Piece() object that could move to the destination square was found, return an error
         if (!foundPiece) {
-            moveInfo.printToTerminal()
             boardState.printToTerminal()
-
-            throw new Error(`[Gamelogic - findLocation]  Piece not found || Turn: ${moveInfo.turnNumber} | TeamNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
+            moveInfo.printToTerminal()
+            throw new Error(`Piece not found || Turn: ${moveInfo.turnNumber} | TeamNum: ${moveInfo.teamNumber} | Notation: ${moveInfo.notation}`);
             
         }
         return foundPiece;

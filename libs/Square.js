@@ -14,7 +14,7 @@ class Square {
     constructor(row, col, parentElement) {
         this.#parentElement = parentElement;
         this.#element = document.createElement('div');
-        this.#className
+        this.#className = "Square";
         this.#row = row;                                        // base 0 - row position in grid
         this.#col = col;                                        // base 0 - col position in grid
         this.#rankRef = StaticChessUtility.rowArrayToRef(row);  // base 1 - row position in grid   

@@ -68,10 +68,11 @@ body {
 
 #wrapper {
     display: grid;
-    gap: 40px;
-    width: calc(100vw - 60px);
-    grid-template-columns: minmax(300px, 20%) 70%;
-    column-gap: 10vw;
+    /* gap: 40px; */
+    /* width: calc(100vw - 60px); */
+    /* grid-template-columns: minmax(300px, 20%) 70%; */
+    grid-template-columns: 40vw 60vw;
+    /* column-gap: 10vw; */
     padding-left: 2%;
     padding-right: 2%;
 
@@ -80,13 +81,13 @@ body {
 
 
 #side-board-container {
-    width: 100%;
+    /* width: 100%; */
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     flex-direction: row;
     overflow-y: auto;
-    justify-content: center;
+    /* justify-content: center; */
 }
 
 /* #side-board-container p {
@@ -169,6 +170,18 @@ body {
 /* ----- Chessboard SML ---- */
 /* ------------------------- */
 
+#side-board-container .chessboard-container {
+    max-width: calc(var(--square-size-small) *  8.8 );
+}
+
+#side-board-container .chessboard-container .pgn {
+    display:initial;
+    /* max-width: calc(var(--square-size-small)*7)px; */
+    /* overflow: hidden */
+    
+}
+
+
 #side-board-container .chessboard .square {
     min-width: var(--square-size-small);
     min-height: var(--square-size-small);
@@ -190,12 +203,13 @@ body {
 #side-board-container .chessboard-container .family,
 #side-board-container .chessboard-container .variation, 
 #side-board-container .chessboard-container .subvariation, 
+#side-board-container .chessboard-container .pgn,
 #side-board-container .chessboard-container .nummoves {
     display:initial;
 }
 
 
-#side-board-container .chessboard-container .pgn,
+/* #side-board-container .chessboard-container .pgn, */
 #side-board-container .chessboard-container .name,
 #side-board-container .chessboard-container .eco,
 #side-board-container .chessboard-container .nexttomove {

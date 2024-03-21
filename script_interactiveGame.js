@@ -1,17 +1,10 @@
-// import {Game, GameTest, GameInteract} from "./libs/Game.js";
-import { Board, BoardInteractive } from "./libs/Board.js";
+import { Game, GameTest, GameInteractive } from "./libs/Game.js";
 
 
-const parentELMain = document.querySelector("#wrapper2");
+const parentELMain = document.querySelector("#main-board-container");
+const myGame = new GameInteractive(null, 0, parentELMain);
 
-const myBoard = new BoardInteractive(null, parentELMain)
 
-
-// myBoard.createElement()
-// myBoard.initSquares()
-// myBoard.initPieces()
-// myBoard.initLocalEventListeners()
-
-myBoard.init()
-myBoard.initLocalEventListeners()
+myGame.init()
+myGame.initLocalEventListeners()
 
