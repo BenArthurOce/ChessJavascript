@@ -5,21 +5,35 @@ import {Dictionary, ChessDictionary} from "./Dictionary.js";
 
 
 class FrontPage {
-    #className = "Board";
-    #mainGame = null;
-    #sideGames = [];
-    #dictionary = new ChessDictionary();
-    #searchTimeout = null;
-    #parentELMain = document.querySelector("#main-board-container");
-    #parentELSide = document.querySelector("#side-board-container");
-    #overlayButton = document.getElementById('popUpButton');
-    #btnDebug = document.querySelector(`#btnDebug`)
-    #formData = null
+    #className;         // Name of this class
+    #mainGame;          // Main interactive chessboard that user can modify
+    #sideGames;         // List of generated openings
+    #dictionary;        // Key/Value dictionary of chess openings, and the details of their openings
+    #searchTimeout;     //
+    #parentELMain;      // DOM element of the left half of the board. Displays the interactive board (GameLarge)
+    #parentELSide;      // Dom element of the right half of the board. Displays the multiple display boards (GameSmall)
+    #overlayButton;     // Button that activates the overlay - may not be active
+    #btnDebug;          // Debug button
+    #formData;          // Form class - I'm not sure if used
 
     constructor() {
         // console.log("Func: START constructor (FrontPage)")
+        this.#className = "Board";
+        this.#mainGame = null;
+        this.#sideGames = [];
+        this.#dictionary = new ChessDictionary();
+        this.#searchTimeout = null;
+        this.#parentELMain = document.querySelector("#main-board-container");
+        this.#parentELSide = document.querySelector("#side-board-container");
+        this.#overlayButton = document.getElementById('popUpButton');
+        this.#btnDebug = document.querySelector(`#btnDebug`)
+        this.#formData = null
+
         this.init();
         // console.log("Func: END constructor (FrontPage)")
+    };
+    get className() {
+        return this.#className;
     };
     get parentElementMain() {
         return this.#parentELMain;
@@ -84,7 +98,8 @@ class FrontPage {
         return this.chessDictionary.getEntriesFromAttributes(queryType, searchTerm);
     };
     
-    /// *******  Init Functions ******* //
+
+//******* Initialize the FrontPage and its dictionary *******
     async init() {
         // console.log("Func: START init (FrontPage)")
 
@@ -104,8 +119,17 @@ class FrontPage {
         })
     };
 
+
+//******* Convert JSON file into a javascript object *******
+    async readJSONFile(filePath) {
+        const jsonReader = new JSONReader(filePath);
+        return await jsonReader.readJSON();
+    };
+
+
+//******* Prepare the chess opening dictionary *******
     async initDictionary() {
-        const filepath = './data/newChessOpenings.json'
+        const filepath = './data/newChessOpenings.json';
 
         // Find the JSON file and read the data
         const jsonData = await this.readJSONFile(filepath);
@@ -117,13 +141,26 @@ class FrontPage {
         this.#dictionary.updateWithMoveObj();
     };
 
-    async readJSONFile(filePath) {
-        const jsonReader = new JSONReader(filePath);
-        await jsonReader.readJSONSync();
-        return jsonReader.getData();
+
+//******* Function that runs when the GameLarge() changes *******
+    callback_onStoredPGNChange(newPGN) {
+        this.clearSideBoards()
+        const openings = this.filterDictionary("PGN", newPGN)
+        openings.forEach((opening, index) => {
+            this.sideChessboardList.push(new GameSmall(opening, index+1, this.#parentELSide))
+            // this.sideChessboardList[index].updateInformation(opening)
+            this.sideChessboardList[index].updateGameInformation(opening)
+
+            this.sideChessboardList[index].runGameWithParserObject()
+            // this.sideChessboardList[index].addInfoToElement(opening)
+            this.sideChessboardList[index].render()
+        });
+
+        this.attachEventListenersToSideBoards()
     };
 
 
+//******* When each of the GameSmall() is clicked, run this function *******
     attachEventListenersToSideBoards() {
         this.sideChessboardList.forEach((gameObj, index) => {
             gameObj.element.addEventListener('click', (event) => {
@@ -133,23 +170,7 @@ class FrontPage {
     };
 
 
-    // Callback function to handle changes to storedPGN
-    callback_onStoredPGNChange(newPGN) {
-        this.clearSideBoards()
-        const openings = this.filterDictionary("PGN", newPGN)
-        openings.forEach((opening, index) => {
-            this.sideChessboardList.push(new GameSmall(opening, index+1, this.#parentELSide))
-            this.sideChessboardList[index].updateGameInformation(opening)
-            this.sideChessboardList[index].runGameWithParserObject()
-            this.sideChessboardList[index].addInfoToElement(opening)
-            this.sideChessboardList[index].render()
-        });
-
-        this.attachEventListenersToSideBoards()
-    };
-
-
-    // Calling different openings in the dictionary
+//******* Chess opening dictionary, filter/search function *******
     filterDictionary(category, searchWord) {
         let result = {};
         switch (category.toUpperCase()) {
@@ -188,8 +209,6 @@ class FrontPage {
         }
         return result;
     };
-
-
 };
 
 

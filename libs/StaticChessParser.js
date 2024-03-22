@@ -10,8 +10,6 @@ class StaticParser {
         this.#parsedMoves = {};
         this.#fullNotationString = string
         this.runParser(string);
-        // this.#nextPlayerToMove = this.getNextPlayerToMove();
-        // console.log(this.parsedMoves)
     };
     get fullNotationString() {
         return this.#fullNotationString;

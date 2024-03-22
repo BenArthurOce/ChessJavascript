@@ -1,27 +1,30 @@
 import StaticGameLogic from './StaticGameLogic.js';
 import StaticParser from './StaticChessParser.js';
+import StaticChessUtility from './StaticChessUtility.js';
 import  { Board, BoardDisplay, BoardInteractive} from './Board.js';
 
 class Game {
-    #parentElement;
-    #element;
-    #className;
-    #classSubName;
-    #idNumber;
-    #information;
-    #parser;
-    #board;
+    #parentElement;         // Object that contains this object, in this case, its FrontPage() if specified, or defaults to a div element
+    #element;               // This DOM element
+    #className;             // Name of this class
+    #classSubName;          // Name of this subclass
+    #idNumber;              // Id number of the game. Is passed on to the Board() and the DOM
+    #information;           // Data object obtained from Dictionary().
+    #parser;                // Parser() object that lists the details of each move in that opening
+    #board;                 // Board() object that exists in the Game() class
+
     constructor(information, idNumber) {
-    console.log(`\tFunc: START constructor (Game)`);
+        // console.log(`\tFunc: START constructor (Game)`);
         this.#parentElement = document.createElement('div');
-        this.#idNumber = idNumber;                          // Unique Id number, helps search for Games and Chessboards
-        this.#information = information                     // JSON returned information from the Dictionary() object
-        this.#className = "Game"                            // Type of the class
+        this.#idNumber = idNumber;
+        this.#information = information;
+        this.#className = "Game"
         this.#classSubName = "";                          
-        this.#board = null                                  // Board() object. Holds the chess pieces and logic
-        this.#element = this.createContainer()            // element for the DOM
-        this.#parser = null                                 // Object of every move and their instructions. Used in Logic()
-    console.log(`\tFunc: END constructor (Game)`);  
+        this.#board = null;
+        // this.#element = this.createContainer();
+        this.#element = document.createElement('div');
+        this.#parser = null;
+        // console.log(`\tFunc: END constructor (Game)`);  
     };
     get parentElement() {
         return this.#parentElement;
@@ -63,13 +66,13 @@ class Game {
         this.#board = value;
     };
 
+    setParentElement(parentElement) {
+        this.#parentElement = parentElement ? parentElement: document.createElement('div');
+    };
+
     returnChessboard() {
         return this.board;
     };
-
-    // setInformation() {
-    //     this.#information = 
-    // }
     
     updateGameInformation(info) {
         this.gameInformation = info
@@ -78,20 +81,13 @@ class Game {
     
     setParser() {
         this.#parser = new StaticParser(this.gameInformation.PGN)
-    }
+    };
 
-
-
-
-
-    // this.element.className = `chessboard`;
-    // this.element.id = `chessboard${this.idNumber}`;
-    // this.parentElement.appendChild(this.element);
-
-
-
-
-
+    createElement(type) {
+        //type is either small or large
+        this.element.className = `chessboard-container ${type}`;
+        this.element.id = `chessboard${this.idNumber}`;
+    };
 
     runGameWithParserObject() {
         StaticGameLogic.processAllMoves(this.board, this.parser);
@@ -103,17 +99,30 @@ class Game {
 
     print() {
         this.returnChessboard().printToTerminal()
-    }
+    };
 
-    initAndRender(opening) {
-        this.updateGameInformation(opening)
-        this.runGameWithParserObject()
-        this.addInfoToElement(opening)
-        this.render()
-    }
 
+    addInfoToElement(fieldList) {
+        const displayNameFn = (name) => StaticChessUtility.displayWordFromJSON(name);
+    
+        fieldList.forEach((field, index) => {
+            const displayName = displayNameFn(field);
+            const infoEl = document.createElement('p');
+            infoEl.classList.add(field.toLowerCase());
+    
+            const boldEl = document.createElement('strong');
+            boldEl.appendChild(document.createTextNode(displayName || field));
+    
+            infoEl.appendChild(boldEl);
+            infoEl.appendChild(document.createTextNode(' '));
+    
+            const infoTxt = document.createTextNode(this.gameInformation[field] || '');
+            infoEl.appendChild(infoTxt);
+    
+            this.element.appendChild(infoEl);
+        });
+    };
 };
-
 
 
 // DisplayGame class handles rendering and user interactions
@@ -121,7 +130,14 @@ class GameLarge extends Game {
     constructor(information, idNumber, parentElement) {
         // console.log(`\tFunc: START constructor (GameLarge)`);
         super(information, idNumber, parentElement);
-        this.parentElement = parentElement ? parentElement: document.createElement('div');
+        this.setParentElement(parentElement);       // If parentElement is null, we create a div
+        this.createElement("large");                // Create the element. This is the container for the chessboard
+        this.createChessBoard();                    // Creates and populates the Board() object
+        this.initLocalEventListeners();             // Adds events to the Square() objects inside the Board()
+
+        // information is null in the main display board
+        // const fields = ['PGN', 'NAME', 'ECO', 'NEXTTOMOVE', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES']
+        // this.addInfoToElement(fields);              // Takes game information, and displays them to user with the chessboard
 
         this.turnNumber = 1;
         this.turnTeamNumber = 0
@@ -129,48 +145,13 @@ class GameLarge extends Game {
         
         this.onStoredPGNChangeCallbacks = []; // Array to store callback functions
 
-
-        this.createChessBoard()
-        this.initLocalEventListeners()
         // console.log(`\tFunc: END constructor (GameLarge)`);
     };
-
-
-    createContainer() {
-        return this.element = Object.assign(
-            document.createElement('div'),
-            {
-                className: 'chessboard-container large',
-                id: `chessboard-container${this.idNumber}`
-            }
-        );
-    };
-
 
     createChessBoard() {
         this.board = new BoardInteractive(0, this.element);
     };
 
-    addInfoToElement(gameInformation) {
-        const infoFields = ['PGN', 'NAME', 'ECO', 'NEXTTOMOVE', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES'];
-        const labels = ['PGN:', 'NAME:', 'ECO:', 'NEXT:', 'FAMILY:', 'VARIATION:', 'SUB VARIATION:', 'NUMMOVES'];
-    
-        infoFields.forEach((field, index) => {
-            const infoEl = document.createElement('p');
-            infoEl.classList.add(infoFields[index].toLowerCase());
-    
-            const boldEl = document.createElement('strong');
-            boldEl.appendChild(document.createTextNode(labels[index]));
-    
-            infoEl.appendChild(boldEl);
-            infoEl.appendChild(document.createTextNode(' '));
-    
-            const infoTxt = document.createTextNode(gameInformation[field] || '');
-            infoEl.appendChild(infoTxt);
-    
-            this.element.appendChild(infoEl);
-        });
-    };
 
     // Add a method to register callback functions
     registerOnStoredPGNChangeCallback(callback) {
@@ -184,9 +165,6 @@ class GameLarge extends Game {
             callback(this.storedPGN);
         }
     };
-
-    
-
 
 
     initLocalEventListeners() {
@@ -228,7 +206,7 @@ class GameLarge extends Game {
                     this.firstSquareClicked = square
                     this.firstSquareClicked.toggleActivated()
 
-                    console.log(this.firstSquareClicked.contents.team)
+                    // console.log(this.firstSquareClicked.contents.team)
                 }
 
                 // If a Square() is already "activated", and we pick a second Square()
@@ -316,8 +294,6 @@ class GameLarge extends Game {
 
 
         this.storedPGN += finalResult
-
-        console.log(this.storedPGN)
         // After updating storedPGN, notify the callbacks
         this.notifyStoredPGNChange();
     }
@@ -325,61 +301,27 @@ class GameLarge extends Game {
 };
 
 
+
 class GameSmall extends Game {
     constructor(information, idNumber, parentElement) {
         // console.log(`\tFunc: START constructor (GameSmall)`);
+
         super(information, idNumber, parentElement);
-        this.parentElement = parentElement ? parentElement: document.createElement('div');
-        this.createChessBoard() // Creates and populates the Board() object
+        this.setParentElement(parentElement)    // If parentElement is null, we create a div
+        this.createElement("small")             // Create the element. This is the container for the chessboard
+        this.createChessBoard()                 // Creates and populates the Board() object
+
+        const fields = ['NAME', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES', 'PGN']
+        this.addInfoToElement(fields)           // Takes game information, and displays them to user with the chessboard
+
+        // console.log(`\tFunc: END constructor (GameSmall)`);
     };
 
 
     createChessBoard() {
         this.board = new BoardDisplay(0, this.element);
     };
-
-
-    createContainer() {
-        return this.element = Object.assign(
-            document.createElement('div'),
-            {
-                className: 'chessboard-container small',
-                id: `chessboard-container${this.idNumber}`,
-            }
-        );
-    };
-
-
-    addInfoToElement(gameInformation) {
-        const infoFields = ['NAME', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES', 'PGN'];
-        const labels = ['NAME:', 'FAMILY:', 'VARIATION:', 'SUB VARIATION:', 'NUMMOVES', 'PGN'];
-    
-        infoFields.forEach((field, index) => {
-            const infoEl = document.createElement('p');
-            infoEl.classList.add(infoFields[index].toLowerCase());
-    
-            const boldEl = document.createElement('strong');
-            boldEl.appendChild(document.createTextNode(labels[index]));
-    
-            infoEl.appendChild(boldEl);
-            infoEl.appendChild(document.createTextNode(' '));
-    
-            const infoTxt = document.createTextNode(gameInformation[field] || '');
-            infoEl.appendChild(infoTxt);
-    
-            this.element.appendChild(infoEl);
-        });
-    };
 };
 
 
-
-
-
-
-
 export {Game, GameLarge, GameSmall};
-
-
-
-

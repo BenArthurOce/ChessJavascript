@@ -3,26 +3,26 @@
  * Extended Pieces are: Rook(), Knight(), Bishop(), Queen(), King()
  */
 class Piece {
-    #element
-    #className
-    #team;
-    #row;
-    #col;
-    #fileRef;
-    #rankRef;
-    #positionRef;
-    #positionArr;
+    #element;           // This DOM element
+    #className;         // Name of this class
+    #team;              // 0 = White, 1 = Black
+    #row;               // Base 0 - numerical row position in grid
+    #col;               // Base 0 - numerical column position in grid
+    #fileRef;           // Base 1 - alphabetical row position in grid
+    #rankRef;           // Base 1 - alphabetical column position in grid
+    #positionRef;       // Notational string of piece position
+    #positionArr;       // Array position of piece
+    
     constructor(team) {
         this.#className = "Piece"
-        this.element = null
-        this.#team = team;              //0 = White, 1 = Black
-        this.#row = -1                  //Base 0 - numerical row position in grid
-        this.#col = -1                  //Base 0 - numerical column position in grid
-        this.#fileRef = '';             //Base 1 - alphabetical row position in grid
-        this.#rankRef = -1;             //Base 1 - alphabetical column position in grid
-        this.#positionRef = '';         //Notational string of piece position
-        this.#positionArr = [-1, -1];   //Array position of piece
-        this.init();
+        this.#element = null
+        this.#team = team;
+        this.#row = -1
+        this.#col = -1
+        this.#fileRef = '';
+        this.#rankRef = -1; 
+        this.#positionRef = '';
+        this.#positionArr = [-1, -1];
     };
     get element() {
         return this.#element;
@@ -74,9 +74,6 @@ class Piece {
     };
     set positionArr(value) {
         this.#positionArr = value;
-    };
-    init() {
-        // this.createHTMLElement()
     };
 
 

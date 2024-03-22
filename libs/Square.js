@@ -1,37 +1,35 @@
 import StaticChessUtility from './StaticChessUtility.js';
 
 class Square {
-    #parentElement;
-    #element;
-    #className;
-    #row;
-    #col;
-    #fileRef;
-    #rankRef;
-    #positionRef;
-    #positionArr;
-    #contents;
+    #parentElement;     // Object that contains this object, in this case, its Board()
+    #element;           // This DOM element
+    #className;         // Name of this class
+    #row;               // base 0 - row position in grid
+    #col;               // base 0 - col position in grid
+    #fileRef;           // col position converted to letter
+    #rankRef;           // base 1 - row position in grid 
+    #positionRef;       // notational two character square reference (ie: a1)
+    #positionArr;       // two element array of row and col (base 0)
+    #contents;          // Either null, or a Piece() object
+
     constructor(row, col, parentElement) {
         this.#parentElement = parentElement;
         this.#element = document.createElement('div');
         this.#className = "Square";
-        this.#row = row;                                        // base 0 - row position in grid
-        this.#col = col;                                        // base 0 - col position in grid
-        this.#rankRef = StaticChessUtility.rowArrayToRef(row);  // base 1 - row position in grid   
-        this.#fileRef = StaticChessUtility.colArrayToRef(col);  // col position converted to letter
-        this.#positionRef = this.#fileRef + this.#rankRef;      // notational two character square reference (ie: a1)
-        this.#positionArr = [row, col];                         // two element array of row and col (base 0)
-        this.#contents = null;                                  // indicates if a Piece() is on the Square() object
-        this.init()
+        this.#row = row;
+        this.#col = col;
+        this.#rankRef = StaticChessUtility.rowArrayToRef(row);
+        this.#fileRef = StaticChessUtility.colArrayToRef(col);
+        this.#positionRef = this.#fileRef + this.#rankRef;
+        this.#positionArr = [row, col];
+        this.#contents = null;
+        this.init() //createHTMLElement
     };
     get parentElement() {
         return this.#parentElement;
     };
     get element() {
         return this.#element;
-    };
-    set element(value) {
-        this.#element = value;
     };
     get className() {
         return this.#className;
