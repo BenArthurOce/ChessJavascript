@@ -29,7 +29,7 @@
     <input type="button" id="btn_clear" onclick="clearValues()" value="Clear PGN" /><br>
 
 
-    <div id="wrapper2">
+    <div id="main-board-container">
 
     </div>
 
@@ -42,6 +42,7 @@
     <script>
         function incrementValue()
         {
+            console.log("incrementValue")
             let value = parseInt(document.getElementById('tbox-number').value, 10);
             value = isNaN(value) ? 0 : value;
             value++;
@@ -55,6 +56,7 @@
 
         function storeNumber()
         {
+            console.log("storeNumber")
             let pgnInput = document.getElementById('pgnInput')
             let value = parseInt(document.getElementById('tbox-number').value, 10);
             let string = value + "."
@@ -64,6 +66,7 @@
 
         function clearValues()
         {
+            console.log("clearValues")
             let pgnInput = document.getElementById('pgnInput')
             pgnInput.value = ""
             document.getElementById('tbox-number').value = 0

@@ -3,15 +3,16 @@ import StaticParser from './StaticChessParser.js';
 import StaticChessUtility from './StaticChessUtility.js';
 import  { Board, BoardDisplay, BoardInteractive} from './Board.js';
 
+
 class Game {
-    #parentElement;         // Object that contains this object, in this case, its FrontPage() if specified, or defaults to a div element
-    #element;               // This DOM element
-    #className;             // Name of this class
-    #classSubName;          // Name of this subclass
-    #idNumber;              // Id number of the game. Is passed on to the Board() and the DOM
-    #information;           // Data object obtained from Dictionary().
-    #parser;                // Parser() object that lists the details of each move in that opening
-    #board;                 // Board() object that exists in the Game() class
+    #parentElement;     // Object that contains this object, in this case, its FrontPage() if specified, or defaults to a div element
+    #element;           // This DOM element
+    #className;         // Name of this class
+    #classSubName;      // Name of this subclass
+    #idNumber;          // Id number of the game. Is passed on to the Board() and the DOM
+    #information;       // Data object obtained from Dictionary().
+    #parser;            // Parser() object that lists the details of each move in that opening
+    #board;             // Board() object that exists in the Game() class
 
     constructor(information, idNumber) {
         // console.log(`\tFunc: START constructor (Game)`);
@@ -19,7 +20,7 @@ class Game {
         this.#idNumber = idNumber;
         this.#information = information;
         this.#className = "Game"
-        this.#classSubName = "";                          
+        this.#classSubName = "";
         this.#board = null;
         // this.#element = this.createContainer();
         this.#element = document.createElement('div');
@@ -67,18 +68,18 @@ class Game {
     };
 
     setParentElement(parentElement) {
-        this.#parentElement = parentElement ? parentElement: document.createElement('div');
+        this.#parentElement = parentElement ? parentElement : document.createElement('div');
     };
 
     returnChessboard() {
         return this.board;
     };
-    
+
     updateGameInformation(info) {
         this.gameInformation = info
         this.parser = info.PGN
     };
-    
+
     setParser() {
         this.#parser = new StaticParser(this.gameInformation.PGN)
     };
@@ -94,7 +95,7 @@ class Game {
     }
 
     render() {
-        this.#parentElement.appendChild(this.element)    
+        this.#parentElement.appendChild(this.element)
     };
 
     print() {
@@ -104,21 +105,21 @@ class Game {
 
     addInfoToElement(fieldList) {
         const displayNameFn = (name) => StaticChessUtility.displayWordFromJSON(name);
-    
+
         fieldList.forEach((field, index) => {
             const displayName = displayNameFn(field);
             const infoEl = document.createElement('p');
             infoEl.classList.add(field.toLowerCase());
-    
+
             const boldEl = document.createElement('strong');
             boldEl.appendChild(document.createTextNode(displayName || field));
-    
+
             infoEl.appendChild(boldEl);
             infoEl.appendChild(document.createTextNode(' '));
-    
+
             const infoTxt = document.createTextNode(this.gameInformation[field] || '');
             infoEl.appendChild(infoTxt);
-    
+
             this.element.appendChild(infoEl);
         });
     };
@@ -127,177 +128,167 @@ class Game {
 
 // DisplayGame class handles rendering and user interactions
 class GameLarge extends Game {
-    constructor(information, idNumber, parentElement) {
-        // console.log(`\tFunc: START constructor (GameLarge)`);
+    #storedPGN
+    constructor(information, idNumber, parentElement, callback) {
+        console.log(`\tFunc: START constructor (GameLarge)`);
         super(information, idNumber, parentElement);
-        this.setParentElement(parentElement);       // If parentElement is null, we create a div
-        this.createElement("large");                // Create the element. This is the container for the chessboard
-        this.createChessBoard();                    // Creates and populates the Board() object
-        this.initLocalEventListeners();             // Adds events to the Square() objects inside the Board()
+        this.callback = callback
+        this.setParentElement(parentElement); // If parentElement is null, we create a div
+        this.createElement("large"); // Create the element. This is the container for the chessboard
+        this.createChessBoard(); // Creates and populates the Board() object
+        this.initLocalEventListeners(); // Adds events to the Square() objects inside the Board()
 
         // information is null in the main display board
         // const fields = ['PGN', 'NAME', 'ECO', 'NEXTTOMOVE', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES']
         // this.addInfoToElement(fields);              // Takes game information, and displays them to user with the chessboard
 
+
+        // The following attributes are used in the event listener
         this.turnNumber = 1;
         this.turnTeamNumber = 0
-        this.storedPGN = ""
-        
+        this.#storedPGN = ""
+
+        this.clickInstance = 0
+        this.firstSquareClicked = null;
+        this.secondSquareClicked = null;
+
         this.onStoredPGNChangeCallbacks = []; // Array to store callback functions
 
-        // console.log(`\tFunc: END constructor (GameLarge)`);
+        console.log(`\tFunc: END constructor (GameLarge)`);
     };
+    get storedPGN() {
+        return this.#storedPGN;
+    };
+    set storedPGN(value) {
+        this.#storedPGN = value;
+        this.callback(this.#storedPGN)
+    };
+
 
     createChessBoard() {
         this.board = new BoardInteractive(0, this.element);
     };
 
 
-    // Add a method to register callback functions
-    registerOnStoredPGNChangeCallback(callback) {
-        this.onStoredPGNChangeCallbacks.push(callback);
-    };
-
-
-    // Method to notify all registered callbacks when storedPGN changes
-    notifyStoredPGNChange() {
-        for (const callback of this.onStoredPGNChangeCallbacks) {
-            callback(this.storedPGN);
-        }
-    };
-
-
-    initLocalEventListeners() {
-        console.log(`\t\t\tFunc: START initLocalEventListeners (BoardInteractive)`);
-
-        const allSquares = this.board.grid.flat()
-
+    // This handles the large Chessboard, and clicking on squares to move pieces
+    initLocalEventListeners() {  
+        // Prepare all Square() objects as a single array
+        const allSquares = this.board.grid.flat();
+    
+        // Function to toggle between click instances and team numbers on turns
+        const toggleClickInstance = () => this.clickInstance ^= 1;
+        const toggleTeamNumber = () => this.turnTeamNumber ^= 1;
+    
+        // Functions to check the state of click instances. Two Clicks = One Move
+        const isFirstClickInstance = () => this.clickInstance === 0;
+        const isSecondClickInstance = () => this.clickInstance === 1;
+    
+        // Functions to check square conditions
+        const isClickedSquareEmpty = (squareObj) => !squareObj.contents;
+        const isClickedSquareHavePiece = (squareObj) => !!squareObj.contents;
+        const isFirstClickASquare = (squareObj) => squareObj.contents && this.clickInstance === 0;
+        const isSecondClickASquare = (squareObj) => squareObj.contents && this.clickInstance === 1;
+        const isFirstClickLegal = (squareObj) => this.clickInstance === 0 && squareObj.contents;
+        const isWhiteMoveClick = (squareObj) => squareObj.contents && squareObj.contents.team === 0 && this.turnTeamNumber === 0;
+        const isBlackMoveClick = (squareObj) => squareObj.contents && squareObj.contents.team === 1 && this.turnTeamNumber === 1;
+        const isSameTeam = (squareObj) => squareObj.contents && squareObj.contents.team === this.firstSquareClicked?.contents.team;
+        const isSameSquare = (squareObj) => squareObj.contents && squareObj === this.firstSquareClicked;
+    
         allSquares.forEach(square => {
+            square.element.addEventListener('click', () => {
+    
+                // Handling the first click instance
+                if (isFirstClickInstance() && isClickedSquareEmpty(square)) return;
 
-            square.element.addEventListener('click', () => { 
-                
-                //
-                // First Mouse Click
-                //
-                // Check if the square is allowed. Only white or black depending on move
-                if (square.contents) {
-                    const isWhiteMoveClick = (squareObj) => squareObj.contents.team === 0 && this.turnTeamNumber === 0
-                    const isBlackMoveClick = (squareObj) => squareObj.contents.team === 1 && this.turnTeamNumber === 1
-
-                    // If both are false, exit the function.
-                    if (!isWhiteMoveClick(square) && !isBlackMoveClick(square)) return
+                // If it's a valid move for the current team, toggle the square activation
+                if (isFirstClickInstance() && (isWhiteMoveClick(square) || isBlackMoveClick(square))) {
+                    square.toggleActivated();
+                    this.firstSquareClicked = square;
+                    toggleClickInstance();
+                    return;
                 };
 
+                // Handling the second click instance
+                if (isSecondClickInstance()) {
 
-                // If the square clicked is the same as the first square, then reset the squares and end the function
-                if (this.firstSquareClicked === square) {
+                    // If the same square is clicked again, deactivate it and reset
+                    if (isSameSquare(square)) {
+                        this.firstSquareClicked.toggleActivated();
+                        this.firstSquareClicked = null;
+                        toggleClickInstance();
+                        return;
+                    };
 
-                    this.firstSquareClicked.toggleActivated()
-                    this.firstSquareClicked = null
-                    this.secondSquareClicked = null
-                    return
-                }
+                    // If clicking on a square of the same team, do nothing and exit
+                    if (isSameTeam(square)) {
+                        return;
+                    };
 
-                // If the first active square is null - then we populate it
-                if (!this.firstSquareClicked) {
+                    // Otherwise, toggle and store the second square clicked. Do nothing beyond that.
+                    square.toggleActivated();
+                    this.secondSquareClicked = square;
+                    toggleClickInstance();
+                };
 
-                    // However, if a non piece square was clicked, we exit
-                    if (!square.contents) {return}
-                    this.firstSquareClicked = square
-                    this.firstSquareClicked.toggleActivated()
+                // If both squares have been selected. Perform the move
+                if (this.firstSquareClicked && this.secondSquareClicked) {
 
-                    // console.log(this.firstSquareClicked.contents.team)
-                }
+                    // Record the Move
+                    this.#logMovement();
 
-                // If a Square() is already "activated", and we pick a second Square()
-                // Then move the piece, and store the results
-             else {
-                // If a Square() is already "activated", and we pick a second Square()
-                // Then move the piece, and store the results
-                this.secondSquareClicked = square;
-                this.secondSquareClicked.toggleActivated();
-                // this.moveHistory.push({ piece: this.firstSquareClicked.contents, destination: this.secondSquareClicked.positionRef });
-                this.#logMovement();
+                    // Move the piece
+                    this.board.movePiece(this.firstSquareClicked.contents, this.secondSquareClicked.positionRef);
 
-                // Swap between if white or black move
-                // we need this to determine where to put in the "1." part of the PGN
-                this.turnTeamNumber = (this.turnTeamNumber === 0) ? 1 : 0;
+                    // Toggle the next player to move
+                    toggleTeamNumber();
 
-                this.board.movePiece(this.firstSquareClicked.contents, this.secondSquareClicked.positionRef);
-
-                // restart
-                this.firstSquareClicked.toggleActivated();
-                this.secondSquareClicked.toggleActivated();
-                this.firstSquareClicked = null;
-                this.secondSquareClicked = null;
-                // console.log(this.storedPGN)
-
-
-                }
-                
-            })
-
+                    // Remove activations and reset clicked squares
+                    this.firstSquareClicked.toggleActivated();
+                    this.secondSquareClicked.toggleActivated();
+                    this.firstSquareClicked = null;
+                    this.secondSquareClicked = null;
+                };
+            }); // End AddEventListener
         });
-
-        console.log(`\t\t\tFunc: END initLocalEventListeners (BoardInteractive)`);
-
     };
+    
 
     #logMovement() {
-        // Determine the text that gets updated
-        // const pgnTextBox = document.querySelector("#pgnInput")
-
-        // Is there a capture?
-        let isCapture = false
-        let isPawnCapture = false
-        if (this.firstSquareClicked.contents && this.secondSquareClicked.contents) {isCapture = true}
-
-        // If it was a pawn capture
-        if (isCapture && this.firstSquareClicked.contents.pieceCodeStr === "p") {isPawnCapture = true}
+        const isCapture = () => (this.firstSquareClicked.contents && this.secondSquareClicked.contents) ? true : false;
+        const isPawnCapture = () => (isCapture() && this.firstSquareClicked.contents.pieceCodeStr === "p") ? true : false;
+        const getDestination = () => this.secondSquareClicked.positionRef;
+        const getPawnFileCapture = () => isPawnCapture() ? this.firstSquareClicked.fileRef : null;
+        const getPieceCode = () => (this.firstSquareClicked.contents.pieceCodeStr === "p") ? "" : this.firstSquareClicked.contents.pieceCodeStr
 
 
-        // Piece that was moved
-        let pieceCode = this.firstSquareClicked.contents.pieceCodeStr
-        if (pieceCode === "p") {pieceCode = ""}
+        function createString() {
+            // There was a capture, it was not a pawn capture
+            if (isCapture() && !isPawnCapture()) {
+                return getPieceCode() + "x" + getDestination();
+            };
+
+            // If there was a pawn capture
+            if (isCapture() && isPawnCapture()) {
+                return getPawnFileCapture() + getPieceCode() + "x" + getDestination();
+            };
+
+            // If no capture
+            return getPieceCode() + getDestination();
+        };
 
 
-        // Destination Square
-        let destination = this.secondSquareClicked.positionRef
-
-        // Pawn Capture file (if pawn capture)
-        let pawnFileCapture = this.firstSquareClicked.fileRef
-
-
-        //
-        //  Final result
-        //
-        let finalResult
-
-        
-        // if there was no capture
-        if (!isCapture) {
-            finalResult = pieceCode + destination + " ";
-        } 
-        // If there was a capture (no pawn)
-        else if (isCapture && !isPawnCapture) {
-            finalResult = pieceCode + "x" + destination + " ";
-        }
-        else if (isCapture && isPawnCapture) {
-            finalResult = pawnFileCapture + "x" + destination + " ";
-        }
+        // Create the move notation and add an empty space at the end
+        let createdString = createString() + " ";
 
         // If its white move, add the turn number
         if (this.turnTeamNumber === 0) {
-            this.storedPGN += `${this.turnNumber}.`
+            this.storedPGN += `${this.turnNumber}.${createdString}`
             this.turnNumber++
+        } else {
+            this.storedPGN += createdString;
         }
 
-
-        this.storedPGN += finalResult
-        // After updating storedPGN, notify the callbacks
-        this.notifyStoredPGNChange();
-    }
-    
+    };
 };
 
 
@@ -307,12 +298,12 @@ class GameSmall extends Game {
         // console.log(`\tFunc: START constructor (GameSmall)`);
 
         super(information, idNumber, parentElement);
-        this.setParentElement(parentElement)    // If parentElement is null, we create a div
-        this.createElement("small")             // Create the element. This is the container for the chessboard
-        this.createChessBoard()                 // Creates and populates the Board() object
+        this.setParentElement(parentElement)            // If parentElement is null, we create a div
+        this.createElement("small")                     // Create the element. This is the container for the chessboard
+        this.createChessBoard()                         // Creates and populates the Board() object
 
         const fields = ['NAME', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES', 'PGN']
-        this.addInfoToElement(fields)           // Takes game information, and displays them to user with the chessboard
+        this.addInfoToElement(fields) // Takes game information, and displays them to user with the chessboard
 
         // console.log(`\tFunc: END constructor (GameSmall)`);
     };

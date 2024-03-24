@@ -57,7 +57,7 @@ class FrontPage {
         return this.#btnDebug
     };
     get chessDictionary() {
-        return this.#dictionary = value;
+        return this.#dictionary;
     };
     set chessDictionary(value) {
         this.#dictionary = value;
@@ -89,7 +89,17 @@ class FrontPage {
         this.parentElementSide.innerHTML = '';   
     };
     clickEvent_Debugging() {
-        console.log("clickEvent_Debugging")
+        console.log("clickEvent_Debugging");
+
+        const root = document.documentElement;
+    
+        // Toggle the data-style attribute on the root element
+        if (root.getAttribute('data-style') === 'flipped') {
+            root.removeAttribute('data-style');
+        } else {
+            root.setAttribute('data-style', 'flipped');
+        }  
+
     };
     clickEvent_GameElement(event, index) {
         console.log("clickEvent_GameElement")
@@ -97,18 +107,15 @@ class FrontPage {
     searchInDictionary(queryType, searchTerm) {
         return this.chessDictionary.getEntriesFromAttributes(queryType, searchTerm);
     };
-    
+
 
 //******* Initialize the FrontPage and its dictionary *******
     async init() {
         // console.log("Func: START init (FrontPage)")
 
         // Create an instance of GameInteractive for the main board
-        this.mainGame = new GameLarge(null, 0, this.#parentELMain);
+        this.mainGame = new GameLarge(null, 0, this.#parentELMain, this.callback_onStoredPGNChange.bind(this));
         this.mainGame.render()
-
-        // Register callback to be notified of changes to storedPGN
-        this.mainGame.registerOnStoredPGNChangeCallback(this.callback_onStoredPGNChange.bind(this));
 
         // Create the "database" of all the openings
         await this.initDictionary();
@@ -144,20 +151,33 @@ class FrontPage {
 
 //******* Function that runs when the GameLarge() changes *******
     callback_onStoredPGNChange(newPGN) {
-        this.clearSideBoards()
-        const openings = this.filterDictionary("PGN", newPGN)
-        openings.forEach((opening, index) => {
-            this.sideChessboardList.push(new GameSmall(opening, index+1, this.#parentELSide))
-            // this.sideChessboardList[index].updateInformation(opening)
-            this.sideChessboardList[index].updateGameInformation(opening)
+        this.clearSideBoards();
+        const openings = this.filterDictionary("PGN", newPGN);
 
-            this.sideChessboardList[index].runGameWithParserObject()
-            // this.sideChessboardList[index].addInfoToElement(opening)
-            this.sideChessboardList[index].render()
-        });
+        // Define a function to create a chessboard asynchronously
+        const createChessboardAsync = async (opening, index) => {
+            const sideChessboard = new GameSmall(opening, index + 1, this.#parentELSide);
+            this.sideChessboardList.push(sideChessboard);
+            await sideChessboard.updateGameInformation(opening);
+            await sideChessboard.runGameWithParserObject();
+            sideChessboard.render();
+        };
 
-        this.attachEventListenersToSideBoards()
+        // Run the creation of each chessboard asynchronously
+        const creationPromises = openings.map((opening, index) => createChessboardAsync(opening, index));
+
+        // Wait for all chessboards to be created before attaching event listeners
+        Promise.all(creationPromises)
+            .then(() => {
+                this.attachEventListenersToSideBoards();
+            })
+            .catch(error => {
+                console.error("Error creating chessboards:", error);
+            });
+
+            this.upcomingMoves()
     };
+
 
 
 //******* When each of the GameSmall() is clicked, run this function *******
@@ -209,6 +229,19 @@ class FrontPage {
         }
         return result;
     };
+
+    upcomingMoves() {
+        console.log("makeButtons")
+
+        console.log(this.chessDictionary.values())
+
+        const results = this.#dictionary.filterPossibleMoves(1,1)
+        console.log(results)
+
+    };
+    
+
+
 };
 
 

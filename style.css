@@ -48,6 +48,13 @@
 
 }
 
+:root[data-style="flipped"] .chessboard {
+    transform: scaleX(-1) scaleY(-1);
+}
+
+:root[data-style="flipped"] .chess-piece {
+    transform: scaleX(-1) scaleY(-1);
+}
 
 * {
     box-sizing: border-box;
@@ -111,6 +118,13 @@ body {
     grid-template-rows: repeat(8, 1fr);
 }
 
+/* .flipped {
+    transform: scaleX(-1) scaleY(-1);
+} */
+
+/* transform: translateX(180px) rotate(45deg); */
+
+/* transform: rotate(45deg) translateX(180px); */
 
 /* ------------Squares------------ */
 .square {
@@ -140,6 +154,8 @@ body {
 .black-piece {
     color: var(--black-piece-colour);
 }
+
+
 
 
 
@@ -248,7 +264,9 @@ body {
     cursor: pointer;
 }
 
-
+.chess-piece .flipped {
+    transform: rotateX(180deg);
+}
 
 
 
