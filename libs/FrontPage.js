@@ -2,6 +2,9 @@ import { Game, GameLarge, GameSmall} from "./Game.js";
 import JSONReader from "./JSONReader.js";
 import {Dictionary, ChessDictionary} from "./Dictionary.js";
 
+import CommandManager from "../command/CommandManager.js";
+import SearchCommand from "../command/SearchCommand.js";
+
 
 
 class FrontPage {
@@ -15,6 +18,7 @@ class FrontPage {
     #overlayButton;     // Button that activates the overlay - may not be active
     #btnDebug;          // Debug button
     #formData;          // Form class - I'm not sure if used
+    #commandManager;    // Command manager for executing commands
 
     constructor() {
         // console.log("Func: START constructor (FrontPage)")
@@ -28,10 +32,35 @@ class FrontPage {
         this.#overlayButton = document.getElementById('popUpButton');
         this.#btnDebug = document.querySelector(`#btnDebug`)
         this.#formData = null
+        this.#commandManager = new CommandManager();
+        
 
+        // this.commandManager = new CommandManager();
         this.init();
         // console.log("Func: END constructor (FrontPage)")
     };
+
+    // Method to perform a search using the SearchCommand
+    performSearch(category, searchWord) {
+        const command = new SearchCommand(this, category, searchWord); // Create a new SearchCommand
+        console.log(command)
+        this.executeCommand(command); // Execute the command
+    }
+
+    executeCommand(command) {
+        this.#commandManager.execute(command);
+    }
+
+    undoLastCommand() {
+        this.#commandManager.undo();
+    }
+
+    redoLastUndoneCommand() {
+        this.#commandManager.redo();
+    }
+
+
+
     get className() {
         return this.#className;
     };
@@ -89,17 +118,17 @@ class FrontPage {
         this.parentElementSide.innerHTML = '';   
     };
     clickEvent_Debugging() {
-        console.log("clickEvent_Debugging");
+        console.log(this.sideChessboardList[2])
+        console.log(this.sideChessboardList[2].board.returnBoardAsString())
+        // console.log("clickEvent_Debugging");
 
-        const root = document.documentElement;
-    
-        // Toggle the data-style attribute on the root element
-        if (root.getAttribute('data-style') === 'flipped') {
-            root.removeAttribute('data-style');
-        } else {
-            root.setAttribute('data-style', 'flipped');
-        }  
-
+        // const root = document.documentElement;
+        // // Toggle the data-style attribute on the root element
+        // if (root.getAttribute('data-style') === 'flipped') {
+        //     root.removeAttribute('data-style');
+        // } else {
+        //     root.setAttribute('data-style', 'flipped');
+        // }  
     };
     clickEvent_GameElement(event, index) {
         console.log("clickEvent_GameElement")
@@ -107,6 +136,13 @@ class FrontPage {
     searchInDictionary(queryType, searchTerm) {
         return this.chessDictionary.getEntriesFromAttributes(queryType, searchTerm);
     };
+    returnGameID(key) {
+        return this.chessDictionary.get(key)["ID"]
+    };
+    clickEvent_SearchFilterButton(category, searchWord) {
+        this.filterDictionary(category, searchWord)
+        console.log(this.filterDictionary(category, searchWord))
+    }
 
 
 //******* Initialize the FrontPage and its dictionary *******
@@ -124,6 +160,27 @@ class FrontPage {
         this.elementDebugButton.addEventListener('click', (event) => {
             this.clickEvent_Debugging()
         })
+
+        console.log(`--------------`)
+        // Example usage: COMMAND PATTERN EXAMPLE Perform a search when initializing 
+        const a = this.performSearch("NAME", "Sicilian Defense");
+        console.log(a)
+
+
+        document.getElementById("searchButton").addEventListener("click", (event) => {
+            const category = document.getElementById("filter-drop-down").value;
+            const searchWord = document.getElementById("searchText").value;
+            
+            // Call the filterDictionary function with selected category and search text
+            this.clickEvent_SearchFilterButton(category, searchWord);
+            
+        });
+
+
+        // Test multi dictionary search
+        const search1 = this.chessDictionary.filterECO("C45")
+        console.log(search1)
+
     };
 
 
@@ -146,13 +203,26 @@ class FrontPage {
 
         // In the Dictionary() Object, parse "MOVESTRING" into "MOVEOBJ"
         this.#dictionary.updateWithMoveObj();
+
+        // In the Dictionary() Object, parse "BOARDSTRING" into a 2d array
+        // this.#dictionary.updateWithMoveState();
     };
 
 
 //******* Function that runs when the GameLarge() changes *******
-    callback_onStoredPGNChange(newPGN) {
+    callback_onStoredPGNChange(newPGNold) {
+        let newPGN = newPGNold.trim()
+
+        
+
         this.clearSideBoards();
-        const openings = this.filterDictionary("PGN", newPGN);
+
+        // Old Dictionary Search - Searches by PGN
+        // const openings = this.filterDictionary("PGN", newPGN);
+
+        // New Dictionary Search - Searches by Continuation and Game ID
+        const id = this.returnGameID(newPGN)
+        const openings = this.chessDictionary.filterContinuationsNext(id)
 
         // Define a function to create a chessboard asynchronously
         const createChessboardAsync = async (opening, index) => {

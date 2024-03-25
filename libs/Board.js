@@ -3,6 +3,19 @@ import StaticErrorCheck from './StaticErrorCheck.js';
 import Square from './Square.js';
 import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./Piece.js";
 
+// import CommandManager from './commands/CommandManager.js';
+
+import CommandManager from '../command/CommandManager.js';
+
+
+/* 
+The Board() class generally lives inside the "Game" class on a 1 for 1 basis
+Board() contains 64 Square() objects inside its grid attribute
+The functions inside Board() are generally related to placing and moving Piece() on different Square() objects, and also 
+to easily find and return single or multiple Square() objects, dependant on criteria
+Game() contains the Board() object, which contains all the Square() and Piece Object()
+*/
+
 class Board {
     #parentElement;     // Object that contains this object, it will always be Game()
     #element;           // This DOM element
@@ -12,6 +25,7 @@ class Board {
 
     constructor(idNumber, parentElement) {
         // console.log(`\t\tFunc: START constructor (Board)`);
+        this.commandManager = new CommandManager();
         this.#parentElement = parentElement;
         this.#element = document.createElement('div');
         this.#className = "Board";
@@ -19,6 +33,21 @@ class Board {
         this.#grid = [];
         // console.log(`\t\tFunc: END constructor (Board)`);
     };
+
+
+    executeCommand(command) {
+        this.commandManager.execute(command);
+    }
+
+    undoLastCommand() {
+        this.commandManager.undo();
+    }
+
+    redoLastUndoneCommand() {
+        this.commandManager.redo();
+    }
+
+
     get parentElement() {
         return this.#parentElement;
     };
@@ -40,6 +69,11 @@ class Board {
         this.#grid = value;
     };
 
+    returnBoardAsString() {
+        const myArray = this.getArray("code", "-").flat();
+        let joinedString = '[' + myArray.join(" || ") + ']';
+        return [joinedString];
+    };
     
     /**
      * Creates the 64 Square Objects, and adds them to the grid attribute of Board(). Also appends the HTML elements

@@ -3,7 +3,13 @@ import StaticParser from './StaticChessParser.js';
 import StaticChessUtility from './StaticChessUtility.js';
 import  { Board, BoardDisplay, BoardInteractive} from './Board.js';
 
+/* 
+The Game() class is what holds the information about the chessgame, which has been generated from the Dictionary() object
+Game() contains the Board() object, which contains all the Square() and Piece Object()
+*/
 
+
+//
 class Game {
     #parentElement;     // Object that contains this object, in this case, its FrontPage() if specified, or defaults to a div element
     #element;           // This DOM element
@@ -235,6 +241,8 @@ class GameLarge extends Game {
 
                     // Record the Move
                     this.#logMovement();
+
+                    console.log(this.board.returnBoardAsString())
 
                     // Move the piece
                     this.board.movePiece(this.firstSquareClicked.contents, this.secondSquareClicked.positionRef);

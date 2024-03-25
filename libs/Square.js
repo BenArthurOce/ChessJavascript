@@ -1,5 +1,11 @@
 import StaticChessUtility from './StaticChessUtility.js';
 
+/*
+The Square() object are the squares that make up the chessboard
+Some of these Square() objects contain Piece() objects, and are stored in the "contents" attribute of the square
+It is the Square responsibility to ensure that the Piece() is updated with the correct information
+*/
+
 class Square {
     #parentElement;     // Object that contains this object, in this case, its Board()
     #element;           // This DOM element

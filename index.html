@@ -20,6 +20,27 @@
         <h2>Chess Opening Search</h2>
 
         <button id="btnDebug">Flip Boards</button>
+        <br>
+
+
+
+        <label for="filter-drop-down">Select a category:</label>
+        <select name="filter-drop-down" id="filter-drop-down">
+          <option value="eco">ECO</option>
+          <option value="name">Name</option>
+          <option value="family">Family</option>
+          <option value="variation">Variation</option>
+          <option value="subvariation">Subvariation</option>
+          <option value="nexttomove">Next to Move</option>
+          <option value="pgn">PGN</option>
+          <option value="over">Num Moves Over</option>
+          <option value="under">Num Moves Under</option>
+        </select>
+      
+        <input type="text" id="searchText" placeholder="Search Text"><br>
+        <button id="searchButton">Search</button>
+        <p>currently, this only writes to the console.</p>
+          
 
         <!-- <input type="radio" name="moveType" value="oneMoves" id="oneMovesRadio">
         <label for="oneMovesRadio">One Moves</label>
@@ -71,12 +92,26 @@
         </div>
     </template>
 
+
+
     <script type="module" src="script.js"></script>
     <!-- <script type="module" src="script_testErrors.js"></script> -->
     <!-- <script type="module" src="script_getOpeningBoards.js"></script> -->
     <!-- <script type="module" src="script_interactiveGame.js"></script> -->
 
-
+    <!-- <script>
+        // JavaScript to call filterDictionary function with selected category and search text
+        function filterDictionary() {
+          const category = document.getElementById("filter-drop-down").value;
+          const searchWord = document.getElementById("searchText").value;
+          
+          // Call the filterDictionary function with selected category and search text
+          const result = filterDictionary(category, searchWord);
+          
+          // Display or use the result as needed
+          console.log(result);
+        }
+      </script> -->
 
 </body>
 

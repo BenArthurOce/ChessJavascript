@@ -1,3 +1,7 @@
+import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from './Piece.js';
+
+
+
 // Custom function to convert keys to strings
 function defaultToString(key) {
     if (key === null) {
@@ -134,6 +138,12 @@ class Dictionary {
           .filter(([key, value]) => value[attribute].toLowerCase().includes(searchword.toLowerCase()))
           .map(([key, value]) => value);
     };
+
+
+    getState() {
+        // Assuming state is represented by the current entries in the dictionary
+        return Array.from(this.entries());
+    };
 };
 
 
@@ -174,7 +184,111 @@ class ChessDictionary extends Dictionary {
             element[`MOVEOBJ`] = processedMoves;
         });
     };
-  
+
+
+
+    // In the JSON file, there is ANOTHER long PGN string seperated by "||"
+    // This function unpacks that into a board state.
+    updateWithMoveState() {
+        this.values().forEach(element => {
+            const stateString = element['BOARDSTRING'];
+
+            // Remove brackets and split by ' || '
+            var boardArray = stateString.slice(1, -1).split(' || ');
+
+            // Function to chunk the array into 8x8 grid
+            function chunkArray(arr, size) {
+                var result = [];
+                for (var i = 0; i < arr.length; i += size) {
+                    result.push(arr.slice(i, i + size));
+                }
+                return result;
+            }
+
+            // Convert to 2D array (8x8 grid)
+            let chessboard = chunkArray(boardArray, 8);
+
+            // Output the 2D array
+            // console.log(chessboard);
+
+            const modifiedChessboard = this.replaceWithPieces(chessboard);
+            console.log(modifiedChessboard)
+
+            
+            // // Remove brackets and split by ' || '
+            // let boardArray = stateString.slice(1, -1).split(' || ');
+
+            // console.log(boardArray)
+
+
+
+            // const modifiedChessboard = this.replaceWithPieces(boardArray);
+
+            // // Output the modified chessboard array
+            // console.log(modifiedChessboard);
+
+            // // Function to chunk the array into 8x8 grid
+            // function chunkArray(arr, size) {
+            //     var result = [];
+            //     for (var i = 0; i < arr.length; i += size) {
+            //         result.push(arr.slice(i, i + size));
+            //     }
+            //     return result;
+            // }
+
+            // // Convert to 2D array (8x8 grid)
+            // // var chessboard = chunkArray(boardArray, 8);
+
+            // // // Output the 2D array
+            // console.log(chessboard);
+            })   
+        };
+
+
+    
+
+    // Function to convert characters in the chessboard array to Piece objects
+    convertToPiece(char) {
+        switch (char) {
+            case "1R":
+                return new Rook(1); // Black Rook
+            case "1N":
+                return new Knight(1); // Black Knight
+            case "1B":
+                return new Bishop(1); // Black Bishop
+            case "1Q":
+                return new Queen(1); // Black Queen
+            case "1K":
+                return new King(1); // Black King
+            case "1p":
+                return new Pawn(1); // Black Pawn
+            case "0R":
+                return new Rook(0); // White Rook
+            case "0N":
+                return new Knight(0); // White Knight
+            case "0B":
+                return new Bishop(0); // White Bishop
+            case "0Q":
+                return new Queen(0); // White Queen
+            case "0K":
+                return new King(0); // White King
+            case "0p":
+                return new Pawn(0); // White Pawn
+            case "-":
+                return null; // Empty square
+            default:
+                throw new Error("Invalid character in chessboard array");
+        }
+    };
+
+    // Function to replace characters in the chessboard array with Piece objects
+    replaceWithPieces(chessboardArray) {
+        // console.log(chessboardArray)
+        return chessboardArray.map(row =>
+            row.map(char => this.convertToPiece(char))
+        );
+    };
+                
     
     filterCaptureOnSquare(ref, moveNum) {
         const isExists = (object) => object !== undefined && object !== null
@@ -245,6 +359,16 @@ class ChessDictionary extends Dictionary {
         const b = this.values().map(({ MOVEOBJ }) => MOVEOBJ[moveNum] && MOVEOBJ[moveNum][teamNum]);
         const uniqueValues = new Set(b);
         return Array.from(uniqueValues);
+    };
+
+    filterContinuationsNext(id) {
+        const nextContinuations = this.values().filter(({ ID }) => id === ID)[0]["CONTINUATIONSNEXT"];
+        return this.values().filter(obj => nextContinuations.includes(obj.ID)); 
+    };
+
+    filterContinuationsFull(id) {
+        const nextContinuations = this.values().filter(({ ID }) => id === ID)[0]["CONTINUATIONSFULL"];
+        return this.values().filter(obj => nextContinuations.includes(obj.ID)); 
     };
 
 
