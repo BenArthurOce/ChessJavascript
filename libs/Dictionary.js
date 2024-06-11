@@ -315,6 +315,10 @@ class ChessDictionary extends Dictionary {
         return results
     };
 
+    filterFEN(fen) {
+        return this.values().filter(({ FEN }) => FEN.includes(fen));
+    };
+
     filterECO(eco) {
         return this.values().filter(({ ECO }) => ECO.includes(eco));
     };

@@ -1,5 +1,6 @@
 
-import FrontPage from "./libs/FrontPage.js";
+// import FrontPage from "./libs/FrontPageUsingLogic.js";
+import FrontPageUsingFEN from "./libs/FrontPageUsingFEN.js";
 
 // wishlist
 // code that would reject a notation and only accept information
@@ -31,4 +32,5 @@ import FrontPage from "./libs/FrontPage.js";
 // const a = new Rectangle()
 // console.log(a)
 
-const frontpage = new FrontPage()
+// const frontpage = new FrontPage()
+const frontpage = new FrontPageUsingFEN()

@@ -2,7 +2,7 @@ class StaticOpeningDatabase {
     static openings = {};
 
     static fetchOpeningsData() {
-        return fetch('./data/newChessOpenings.json')
+        return fetch('./data/openings_data.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`Failed to fetch data. Status: ${response.status}`);

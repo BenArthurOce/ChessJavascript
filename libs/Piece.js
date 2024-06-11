@@ -12,6 +12,7 @@ class Piece {
     #rankRef;           // Base 1 - alphabetical column position in grid
     #positionRef;       // Notational string of piece position
     #positionArr;       // Array position of piece
+    #fen;               // Letter code of piece for FEN notation
     
     constructor(team) {
         this.#className = "Piece"
@@ -23,6 +24,7 @@ class Piece {
         this.#rankRef = -1; 
         this.#positionRef = '';
         this.#positionArr = [-1, -1];
+        this.#fen
     };
     get element() {
         return this.#element;
@@ -74,6 +76,12 @@ class Piece {
     };
     set positionArr(value) {
         this.#positionArr = value;
+    };
+    get fen() {
+        return this.#fen;
+    };
+    set fen(value) {
+        this.#fen = value;
     };
 
 
@@ -157,6 +165,7 @@ class Pawn extends Piece {
         this.#name = "Pawn";
         this.#pieceCodeStr = "p";
         this.#code = team + this.#pieceCodeStr;
+        this.fen = team===0? "P" : "p"
         this.createHTMLElement(`${this.#code}`);
     };
     get code() {
@@ -224,6 +233,7 @@ class Rook extends Piece {
         this.#name = "Rook";
         this.#pieceCodeStr = "R"
         this.#code = team + this.#pieceCodeStr;
+        this.fen = team===0? "R" : "r"
         this.createHTMLElement(`${this.#code}`);
     };
     get code() {
@@ -268,6 +278,7 @@ class Knight extends Piece {
         this.#name = "Knight";
         this.#pieceCodeStr = "N"
         this.#code = team + this.#pieceCodeStr;
+        this.fen = team===0? "N" : "n"
         this.createHTMLElement(`${this.#code}`);
     };
     get code() {
@@ -316,6 +327,7 @@ class Bishop extends Piece {
         this.#name = "Bishop";
         this.#pieceCodeStr = "B"
         this.#code = team + this.#pieceCodeStr;
+        this.fen = team===0? "B" : "b"
         this.createHTMLElement(`${this.#code}`);
     };
     get code() {
@@ -353,6 +365,7 @@ class Queen extends Piece {
         this.#name = "Queen";
         this.#pieceCodeStr = "Q";
         this.#code = team + this.#pieceCodeStr;
+        this.fen = team===0? "Q" : "q"
         this.createHTMLElement(`${this.#code}`);
     };
     get code() {
@@ -394,6 +407,7 @@ class King extends Piece {
         this.#name = "King";
         this.#pieceCodeStr = "K";
         this.#code = team + this.#pieceCodeStr;
+        this.fen = team===0? "K" : "k"
         this.createHTMLElement(`${this.#code}`);
     };
     get code() {

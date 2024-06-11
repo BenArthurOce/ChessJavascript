@@ -5,7 +5,9 @@ import json
 
 
 # Constants
-CSV_FILE_PATH = r"C:\Users\ben.arthur\Visual Studio Code\Javascript\Chess\data\chessCSVWithPositions.csv"
+# CSV_FILE_PATH = r"C:\Users\ben.arthur\Visual Studio Code\Javascript\Chess\data\chessCSV.csv"
+
+CSV_FILE_PATH = r"E:\Users\Ben Arthur\Documents\Visual Studio Code\Javascript\git_ChessJavascript\ChessJavascript\data\chessCSV.csv"
 
 # Compiled regex pattern
 MOVE_REGEX  = r'\s*(\d{1,3})\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)(?:\s*\d+\.?\d+?m?s)?\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)?(?:\s*\d+\.?\d+?m?s)?'
@@ -26,17 +28,19 @@ class OpeningsDict(dict):
                 key = re.sub(r'\.\s+', '.', row['PGN'])     # Column A = "PGN"
                 eco = row['ECO']                            # Column B = "ECO"
                 name = row['NAME']                          # Column C = "NAME"
-                board = row['BOARD']                        # Column D = "BOARD"
+                # board = row['BOARD']                        # Column D = "BOARD"
+                fen = row['FEN']                        # Column D = "FEN"
 
         # Transpose CSV Contents into Dictionary
                 self[key] = {
                      'ID': opening_id
+                    ,'FEN': fen
                     ,'ECO': eco
                     ,'VOLUME': eco[0]
                     ,'NAME': name
                     ,'PGN': key
                     ,'MOVESSTRING': None
-                    ,'BOARDSTRING': None
+                    # ,'BOARDSTRING': None
                     ,'NUMMOVES': None
                     ,'NEXTTOMOVE': None
                     ,'FAMILY': None
@@ -72,7 +76,7 @@ class OpeningsDict(dict):
                 #
                 #   BOARDSTRING
                 #
-                self[key]['BOARDSTRING'] = row['BOARD'].replace(",", " || ")
+                # self[key]['BOARDSTRING'] = row['BOARD'].replace(",", " || ")
 
                 ##
                 ##  NUMMOVES
