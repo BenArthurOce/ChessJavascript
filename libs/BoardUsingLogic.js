@@ -5,7 +5,7 @@ import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./Piece.js";
 
 // import CommandManager from './commands/CommandManager.js';
 
-import CommandManager from '../command/CommandManager.js';
+import CommandManager from '../commandOLD/CommandManager.js';
 
 
 /* 

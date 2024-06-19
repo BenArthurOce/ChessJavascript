@@ -35,11 +35,12 @@
     --piece-size-small: calc(var(--square-size-small) * 0.5);   /* Half size of square */
 
     /* Declare Square and Piece colours */
-    --declare-light-square-colour: #8b6c5c;
-    --declare-dark-square-colour:  #3d251e;
+    --declare-light-square-colour: #584640;
+    --declare-dark-square-colour:  #8b6c5c;
     --declare-white-piece-colour: white;
     --declare-black-piece-colour: black;
-
+    
+    
     /* Declare Square and Piece colours */
     --light-square-colour: var(--declare-light-square-colour);
     --dark-square-colour: var(--declare-dark-square-colour);
@@ -220,7 +221,7 @@ body {
 #side-board-container .chessboard-container .variation, 
 #side-board-container .chessboard-container .subvariation, 
 #side-board-container .chessboard-container .pgn,
-#side-board-container .chessboard-container .nummoves {
+#side-board-container .chessboard-container .NUMTURNS {
     display:initial;
 }
 

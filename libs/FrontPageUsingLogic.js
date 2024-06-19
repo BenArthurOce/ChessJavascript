@@ -25,7 +25,7 @@ class FrontPageUsingLogic {
 
     constructor() {
         // console.log("Func: START constructor (FrontPage)")
-        this.#className = "Board";
+        this.#className = "FrontPage";
         this.#mainGame = null;
         this.#sideGames = [];
         this.#dictionary = new ChessDictionary();
@@ -155,7 +155,7 @@ class FrontPageUsingLogic {
         // Create an instance of GameInteractive for the main board
 
         // This object here is bypass the "validateOpeningObject" error check
-        const emptyOpening = { ID: null, FEN: "", ECO: "", VOLUME: "", NAME: "", PGN: "", MOVESSTRING: "", NUMMOVES: null, NEXTTOMOVE: "", FAMILY: "", CASTLINGBLACK: null, CASTLINGWHITE: null, CHECKMATE: false, COMMON: null, CONTINUATIONSFULL: [], CONTINUATIONSNEXT: [], FAVOURITE: null, ISERROR: null, MOVEOBJ: [], SUBVARIATION: null, VARIATION: null };
+        const emptyOpening = { ID: null, FEN: "", ECO: "", VOLUME: "", NAME: "", PGN: "", MOVESSTRING: "", NUMTURNS: null, NEXTTOMOVE: "", FAMILY: "", CASTLINGBLACK: null, CASTLINGWHITE: null, CHECKMATE: false, COMMON: null, CONTINUATIONSFULL: [], CONTINUATIONSNEXT: [], FAVOURITE: null, ISERROR: null, MOVEOBJ: [], SUBVARIATION: null, VARIATION: null };
 
         this.mainGame = new GameLarge(emptyOpening, 0, this.#parentELMain, this.callback_onStoredPGNChange.bind(this));
         this.mainGame.render()
@@ -297,12 +297,12 @@ class FrontPageUsingLogic {
                 result = this.#dictionary.filterPGN(searchWord)
                 break;
             case "OVER":
-                result = this.#dictionary.filterNumMovesOver(searchWord)
+                result = this.#dictionary.filterNUMTURNSOver(searchWord)
                 break;
             case "UNDER":
-                result = this.#dictionary.filterNumMovesUnder(searchWord)
+                result = this.#dictionary.filterNUMTURNSUnder(searchWord)
                 break;
-            case "NUMMOVES":
+            case "NUMTURNS":
                 result = this.#dictionary.filterNextMove(searchWord)
                 break;
             default:

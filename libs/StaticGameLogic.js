@@ -11,6 +11,20 @@ class StaticGameLogic {
 
 
 
+    static isMoveLegal(piece, destination) {
+        
+
+        piece.printToTerminal()
+        // The "Piece" has its information about where it is
+        // We just need the information of where its going to go.
+        // Then we determine if that is legal or not
+
+        // In fact, we don't even need "location"
+
+        return piece.isValidMove(destination);
+    }
+
+
     /**
      * Loops through all the move instructions found in the Parser() object, and calls "processPlayerMove" on each move instruction
      *
@@ -77,7 +91,7 @@ class StaticGameLogic {
      * @throws {Error} If there is an issue with finding the piece or if it's not a valid chess piece.
      */
     static findLocation(boardState, teamNum, moveInfo) {
-        // console.log(moveInfo)
+        console.log(moveInfo)
         let foundPiece = null   // If this remains null, an error will be triggered
 
         // Check that the code letter represents an actual Piece() object

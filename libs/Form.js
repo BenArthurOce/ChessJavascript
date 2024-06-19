@@ -46,9 +46,9 @@ class Popup {
         const familyInput = document.getElementById('familyInput').value;
         const variationInput = document.getElementById('variationInput').value;
         const pgnInput = document.getElementById('pgnInput').value;
-        const numMovesInput = document.getElementById('numMovesInput').value;
+        const NUMTURNSInput = document.getElementById('NUMTURNSInput').value;
         const nextMoveInput = document.getElementById('nextMoveInput').value;
-        const captureSquareInput = document.getElementById('numMovesInput').value;
+        const captureSquareInput = document.getElementById('NUMTURNSInput').value;
         const captureTurnInput = document.getElementById('nextMoveInput').value;
 
         const formData = {
@@ -57,7 +57,7 @@ class Popup {
             family: familyInput,
             variation: variationInput,
             pgn: pgnInput,
-            numMoves: numMovesInput,
+            NUMTURNS: NUMTURNSInput,
             nextMove: nextMoveInput,
             captureSquare: captureSquareInput,
             captureTurn: captureTurnInput,
@@ -87,8 +87,8 @@ class Popup {
             <input type="text" id="variationInput"><br>
             <label for="pgnInput">PGN:</label>
             <input type="text" id="pgnInput"><br>
-            <label for="numMovesInput">Number of Moves:</label>
-            <input type="text" id="numMovesInput"><br>
+            <label for="NUMTURNSInput">Number of Moves:</label>
+            <input type="text" id="NUMTURNSInput"><br>
             <label for="nextMoveInput">Next Move Team:</label>
             <input type="text" id="nextMoveInput"><br>
             <label for="captureOnSquare">Capture on Square:</label>

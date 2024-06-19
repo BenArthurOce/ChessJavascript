@@ -133,7 +133,7 @@ class Piece {
      * @param {string} moveInfo WIP
      * @returns {Array<string>} WIP
      */
-    getfileRefrankRefDifference(destination, moveInfo) {
+    getfileRefrankRefDifference(destination) {
         let fileRefDiff = this.positionArr[1] - destination[1];
         let rankRefDiff = this.positionArr[0] - destination[0];
         return [rankRefDiff, fileRefDiff];
@@ -183,8 +183,8 @@ class Pawn extends Piece {
      * isValidMove Pawn - WIP
      * 
      */
-    isValidMove(destination, moveInfo) {
-        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+    isValidMove(destination, moveInfo = {}) {
+        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination);
 
         // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
         // The difference in ranks also needs to be 1. Otherwise pawns on the same rank will be confused
@@ -217,6 +217,20 @@ class Pawn extends Piece {
         };
         return false;
     };
+
+    // isValidMove(destination, board) {
+    //     const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination);
+    //     if (this.team === 0) {
+    //         if (rankRefDiff === 1 && fileRefDiff === 0 && !board[destination[0]][destination[1]]) return true;
+    //         if (this.row === 6 && rankRefDiff === 2 && fileRefDiff === 0 && !board[destination[0]][destination[1]]) return true;
+    //         if (rankRefDiff === 1 && Math.abs(fileRefDiff) === 1 && board[destination[0]][destination[1]] && board[destination[0]][destination[1]].team === 1) return true;
+    //     } else {
+    //         if (rankRefDiff === -1 && fileRefDiff === 0 && !board[destination[0]][destination[1]]) return true;
+    //         if (this.row === 1 && rankRefDiff === -2 && fileRefDiff === 0 && !board[destination[0]][destination[1]]) return true;
+    //         if (rankRefDiff === -1 && Math.abs(fileRefDiff) === 1 && board[destination[0]][destination[1]] && board[destination[0]][destination[1]].team === 0) return true;
+    //     }
+    //     return false;
+    // }
 };
 
 
@@ -251,17 +265,10 @@ class Rook extends Piece {
      * isValidMove Rook - WIP
      * 
      */
-    isValidMove(destination, moveInfo) {
-        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
-
-        // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
-        if (moveInfo.locationPosX) {
-            return this.positionArr[0] === moveInfo.locationRow
-        };
-        if (moveInfo.locationPosY) {
-            return this.positionArr[1] === moveInfo.locationCol
-        };
-        return fileRefDiff === 0 || rankRefDiff === 0;
+    isValidMove(destination, moveInfo = {}) {
+        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination);
+        if (fileRefDiff === 0 || rankRefDiff === 0) return true;
+        return false;
     };
 };
 
@@ -295,22 +302,27 @@ class Knight extends Piece {
      * isValidMove Knight - WIP
      * 
      */
-    isValidMove(destination, moveInfo) {
-        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+    // isValidMove(destination, moveInfo = {}) {
+    //     const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination);
 
-        // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
-        if (moveInfo.locationPosX) {
-            return this.positionArr[0] === moveInfo.locationRow
-        };
-        if (moveInfo.locationPosY) {
-            return this.positionArr[1] === moveInfo.locationCol
-        };
+    //     // If the piece rankRef/fileRef location is mentioned in the notation, return matching piece (if true)
+    //     if (moveInfo.locationPosX) {
+    //         return this.positionArr[0] === moveInfo.locationRow
+    //     };
+    //     if (moveInfo.locationPosY) {
+    //         return this.positionArr[1] === moveInfo.locationCol
+    //     };
 
-        if (this.col !== null && this.row === null) {
-            return this.row === fileRefDiff;
-        };
+    //     if (this.col !== null && this.row === null) {
+    //         return this.row === fileRefDiff;
+    //     };
+    //     return (Math.abs(fileRefDiff) === 1 && Math.abs(rankRefDiff) === 2) || (Math.abs(fileRefDiff) === 2 && Math.abs(rankRefDiff) === 1);
+    // };
+
+    isValidMove(destination, moveInfo = {}) {
+        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination);
         return (Math.abs(fileRefDiff) === 1 && Math.abs(rankRefDiff) === 2) || (Math.abs(fileRefDiff) === 2 && Math.abs(rankRefDiff) === 1);
-    };
+    }
 
 };
 
@@ -341,13 +353,13 @@ class Bishop extends Piece {
     };
 
     /**
-     * isValidMove Bishop - WIP
+     * isValidMove Bishop
      * 
      */
-    isValidMove(destination, moveInfo) {
-        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+    isValidMove(destination, moveInfo = {}) {
+        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination);
         return Math.abs(fileRefDiff) === Math.abs(rankRefDiff);
-    };
+    }
 
 };
 
@@ -382,15 +394,12 @@ class Queen extends Piece {
      * isValidMove Queen - WIP
      * 
      */
-    isValidMove(destination, moveInfo) {
-        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+    isValidMove(destination, moveInfo = {}) {
+        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination);
         const diagionalMoves = Math.abs(fileRefDiff) === Math.abs(rankRefDiff);
         const straightMoves = fileRefDiff === 0 || rankRefDiff === 0;
-
-        if (diagionalMoves || straightMoves) {
-            return true
-        }
-    };
+        return diagionalMoves || straightMoves;
+    }
 };
 
 
@@ -424,10 +433,10 @@ class King extends Piece {
      * isValidMove King - WIP
      * 
      */
-    isValidMove(destination, moveInfo) {
-        const [fileRefDiff, rankRefDiff] = this.getfileRefrankRefDifference(destination, moveInfo);
+    isValidMove(destination, moveInfo = {}) {
+        const [rankRefDiff, fileRefDiff] = this.getfileRefrankRefDifference(destination);
         return Math.abs(fileRefDiff) <= 1 && Math.abs(rankRefDiff) <= 1;
-    };
+    }
 };
 
 

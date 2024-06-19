@@ -72,14 +72,15 @@ class GameUsingFEN {
         this.gameInformation = info
     };
 
-
+    returnFEN() {
+        return this.board.constructFEN()
+    };
 
     createElement(type) {
         //type is either small or large
         this.element.className = `chessboard-container ${type}`;
         this.element.id = `chessboard${this.idNumber}`;
     };
-
 
     render() {
         this.#parentElement.appendChild(this.element)
@@ -88,7 +89,6 @@ class GameUsingFEN {
     print() {
         this.returnChessboard().printToTerminal()
     };
-
 
     addInfoToElement(fieldList) {
         const displayNameFn = (name) => StaticChessUtility.displayWordFromJSON(name);
@@ -121,6 +121,7 @@ class GameUsingFEN {
 // DisplayGame class handles rendering and user interactions
 class GameLarge extends GameUsingFEN {
     #storedPGN
+    #storedFEN
     constructor(information, idNumber, parentElement, callback) {
         console.log(`\tFunc: START constructor (GameLarge)`);
         super(information, idNumber, parentElement);
@@ -131,7 +132,7 @@ class GameLarge extends GameUsingFEN {
         this.initLocalEventListeners(); // Adds events to the Square() objects inside the Board()
 
         // information is null in the main display board
-        // const fields = ['PGN', 'NAME', 'ECO', 'NEXTTOMOVE', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES']
+        // const fields = ['PGN', 'NAME', 'ECO', 'NEXTTOMOVE', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMTURNS']
         // this.addInfoToElement(fields);              // Takes game information, and displays them to user with the chessboard
 
 
@@ -144,24 +145,43 @@ class GameLarge extends GameUsingFEN {
         this.firstSquareClicked = null;
         this.secondSquareClicked = null;
 
-        this.onStoredPGNChangeCallbacks = []; // Array to store callback functions
+        // this.onStoredPGNChangeCallbacks = []; // Array to store callback functions
 
+        // this.onStoredFENChangeCallbacks = []; // Array to store callback functions
+
+        console.log(this.returnFEN())
         console.log(`\tFunc: END constructor (GameLarge)`);
     };
-    get storedPGN() {
-        return this.#storedPGN;
+    // get storedPGN() {
+    //     return this.#storedPGN;
+    // };
+    // set storedPGN(value) {
+    //     this.#storedPGN = value;
+    //     this.callback(this.#storedPGN)
+    // };
+
+    get storedFEN() {
+        return this.#storedFEN;
     };
-    set storedPGN(value) {
-        this.#storedPGN = value;
-        this.callback(this.#storedPGN)
+    set storedFEN(value) {
+        this.#storedFEN = value;
+        this.callback(this.#storedFEN)
     };
 
 
     createChessBoard() {
         // console.log(this.information)
         const start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+        this.board = null
         this.board = new BoardInteractive(0, this.element, start_fen);
         // this.board = new BoardInteractive(0, this.element, "");
+
+        // this.board = new BoardInteractive(0, this.element, start_fen);
+    };
+
+    refreshChessBoard(fen) {
+        this.board = null
+        this.board = new BoardInteractive(0, this.element, fen);
     };
 
 
@@ -236,6 +256,12 @@ class GameLarge extends GameUsingFEN {
                     // Move the piece
                     this.board.movePiece(this.firstSquareClicked.contents, this.secondSquareClicked.positionRef);
 
+                    // Update FEN
+                    const boardState = this.returnFEN()
+                    console.log(boardState)
+                    console.log(this.board.printToTerminal())
+                    this.storedFEN = boardState
+
                     // Toggle the next player to move
                     toggleTeamNumber();
 
@@ -257,6 +283,7 @@ class GameLarge extends GameUsingFEN {
         const getPawnFileCapture = () => isPawnCapture() ? this.firstSquareClicked.fileRef : null;
         const getPieceCode = () => (this.firstSquareClicked.contents.pieceCodeStr === "p") ? "" : this.firstSquareClicked.contents.pieceCodeStr
 
+        const getLocation = () => (this.firstSquareClicked.positionRef);
 
         function createString() {
             // There was a capture, it was not a pawn capture
@@ -277,13 +304,28 @@ class GameLarge extends GameUsingFEN {
         // Create the move notation and add an empty space at the end
         let createdString = createString() + " ";
 
-        // If its white move, add the turn number
-        if (this.turnTeamNumber === 0) {
-            this.storedPGN += `${this.turnNumber}.${createdString}`
-            this.turnNumber++
-        } else {
-            this.storedPGN += createdString;
-        }
+        // // If its white move, add the turn number
+        // if (this.turnTeamNumber === 0) {
+        //     this.storedPGN += `${this.turnNumber}.${createdString}`
+        //     this.turnNumber++
+        // } else {
+        //     this.storedPGN += createdString;
+        // }
+
+
+        // this.firstSquareClicked.contents && this.secondSquareClicked.contents
+
+        // console.log(getLocation())
+        // console.log(this.firstSquareClicked.contents)
+        // console.log(this.secondSquareClicked.contents)
+        // console.log(getDestination())
+
+        // this.board.movePiece(this.secondSquareClicked.contents, getDestination())
+
+
+
+
+        // this.refreshChessBoard()
 
     };
 };
@@ -298,7 +340,7 @@ class GameSmall extends GameUsingFEN {
         this.createElement("small")                     // Create the element. This is the container for the chessboard
         this.createChessBoard(fen)                         // Creates and populates the Board() object
 
-        const fields = ['NAME', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES', 'PGN']
+        const fields = ['ID', 'FEN', 'NAME', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMTURNS', 'PGN', 'CONTINUATIONSNEXT']
         this.addInfoToElement(fields) // Takes game information, and displays them to user with the chessboard
 
         // console.log(`\tFunc: END constructor (GameSmall)`);

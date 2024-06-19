@@ -62,14 +62,14 @@ class StaticOpeningDatabase {
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"] && key.startsWith(searchItem)));
                 break;
             case "ALLCONTINUATIONS":
-                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"] && value['NUMMOVES'] >= moveNumber));
+                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["CONTINUATION"] && value['NUMTURNS'] >= moveNumber));
                 break;
             case "FAVOURITE":
                 result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["FAVOURITE"]));
                 break;
             case "MOVENUMBER":
                 searchItem = parseInt(searchItem);
-                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["NUMMOVES"] === searchItem && value["CONTINUATION"]));
+                result = Object.fromEntries(Object.entries(this.openings).filter(([key, value]) => value["NUMTURNS"] === searchItem && value["CONTINUATION"]));
                 break;
             default:
                 throw new Error(`Search category: ${searchCategory} is not a valid search term`);

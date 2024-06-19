@@ -28,8 +28,8 @@ class OpeningsDict(dict):
                 key = re.sub(r'\.\s+', '.', row['PGN'])     # Column A = "PGN"
                 eco = row['ECO']                            # Column B = "ECO"
                 name = row['NAME']                          # Column C = "NAME"
-                # board = row['BOARD']                        # Column D = "BOARD"
-                fen = row['FEN']                        # Column D = "FEN"
+                fen = row['FEN']                            # Column D = "FEN"
+                board = row['BOARD']                        # Column E = "BOARD"
 
         # Transpose CSV Contents into Dictionary
                 self[key] = {
@@ -40,8 +40,8 @@ class OpeningsDict(dict):
                     ,'NAME': name
                     ,'PGN': key
                     ,'MOVESSTRING': None
-                    # ,'BOARDSTRING': None
-                    ,'NUMMOVES': None
+                    ,'BOARDSTRING': None
+                    ,'NUMTURNS': None
                     ,'NEXTTOMOVE': None
                     ,'FAMILY': None
                     ,'VARIATION': None
@@ -76,14 +76,14 @@ class OpeningsDict(dict):
                 #
                 #   BOARDSTRING
                 #
-                # self[key]['BOARDSTRING'] = row['BOARD'].replace(",", " || ")
+                self[key]['BOARDSTRING'] = row['BOARD'].replace(",", " || ")
 
                 ##
-                ##  NUMMOVES
+                ##  NUMTURNS
                 ##
                 #Use the parser regx to determine the last move number of each PGN
                 last_move_number = int(move_tuples[-1][0])
-                self[key]['NUMMOVES'] = last_move_number
+                self[key]['NUMTURNS'] = last_move_number
 
                 ##
                 ##  NEXTTOMOVE
@@ -141,9 +141,9 @@ class OpeningsDict(dict):
     def add_continuations(self):
         for (key, value) in self.items():
             dict_pgn = value['PGN']
-            dict_nummoves = value['NUMMOVES'] + 1
+            dict_NUMTURNS = value['NUMTURNS'] + 1
         
-            filtered_next_move_ids = [value['ID'] for key, value in self.items() if key.startswith(dict_pgn) and value['NUMMOVES'] == dict_nummoves]
+            filtered_next_move_ids = [value['ID'] for key, value in self.items() if key.startswith(dict_pgn) and value['NUMTURNS'] == dict_NUMTURNS]
             self[key]['CONTINUATIONSNEXT'] = filtered_next_move_ids
 
             filtered_full_move_ids = [value['ID'] for key, value in self.items() if key.startswith(dict_pgn)]

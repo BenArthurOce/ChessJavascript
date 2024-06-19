@@ -1,4 +1,4 @@
-import { Game, GameSmall } from "./libs/Game.js";
+import { Game, GameSmall } from "./libs/GameUsingLogic.js";
 import JSONReader from "./libs/JSONReader.js";
 import { Dictionary, ChessDictionary } from "./libs/Dictionary.js";
 
@@ -11,7 +11,7 @@ class ChessOpeningsTest {
 
   // Step 1: We read the JSON file of all the openings
   async initDictionary() {
-    const filepath = './data/newChessOpenings.json';
+    const filepath = './data/openings_data.json';
 
     // Find the JSON file and read the data
     const jsonData = await this.readJSONFile(filepath);

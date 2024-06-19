@@ -25,7 +25,7 @@ class FrontPageUsingFEN {
 
     constructor() {
         // console.log("Func: START constructor (FrontPage)")
-        this.#className = "Board";
+        this.#className = "FrontPage";
         this.#mainGame = null;
         this.#sideGames = [];
         this.#dictionary = new ChessDictionary();
@@ -48,19 +48,19 @@ class FrontPageUsingFEN {
         const command = new SearchCommand(this, category, searchWord); // Create a new SearchCommand
         console.log(command)
         this.executeCommand(command); // Execute the command
-    }
+    };
 
     executeCommand(command) {
         this.#commandManager.execute(command);
-    }
+    };
 
     undoLastCommand() {
         this.#commandManager.undo();
-    }
+    };
 
     redoLastUndoneCommand() {
         this.#commandManager.redo();
-    }
+    };
 
 
 
@@ -155,9 +155,12 @@ class FrontPageUsingFEN {
         // Create an instance of GameInteractive for the main board
 
         // This object here is bypass the "validateOpeningObject" error check
-        const emptyOpening = { ID: null, FEN: "", ECO: "", VOLUME: "", NAME: "", PGN: "", MOVESSTRING: "", NUMMOVES: null, NEXTTOMOVE: "", FAMILY: "", CASTLINGBLACK: null, CASTLINGWHITE: null, CHECKMATE: false, COMMON: null, CONTINUATIONSFULL: [], CONTINUATIONSNEXT: [], FAVOURITE: null, ISERROR: null, MOVEOBJ: [], SUBVARIATION: null, VARIATION: null };
+        const emptyOpening = { ID: null, FEN: "", ECO: "", VOLUME: "", NAME: "", PGN: "", MOVESSTRING: "", NUMTURNS: null, NEXTTOMOVE: "", FAMILY: "", CASTLINGBLACK: null, CASTLINGWHITE: null, CHECKMATE: false, COMMON: null, CONTINUATIONSFULL: [], CONTINUATIONSNEXT: [], FAVOURITE: null, ISERROR: null, MOVEOBJ: [], SUBVARIATION: null, VARIATION: null };
 
-        this.mainGame = new GameLarge(emptyOpening, 0, this.#parentELMain, this.callback_onStoredPGNChange.bind(this));
+        // this.mainGame = new GameLarge(emptyOpening, 0, this.#parentELMain, this.callback_onStoredPGNChange.bind(this));
+        // this.mainGame.render()
+
+        this.mainGame = new GameLarge(emptyOpening, 0, this.#parentELMain, this.callback_onStoredFENchange.bind(this));
         this.mainGame.render()
 
         // Create the "database" of all the openings
@@ -198,7 +201,11 @@ class FrontPageUsingFEN {
     };
 
 
-//******* Prepare the chess opening dictionary *******
+
+
+    /**
+     * Prepares the dictionary object of all chess openings
+     */
     async initDictionary() {
         const filepath = './data/openings_data.json';
 
@@ -207,49 +214,32 @@ class FrontPageUsingFEN {
 
         // Go through each JSON item and add it to the Dictionary() class
         Object.entries(jsonData).forEach(([key, value]) => this.#dictionary.set(key, value));
-
-        // In the Dictionary() Object, parse "MOVESTRING" into "MOVEOBJ"
-        this.#dictionary.updateWithMoveObj();
-
-        // In the Dictionary() Object, parse "BOARDSTRING" into a 2d array
-        // this.#dictionary.updateWithMoveState();
-
-        console.log(this.#dictionary)
     };
 
 
-//******* Function that runs when the GameLarge() changes *******
-    callback_onStoredPGNChange(newPGNold) {
-        let newPGN = newPGNold.trim()
 
-        
+
+
+    /**
+     * Function that runs when the GameLarge() changes
+     * 
+     * @param {string} fen The FEN of the game
+     */
+    callback_onStoredFENchange(fen) {
+        console.log(" FUNCTION: callback_onStoredFENchange") 
 
         this.clearSideBoards();
 
-        // Old Dictionary Search - Searches by PGN
-        // const openings = this.filterDictionary("PGN", newPGN);
 
-        // New Dictionary Search - Searches by Continuation and Game ID
-        const id = this.returnGameID(newPGN)
+        const id = this.returnGameID(fen)
+
         const openings = this.chessDictionary.filterContinuationsNext(id)
-
-        console.log(openings)
-
-        // Collect a list of Relevant FENs
-        // const fens = this.chessDictionary.filterFEN()
-
-        const fenValues = openings.map(obj => obj.FEN);
-        console.log(fenValues)
 
         // Define a function to create a chessboard asynchronously
         const createChessboardAsync = async (opening, index) => {
-            // console.log(index)
-            // console.log(opening.FEN)
             const sideChessboard = new GameSmall(opening, index + 1, this.#parentELSide, opening.FEN);
-            // console.log(sideChessboard)
             this.sideChessboardList.push(sideChessboard);
             await sideChessboard.updateGameInformation(opening);
-            // await sideChessboard.runGameWithParserObject();
             sideChessboard.render();
         };
 
@@ -264,13 +254,12 @@ class FrontPageUsingFEN {
             .catch(error => {
                 console.error("Error creating chessboards:", error);
             });
-
-            this.upcomingMoves()
     };
 
 
-
-//******* When each of the GameSmall() is clicked, run this function *******
+    /**
+     * When each of the GameSmall() is clicked, run this function
+     */
     attachEventListenersToSideBoards() {
         this.sideChessboardList.forEach((gameObj, index) => {
             gameObj.element.addEventListener('click', (event) => {
@@ -281,6 +270,14 @@ class FrontPageUsingFEN {
 
 
 //******* Chess opening dictionary, filter/search function *******
+
+    /**
+     * Chess opening dictionary, filter/search function
+     * 
+     * @param {String} category Dictionary key (Ie: "ECO", "FAMILY", "PGN")
+     * @param {String} searchWord Dictionary value to be filtered by
+     * @returns {Array} List of filtered dictionary openings
+     */
     filterDictionary(category, searchWord) {
         let result = {};
         switch (category.toUpperCase()) {
@@ -306,12 +303,12 @@ class FrontPageUsingFEN {
                 result = this.#dictionary.filterPGN(searchWord)
                 break;
             case "OVER":
-                result = this.#dictionary.filterNumMovesOver(searchWord)
+                result = this.#dictionary.filterNUMTURNSOver(searchWord)
                 break;
             case "UNDER":
-                result = this.#dictionary.filterNumMovesUnder(searchWord)
+                result = this.#dictionary.filterNUMTURNSUnder(searchWord)
                 break;
-            case "NUMMOVES":
+            case "NUMTURNS":
                 result = this.#dictionary.filterNextMove(searchWord)
                 break;
             default:
@@ -319,19 +316,6 @@ class FrontPageUsingFEN {
         }
         return result;
     };
-
-    upcomingMoves() {
-        console.log("makeButtons")
-
-        console.log(this.chessDictionary.values())
-
-        const results = this.#dictionary.filterPossibleMoves(1,1)
-        console.log(results)
-
-    };
-    
-
-
 };
 
 

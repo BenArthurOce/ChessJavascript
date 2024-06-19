@@ -3,6 +3,7 @@ import StaticParser from './StaticChessParser.js';
 import StaticChessUtility from './StaticChessUtility.js';
 import  { Board, BoardDisplay, BoardInteractive} from './BoardUsingLogic.js';
 import StaticErrorCheck from './StaticErrorCheck.js';
+import { Piece } from './Piece.js';
 
 /* 
 The Game() class is what holds the information about the chessgame, which has been generated from the Dictionary() object
@@ -134,6 +135,9 @@ class GameUsingLogic {
             const infoTxt = document.createTextNode(this.gameInformation[field] || '');
             infoEl.appendChild(infoTxt);
 
+            // const infoTxt2 = document.createTextNode(this.gameInformation[field] || '');
+            // infoEl.appendChild(infoTxt2);
+
             this.element.appendChild(infoEl);
         });
     };
@@ -142,7 +146,52 @@ class GameUsingLogic {
         // this.board = new Board(0, this.element);
         this.board = new BoardDisplay(0, this.element);
     };
+
+
+    // This function looks like it works. But I don't trust it.
+    // Also the testing for a legal move should be put in the static class
+    determineLegalMoves() {
+
+        const legalMoves = [];
+
+        const piecesArray = this.board.grid
+        .flatMap(row => row
+            .filter(square => square.piece instanceof Piece)
+            .map(square => square.piece)
+        );
+
+        // const myTestPiece = piecesArray[1]
+        // console.log(myTestPiece)
+        // const b = StaticGameLogic.isMoveLegal(myTestPiece, StaticChessUtility.chessRefToArrayPos("a7"))
+        // console.log(b)
+
+
+        piecesArray.forEach(piece => {
+            console.log(piece)
+
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    if (i !== piece.row || j !== piece.col) {
+                        const destination = [i, j];
+
+                        // Currently do not have any code for pawns. This code does not obtain pawn legal moves
+                        if (piece.isValidMove(destination, {})) {
+
+                            const from = StaticChessUtility.arrayPosToChessRef([piece.row, piece.col])
+                            const to = StaticChessUtility.arrayPosToChessRef(destination)
+                            legalMoves.push({ piece: piece.name, from: from, to: to });
+                        }
+                    }
+                }
+            }
+        });
+
+        return legalMoves;
+    };
+
+    
 };
+
 
 
 // DisplayGame class handles rendering and user interactions
@@ -158,7 +207,7 @@ class GameLarge extends GameUsingLogic {
         this.initLocalEventListeners(); // Adds events to the Square() objects inside the Board()
 
         // information is null in the main display board
-        // const fields = ['PGN', 'NAME', 'ECO', 'NEXTTOMOVE', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES']
+        // const fields = ['PGN', 'NAME', 'ECO', 'NEXTTOMOVE', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMTURNS']
         // this.addInfoToElement(fields);              // Takes game information, and displays them to user with the chessboard
 
 
@@ -316,17 +365,17 @@ class GameLarge extends GameUsingLogic {
 
 class GameSmall extends GameUsingLogic {
     constructor(information, idNumber, parentElement) {
-        // console.log(`\tFunc: START constructor (GameSmall)`);
+        console.log(`\tFunc: START constructor (GameSmall)`);
 
         super(information, idNumber, parentElement);
         this.setParentElement(parentElement)            // If parentElement is null, we create a div
         this.createElement("small")                     // Create the element. This is the container for the chessboard
         this.createChessBoard()                         // Creates and populates the Board() object
 
-        const fields = ['NAME', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMMOVES', 'PGN']
+        const fields = ['ID', 'NAME', 'FAMILY', 'VARIATION', 'SUBVARIATION', 'NUMTURNS', 'PGN']
         this.addInfoToElement(fields) // Takes game information, and displays them to user with the chessboard
 
-        // console.log(`\tFunc: END constructor (GameSmall)`);
+        console.log(`\tFunc: END constructor (GameSmall)`);
     };
 
 

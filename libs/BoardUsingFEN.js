@@ -5,7 +5,7 @@ import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./Piece.js";
 
 // import CommandManager from './commands/CommandManager.js';
 
-import CommandManager from '../command/CommandManager.js';
+import CommandManager from '../commandOLD/CommandManager.js';
 
 
 /* 
@@ -25,8 +25,8 @@ class BoardUsingFEN {
     #fen;               // The FEN string of the board
 
     constructor(idNumber, parentElement, fen) {
-        console.log(`\t\tFunc: START constructor (Board)`);
-        console.log(fen)
+        // console.log(`\t\tFunc: START constructor (Board)`);
+        // console.log(fen)
         this.commandManager = new CommandManager();
         this.#parentElement = parentElement;
         this.#element = document.createElement('div');
@@ -428,7 +428,7 @@ class BoardUsingFEN {
 // This board is just for display. Its parent Game() object will have a click event for the entire object
 class BoardDisplay extends BoardUsingFEN {
     constructor(idNumber, parentElement, fen) {
-        console.log(`\t\tFunc: START constructor (BoardDisplay)`);
+        // console.log(`\t\tFunc: START constructor (BoardDisplay)`);
         super(idNumber, parentElement, fen);
         // console.log(idNumber)
         // console.log(fen)

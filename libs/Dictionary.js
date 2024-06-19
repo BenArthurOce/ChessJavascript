@@ -315,6 +315,10 @@ class ChessDictionary extends Dictionary {
         return results
     };
 
+    filterID(id) {
+        return this.values().filter(({ ID }) => ID === id);
+    };
+
     filterFEN(fen) {
         return this.values().filter(({ FEN }) => FEN.includes(fen));
     };
@@ -343,16 +347,16 @@ class ChessDictionary extends Dictionary {
         return this.values().filter(({ PGN }) => PGN.startsWith(pgn));
     };
 
-    filterNumMovesUnder(numMoves) {
-        return this.values().filter(({ NUMMOVES }) => numMoves >= NUMMOVES);
+    filterNUMTURNSUnder(NUMTURNS) {
+        return this.values().filter(({ NUMTURNS }) => NUMTURNS >= NUMTURNS);
     };
 
-    filterNumMovesOver(numMoves) {
-        return this.values().filter(({ NUMMOVES }) => numMoves <= NUMMOVES);
+    filterNUMTURNSOver(NUMTURNS) {
+        return this.values().filter(({ NUMTURNS }) => NUMTURNS <= NUMTURNS);
     };
 
-    filterNumMovesBetween(lowerNum, higherNum) {
-        return this.values().filter(({ NUMMOVES }) => lowerNum <= NUMMOVES && NUMMOVES <= higherNum);
+    filterNUMTURNSBetween(lowerNum, higherNum) {
+        return this.values().filter(({ NUMTURNS }) => lowerNum <= NUMTURNS && NUMTURNS <= higherNum);
     };
     
     filterNextMove(team) {
@@ -368,6 +372,10 @@ class ChessDictionary extends Dictionary {
     filterContinuationsNext(id) {
         const nextContinuations = this.values().filter(({ ID }) => id === ID)[0]["CONTINUATIONSNEXT"];
         return this.values().filter(obj => nextContinuations.includes(obj.ID)); 
+    };
+
+    filterContinuationsNext2(id) {
+        return this.values().filter(({ CONTINUATIONSNEXT }) => CONTINUATIONSNEXT === id);
     };
 
     filterContinuationsFull(id) {

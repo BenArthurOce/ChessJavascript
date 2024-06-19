@@ -80,7 +80,7 @@ class StaticErrorCheck {
     static validateOpeningObject(openings) {
         const requiredKeys = [
             'ID', 'FEN', 'ECO', 'VOLUME', 'NAME', 'PGN', 'MOVESSTRING', 
-            , 'NUMMOVES', 'NEXTTOMOVE', 'FAMILY'
+            , 'NUMTURNS', 'NEXTTOMOVE', 'FAMILY'
         ];
         
         if (!openings || typeof openings !== 'object') {
