@@ -3,9 +3,8 @@ import StaticErrorCheck from './StaticErrorCheck.js';
 import Square from './Square.js';
 import { Piece, Pawn, Rook, Knight, Bishop, Queen, King } from "./Piece.js";
 
-// import CommandManager from './commands/CommandManager.js';
 
-import CommandManager from '../commandOLD/CommandManager.js';
+
 
 
 /* 
@@ -37,18 +36,6 @@ class BoardUsingFEN {
         // console.log(`\t\tFunc: END constructor (Board)`);
     };
 
-
-    executeCommand(command) {
-        this.commandManager.execute(command);
-    }
-
-    undoLastCommand() {
-        this.commandManager.undo();
-    }
-
-    redoLastUndoneCommand() {
-        this.commandManager.redo();
-    }
 
 
     get parentElement() {

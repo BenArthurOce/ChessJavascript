@@ -5,14 +5,8 @@ import {Dictionary, ChessDictionary} from "./Dictionary.js";
 import { Game, GameLarge, GameSmall} from "./Game.js";
 
 import GameLogCommand from "../commandOLD/GameLogCommand.js";
-
-// import StoredFENChangeCommand from "../command/Command.js";
-
-// import StoredFENChangeCommand from "../command/StoredFENChangeCommand.js";
-
 import CommandManager from "../commandOLD/CommandManager.js";
 import SearchCommand from "../commandOLD/SearchCommand.js";
-
 import GenerateSideboardsCommand from "../commandOLD/GenerateSideBoardsCommand.js";
 
 // import GenerateSideboardsCommand from "../command/GenerateSideBoardsCommand.js";

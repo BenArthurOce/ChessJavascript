@@ -49,8 +49,9 @@ class Receiver {
         // console.log(fen)
     };
 
-    runCreateDictionary(game, fen) {
+    runCreateDictionary(dictionary) {
         console.log("Receiver - runCreateDictionary")
+
         // console.log(game)
         // console.log(fen)
     };
