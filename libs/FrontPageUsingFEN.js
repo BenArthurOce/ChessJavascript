@@ -154,7 +154,7 @@ class FrontPageUsingFEN {
 
         // Create an instance of GameInteractive for the main board
 
-        // This object here is bypass the "validateOpeningObject" error check
+        // This object here is bypass the "validateOpeningObjectFEN" error check
         const emptyOpening = { ID: null, FEN: "", ECO: "", VOLUME: "", NAME: "", PGN: "", MOVESSTRING: "", NUMMOVES: null, NEXTTOMOVE: "", FAMILY: "", CASTLINGBLACK: null, CASTLINGWHITE: null, CHECKMATE: false, COMMON: null, CONTINUATIONSFULL: [], CONTINUATIONSNEXT: [], FAVOURITE: null, ISERROR: null, MOVEOBJ: [], SUBVARIATION: null, VARIATION: null };
 
         this.mainGame = new GameLarge(emptyOpening, 0, this.#parentELMain, this.callback_onStoredPGNChange.bind(this));

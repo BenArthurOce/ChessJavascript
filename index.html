@@ -93,8 +93,42 @@
     </template>
 
 
+    <!-- (1) Reads the original CSV and converts the data to JSON -->
+    <!-- <script type="module" src="script_1CSVparsetoJSON_NoFEN.js"></script> -->
 
-    <script type="module" src="script.js"></script>
+    <!-- (2) from "openings_no_fen", download a list of FENs  -->
+    <!-- <script type="module" src="script_2downloadListOfFEN.js"></script> -->
+
+    <!-- (3) No script. Update "ChessOpeningsWithFEN" with the original CSV, and the list of FENs -->
+    <!-- No Script -->
+
+    <!-- (4) Run the other script that reads the new CSV and makes that a new JSON file -->
+    <!-- No Script -->
+
+    <!-- 
+    To update Openings:
+    1) Update the file: ChessJavascript\data\ChessOpeningsNoFEN.csv
+    2) 
+    3) 
+    4) 
+    5) 
+
+    note: This is confusing. need to return to it.
+    the original CSV gets updated, and a json file is made from that
+    Then, we create FENs from that json file
+    THEN, we run that json file, get the new FENs and update the csv
+    then we run another script for the json file with the updated FENs
+    -->
+    
+    <!-- Reads a JSON file (with no FENs) and operates chess logic to determine errors -->
+    <!-- <script type="module" src="script_checkAllOpeningsForErrors.js"></script> -->
+
+
+
+
+
+
+    <!-- <script type="module" src="script.js"></script> -->
     <!-- <script type="module" src="script_printOutFEN.js"></script> -->
     <!-- <script type="module" src="script_testErrors.js"></script> -->
     <!-- <script type="module" src="script_getOpeningBoards.js"></script> -->

@@ -77,9 +77,34 @@ class StaticErrorCheck {
      * @param {Object} openings The object to validate
      * @throws {Error} If any required key is missing or if the object is null/undefined
      */
-    static validateOpeningObject(openings) {
+    static validateOpeningObjectFEN(openings) {
         const requiredKeys = [
             'ID', 'FEN', 'ECO', 'VOLUME', 'NAME', 'PGN', 'MOVESSTRING', 
+            , 'NUMMOVES', 'NEXTTOMOVE', 'FAMILY'
+        ];
+        
+        if (!openings || typeof openings !== 'object') {
+            throw new Error("[StaticErrorCheck] The provided openings object is not a valid object.");
+        }
+
+        requiredKeys.forEach(key => {
+            if (!openings.hasOwnProperty(key)) {
+                throw new Error(`[StaticErrorCheck] Missing required key: ${key}`);
+            }
+        });
+    };
+
+
+
+    /**
+     * Checks if the "openings" object has all the required keys.
+     *
+     * @param {Object} openings The object to validate
+     * @throws {Error} If any required key is missing or if the object is null/undefined
+     */
+    static validateOpeningObjectLogic(openings) {
+        const requiredKeys = [
+            'ID', 'ECO', 'VOLUME', 'NAME', 'PGN', 'MOVESSTRING', 
             , 'NUMMOVES', 'NEXTTOMOVE', 'FAMILY'
         ];
         

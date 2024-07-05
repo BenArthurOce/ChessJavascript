@@ -24,7 +24,7 @@ class GameUsingLogic {
     constructor(information, idNumber) {
         // console.log(`\tFunc: START constructor (Game)`);
 
-        StaticErrorCheck.validateOpeningObject(information)
+        StaticErrorCheck.validateOpeningObjectLogic(information)
         this.#parentElement = document.createElement('div');
         this.#idNumber = idNumber;
         this.#information = information;
@@ -138,8 +138,8 @@ class GameUsingLogic {
         });
     };
 
-    createChessBoardFORTESTING() {
-        // this.board = new Board(0, this.element);
+    // This is used in the "side" scripts, where we do not want to display games to the DOM
+    createDummyBoard() {
         this.board = new BoardDisplay(0, this.element);
     };
 };
@@ -336,4 +336,32 @@ class GameSmall extends GameUsingLogic {
 };
 
 
-export {GameUsingLogic as Game, GameLarge, GameSmall};
+
+// This is a class designed to disregard all elements / parent elements and just run without a display. printToTerminal will display the board
+class GameTest extends GameUsingLogic {
+    // #board
+    constructor(information) {
+        console.log(`\t----Func: START constructor (GameTest)`);
+        console.log(information)
+        super(information);
+        // this.#board = null
+        console.log(`\t----Func: END constructor (GameTest)`);
+    };
+
+    init() {
+        this.board = new BoardTest(0, this.createGameElement());
+        this.board.init()
+    };
+
+    initTestGame() {
+        StaticGameLogic.processAllMoves(this.board, this.parser)
+    };
+
+    createGameElement() {
+        this.element = document.createElement('div');
+        return document.createElement('div')
+    };
+};
+
+
+export {GameUsingLogic as Game, GameLarge, GameSmall, GameTest};

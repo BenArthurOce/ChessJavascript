@@ -23,7 +23,7 @@ class GameUsingFEN {
     constructor(information, idNumber) {
         // console.log(`\tFunc: START constructor (Game)`);
 
-        StaticErrorCheck.validateOpeningObject(information)
+        StaticErrorCheck.validateOpeningObjectFEN(information)
         this.#parentElement = document.createElement('div');
         this.#idNumber = idNumber;
         this.#information = information;

@@ -2,13 +2,16 @@
 // We can then add this to the JSON file as a faster reference to load up opening information
 // It also helps when a position is achieved in the same way, but the notation is different.
 
-import {Game, GameTest} from "./libs/Game.js";
+// import {Game, GameTest} from "./libs/GameUsingLogic.js";
+import {Game, GameLarge, GameSmall, GameTest} from "./libs/GameUsingLogic.js";
 import JSONReader from "./libs/JSONReader.js";
-import Dictionary from "./libs/Dictionary.js";
+import {Dictionary, ChessDictionary} from "./libs/Dictionary.js";
+
+
 
 
 // Step 1: We read the JSON file of all the openings
-const jsonReader = new JSONReader('data/newChessOpenings.json');  // Loading JSON Reader
+const jsonReader = new JSONReader('data/2024.07.05_chessOpenings.json');  // Loading JSON Reader
 jsonReader.readJSONSync();
 const jsonData = jsonReader.getData();  // Accessing data
 
@@ -69,11 +72,3 @@ anchor.download = "output.txt";
 // Trigger the download
 anchor.click();
 
-
-
-// let stringData = "[1R,1N,1B,1Q,1K,1B,1N,1R,1p,1p,1p,1p,1p,1p,1p,1p,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,0N,0p,0p,0p,0p,0p,0p,0p,0p,0R,0N,0B,0Q,0K,0B,-,0R]";
-
-// // Remove square brackets and split the string at each comma
-// let dataArray = stringData.substring(1, stringData.length - 1).split(',');
-
-// console.log(dataArray);

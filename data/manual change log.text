@@ -10,26 +10,19 @@
     },
     Corrected to: 1. e4 e6 2. d4 d5 3. Nc3 Bb4 4. Nge2 dxe4 5. a3 Be7 6. Nxe4 Nf6 7. N2g3 O-O 8. Be2 Nc6"
 
-
-
-
     "1.e4 e6 2.d4 d5 3.Nc3 Bb4 4.Nge2 dxe4 5.a3 Be7 6.Nxe4 Nf6 7.N2g3 O-O 8.Be2 Nc6": {
+        "ID": 1613,
         "ECO": "C15",
         "VOLUME": "C",
-        "NAME": "French Defense: Winawer Variation; Alekhine Gambit; Alatortsev Variation",
+        "NAME": "French Defense: Winawer Variation, Alekhine Gambit, Alatortsev Variation",
+        "FULL": "C15 - French Defense: Winawer Variation, Alekhine Gambit, Alatortsev Variation",
         "PGN": "1.e4 e6 2.d4 d5 3.Nc3 Bb4 4.Nge2 dxe4 5.a3 Be7 6.Nxe4 Nf6 7.N2g3 O-O 8.Be2 Nc6",
         "MOVESSTRING": "[{1 || e4 || e6}, {2 || d4 || d5}, {3 || Nc3 || Bb4}, {4 || Nge2 || dxe4}, {5 || a3 || Be7}, {6 || Nxe4 || Nf6}, {7 || N2g3 || O-O}, {8 || Be2 || Nc6}]",
-        "NUMMOVES": 8,
+        "NUMTURNS": 8,
+        "NUMMOVES": 16,
         "NEXTTOMOVE": "White",
-        "FAVOURITE": null,
-        "ISERROR": null,
         "FAMILY": "French Defense",
-        "VARIATION": "Winawer Variation",
-        "SUBVARIATION": "Alekhine Gambit",
-        "CASTLING": "Yes"
-    },
-
-    Corrected to: 1.e4 e6 2.d4 d5 3.Nc3 Bb4 4.Nge2 dxe4 5.a3 Be7 6.Nxe4 Nf6 7.N2g3 O-O 8.Be2 Nc6
-            "MOVESSTRING": "[{1 || e4 || e6}, {2 || d4 || d5}, {3 || Nc3 || Bb4}, {4 || Nge2 || dxe4}, {5 || a3 || Be7}, {6 || Nxe4 || Nf6}, {7 || N2g3 || O-O}, {8 || Be2 || Nc6}]",
-        "PGN": "1.e4 e6 2.d4 d5 3.Nc3 Bb4 4.Nge2 dxe4 5.a3 Be7 6.Nxe4 Nf6 7.N2g3 O-O 8.Be2 Nc6",
-
+        "VARIATION": "Winawer Variation, Alekhine Gambit, Alatortsev Variation",
+        "SUBVARIATION": null,
+        "ECOFAMILY": "C15 - French Defense"
+    },  
