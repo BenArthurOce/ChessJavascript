@@ -26,7 +26,7 @@ class BoardUsingFEN {
     constructor(idNumber, parentElement, fen) {
         // console.log(`\t\tFunc: START constructor (Board)`);
         // console.log(fen)
-        this.commandManager = new CommandManager();
+        // this.commandManager = new CommandManager();
         this.#parentElement = parentElement;
         this.#element = document.createElement('div');
         this.#className = "Board";

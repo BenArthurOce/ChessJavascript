@@ -1,3 +1,7 @@
+
+
+
+
 import BoardUsingFEN from './PatternObserverBoard/Board.js';
 import BoardDisplay from './PatternObserverBoard/BoardDisplay.js';
 import BoardInteractive from './PatternObserverBoard/BoardInteractive.js';

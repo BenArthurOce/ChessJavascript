@@ -5,6 +5,8 @@ const csv = require('csv-parser');
 // Constants
 const CSV_FILE_PATH = "E:/Users/Ben Arthur/Documents/Visual Studio Code/Javascript/git_ChessJavascript/ChessJavascript/data/chessCSV.csv";
 
+// const CSV_FILE_PATH = "E:/Users/Ben Arthur/Documents/Visual Studio Code/Javascript/git_ChessJavascript/ChessJavascript/data/ChessOpenings.csv";
+
 // Translated regex pattern (JavaScript syntax)
 const MOVE_REGEX =/\s*(\d{1,3})\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)(?:\s*\d+\.?\d+?m?s)?\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)?(?:\s*\d+\.?\d+?m?s)?(?:#)?/g;
 
@@ -27,11 +29,12 @@ class OpeningsDict {
                 let board = row['BOARD'];
 
                 this.data[fen] = {
-                    ID: this.openingId,
+                    ID: this.openingId, 
                     FEN: fen,
                     ECO: eco,
                     VOLUME: eco[0],
                     NAME: name,
+                    FULL: null,
                     PGN: null,
                     MOVESSTRING: null,
                     BOARDSTRING: null,
@@ -97,6 +100,10 @@ class OpeningsDict {
 
                 this.data[fen]['PGN'] = transformedMoves.join(' ')
 
+                //
+                // FULL
+                //
+                this.data[fen]['FULL'] = eco + " - " + name
 
                 //
                 // BOARDSTRING
