@@ -4,6 +4,8 @@ const csv = require('csv-parser');
 
 // Constants
 const CSV_FILE_PATH = "E:/Users/Ben Arthur/Documents/Visual Studio Code/Javascript/git_ChessJavascript/ChessJavascript/data/ChessOpeningsNoFEN.csv";
+const JSON_FILE_PATH = "E:/Users/Ben Arthur/Documents/Visual Studio Code/Javascript/git_ChessJavascript/ChessJavascript/data/openings_no_fen.json";
+
 
 // Translated regex pattern (JavaScript syntax)
 const MOVE_REGEX =/\s*(\d{1,3})\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)(?:\s*\d+\.?\d+?m?s)?\.?\s*((?:(?:O-O(?:-O)?)|(?:[KQNBR][1-8a-h]?x?[a-h]x?[1-8])|(?:[a-h]x?[a-h]?[1-8]\=?[QRNB]?))\+?)?(?:\s*\d+\.?\d+?m?s)?(?:#)?/g;
@@ -132,12 +134,18 @@ class OpeningsDict {
                   
             })
             .on('end', () => {
-                this.createJsonFile(this.data, 'csv_parsed_data.json');
+                this.createJsonFile(this.data, JSON_FILE_PATH);
             });
     };
 
 
     createJsonFile(data, filename) {
+        // Ensure directory exists before writing the file
+        const directory = path.dirname(filename);
+        if (!fs.existsSync(directory)) {
+            fs.mkdirSync(directory, { recursive: true });
+        }
+
         fs.writeFile(filename, JSON.stringify(data, null, 4), (err) => {
             if (err) throw err;
             console.log('Data written to file');
